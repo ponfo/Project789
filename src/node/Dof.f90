@@ -12,7 +12,7 @@ module DofM
    contains
      procedure, public :: init
      procedure, public :: fixDof
-     procedure, public :: unfixDof
+     procedure, public :: freeDof
   end type DofDT
 
   interface dof
@@ -45,10 +45,10 @@ contains
     this%isFixed = .true.
   end subroutine fixDof
 
-  subroutine unfixDof(this)
+  subroutine freeDof(this)
     implicit none
     class(DofDT), intent(inout) :: this
     this%isFixed = .false.
-  end subroutine unfixDof
+  end subroutine freeDof
   
 end module DofM

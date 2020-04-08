@@ -18,7 +18,7 @@ module NodeM
      procedure, public :: initNode3D
      procedure, public :: assignDof
      procedure, public :: fixDof
-     procedure, public :: unfixDof
+     procedure, public :: freeDof
      procedure, public :: getnDof
   end type NodeDT
 
@@ -105,12 +105,12 @@ contains
     call this%dof(iDof)%fixDof()
   end subroutine fixDof
 
-  subroutine unfixDof(this, iDof)
+  subroutine freeDof(this, iDof)
     implicit none
     class(NodeDT) , intent(inout) :: this
     integer(ikind), intent(in)    :: iDof
-    call this%dof(iDof)%unfixDof()
-  end subroutine unfixDof
+    call this%dof(iDof)%freeDof()
+  end subroutine freeDof
 
   integer(ikind) function getnDof(this)
     implicit none
