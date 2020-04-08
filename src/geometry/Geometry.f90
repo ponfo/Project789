@@ -6,6 +6,7 @@ module GeometryM
   use NodePtrM
 
   use IntegratorM
+  use IntegratorPtrM
   
   implicit none
 
@@ -16,6 +17,7 @@ module GeometryM
      private
      integer(ikind)                             :: nNode
      type(NodePtrDT), dimension(:), allocatable :: node
-     type(IntegratorDT)                         :: integrator
-   contains
-     procedure
+     type(IntegratorPtrDT)                      :: integrator
+  end type GeometryDT
+
+end module GeometryM
