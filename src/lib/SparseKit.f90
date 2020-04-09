@@ -42,9 +42,7 @@
   !                   Function transpose
   !                   Function norm
   !                   Function trace
-  !                   Function inverseGMRESD
   !                   Function id
-  !                   Subroutine pardisoMKL (MKL_LIBRARY)
   !                   Subroutine sparse_sparse_prod ->  Operator:
   !                   Subroutine coef_sparse_prod   ->    
   !                   Subroutine sparse_vect_prod   ->     (*)
@@ -53,8 +51,6 @@
   !                   Subroutine sparse_sparse_sub  ->  Operator:
   !                                                        (-)
   !*************************************************************
-
-include 'mkl_pardiso.f90'
   
 module SparseKit
 
@@ -63,13 +59,12 @@ module SparseKit
   !***********************************************
   use UtilitiesM
   use quickSortM
-  use mkl_pardiso
   
   implicit none
   
   private
   public :: Sparse, operator(*), operator(+), operator(-), transpose&
-       , norm, trace, inverseGMRESD, id, pardisoMKL
+       , norm, trace, id
   
   type Triplet
      real(rkind)   , dimension(:), allocatable :: A
@@ -963,63 +958,6 @@ contains
        call a%append(1.0_rkind, i, i)
     end do
     call a%makeCRS
-  end function id
-  
-  !***************************************************
-  ! inverseGMRESD:
-  !    Obtains the inverse of sparse matrix A with
-  !    (Global Minimal Residual descent algorithm)
-  ! Parameters:
-  !     Input, A(Sparse)
-  !     Output, B(Sparse)
-  !***************************************************
-  function inverseGMRESD(A) result(M)
-    implicit none
-    class(Sparse), intent(in) :: A
-    type(Sparse) :: B
-    type(Sparse) :: C
-    type(Sparse) :: G
-    type(Sparse) :: M
-    real(rkind) :: alpha
-	print*, 'Revisar codigo'
-!    alpha = 1.1
-!    M = transpose(A)
-!    do while (abs(alpha) > 1e-20)
-!       C = A * M
-!       G = Id(A%n) - C
-!       B = A * G
-!       alpha = trace(transpose(G)*B)/(norm(B))**2
-!       M = M + alpha * G
-!    end do
-    return
-  end function inverseGMRESD
-  subroutine pardisoMKL(p, maxfct, mnum, mtype, phase, stiffness,&
-       idum, nrhs, iparm, msglvl, rhs, dof, error)
-    implicit none
-    class(Sparse), intent(inout) :: stiffness
-    type(mkl_pardiso_handle) :: pt(64)
-    real(rkind) :: ddum(1), p(64), rhs(stiffness%n)
-    real(rkind) :: dof(stiffness%n)
-    integer(ikind) :: maxfct, mnum, mtype, phase, n, nnz, i, j
-    integer(ikind) :: nrhs, iparm(64), msglvl, error, error1, idum(1)
-    pt(1:64)%DUMMY = p(1:64)
-    dof(1:stiffness%n) = rhs(1:stiffness%n)
-    call pardiso (pt, maxfct, mnum, mtype, phase, stiffness%n, stiffness%a, &
-         stiffness%ai, stiffness%aj, idum, nrhs, iparm, msglvl, rhs, dof, error)
-    if (error /= 0) then
-       write(*,'(a,i5)') 'the following error was detected: ', error
-       stop
-    end if
-    phase = -1 ! release internal memory
-    call pardiso (pt, maxfct, mnum, mtype, phase, n, ddum, idum, idum,&
-         idum, nrhs, iparm, msglvl, ddum, ddum, error1)
-    if (error1 /= 0) then
-       write(*,'(a,i5)') 'the following error on release stage was detected: ', error1
-       stop
-    end if
-    print'(a)', 'the system has been solved'
-    return
-  end subroutine pardisoMKL
-  
+  end function id  
 end module SparseKit
 
