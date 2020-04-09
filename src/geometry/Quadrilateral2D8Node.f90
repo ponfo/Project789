@@ -93,32 +93,34 @@ contains
     dShapeFunc(2,8) = 2*v*(u/2.d0-1.d0/2.d0)
   end function dShapeFunc
 
-  function jacobian(this, u, v)
+  function jacobian(this, u, v, point)
     implicit none
-    class(Quadrilateral2D8NodeDT), intent(inout)       :: this
-    real(rkind)                  , intent(in)          :: u
-    real(rkind)                  , intent(in)          :: v
-    real(rkind)                  , dimension(2,2)      :: jacobian
-    integer(ikind)                                     :: i
-    real(rkind)                  , dimension(2, NNODE) :: dsf
+    class(Quadrilateral2D8NodeDT), intent(inout)                :: this
+    real(rkind)                  , intent(in)                   :: u
+    real(rkind)                  , intent(in)                   :: v
+    class(PointDT)               , dimension(NNODE), intent(in) :: point
+    real(rkind)                  , dimension(2,2)               :: jacobian
+    integer(ikind)                                              :: i
+    real(rkind)                  , dimension(2, NNODE)          :: dsf
     jacobian = 0.d0
     dsf = this%dShapeFunc(u,v)
     do i = 1, NNODE
-       jacobian(1,1) = jacobian(1,1) + dsf(1,i)*this%node(i)%getx() !dx/d(xi)
-       jacobian(1,2) = jacobian(1,2) + dsf(1,i)*this%node(i)%gety() !dy/d(xi)
-       jacobian(2,1) = jacobian(2,1) + dsf(2,i)*this%node(i)%getx() !dx/d(eta)
-       jacobian(2,2) = jacobian(2,2) + dsf(2,i)*this%node(i)%gety() !dy/d(eta)
+       jacobian(1,1) = jacobian(1,1) + dsf(1,i)*point(i)%getx() !dx/d(xi)
+       jacobian(1,2) = jacobian(1,2) + dsf(1,i)*point(i)%gety() !dy/d(xi)
+       jacobian(2,1) = jacobian(2,1) + dsf(2,i)*point(i)%getx() !dx/d(eta)
+       jacobian(2,2) = jacobian(2,2) + dsf(2,i)*point(i)%gety() !dy/d(eta)
     end do
   end function jacobian
 
-  real(rkind) function jacobianDetFromCoord(this, u, v)
+  real(rkind) function jacobianDetFromCoord(this, u, v, point)
     implicit none
-    class(Quadrilateral2D8NodeDT), intent(inout)  :: this
-    real(rkind)                  , intent(in)     :: u
-    real(rkind)                  , intent(in)     :: v
-    real(rkind)                                   :: jacobianDetFromCoord
-    real(rkind)                  , dimension(2,2) :: jacobian
-    jacobian = this%jacobian(u,v)
+    class(Quadrilateral2D8NodeDT), intent(inout)                :: this
+    real(rkind)                  , intent(in)                   :: u
+    real(rkind)                  , intent(in)                   :: v
+    class(PointDT)               , dimension(NNODE), intent(in) :: point
+    real(rkind)                                                 :: jacobianDetFromCoord
+    real(rkind)                  , dimension(2,2)               :: jacobian
+    jacobian = this%jacobian(u,v,point)
     jacobianDet = jacobian(1,1)*jacobian(2,2)-jacobian(1,2)*jacobian(2,1)
   end function jacobianDetFromCoord
 

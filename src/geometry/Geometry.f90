@@ -2,11 +2,7 @@ module GeometryM
   use UtilitiesM
   use DebuggerM
 
-  use NodeM
-  use NodePtrM
-
   use IntegratorM
-  use IntegratorPtrM
   
   implicit none
 
@@ -15,9 +11,8 @@ module GeometryM
 
   type, abstract :: GeometryDT
      private
-     integer(ikind)                             :: nNode
-     type(NodePtrDT), dimension(:), allocatable :: node
-     type(IntegratorPtrDT)                      :: integrator
+     integer(ikind)     :: nNode
+     type(IntegratorDT) :: integrator
   end type GeometryDT
 
 end module GeometryM

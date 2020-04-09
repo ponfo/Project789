@@ -21,21 +21,19 @@ module DofM
 
 contains
 
-  type(DofDT) function contructor(index, dofArray, isFixed)
+  type(DofDT) function contructor(dof, isFixed)
     implicit none
-    integer(ikind)                   , intent(in) :: index
-    real(rkind), dimension(:), target, intent(in) :: dofArray
-    logical                          , intent(in) :: isFixed
-    call constructor%init(index, dofArray, isFixed)
+    real(rkind), target, intent(in) :: dof
+    logical            , intent(in) :: isFixed
+    call constructor%init(dof, isFixed)
   end function contructor
 
-  subroutine init(this, index, dofArray, isFixed)
+  subroutine init(this, dof, isFixed)
     implicit none
-    class(DofDT)                     , intent(inout) :: this
-    integer(ikind)                   , intent(in)    :: index
-    real(rkind), dimension(:), target, intent(in)    :: dofArray
-    logical                          , intent(in)    :: isFixed
-    this%val     => dofArray(index)
+    class(DofDT)          , intent(inout) :: this
+    real(rkind)   , target, intent(in)    :: dof
+    logical               , intent(in)    :: isFixed
+    this%val     => dof
     this%isFixed = isFixed
   end subroutine init
 

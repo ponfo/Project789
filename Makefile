@@ -2,7 +2,7 @@
 
 help:
 	@echo ""
-	@echo " main: compila la libreria"
+	@echo " main: compila la librería"
 	@echo ""
 	@echo " debug: busca errores"
 	@echo ""

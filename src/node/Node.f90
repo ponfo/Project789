@@ -89,13 +89,13 @@ contains
 
   ! iDof  -> índice del dof en el nodo
   ! index -> índice del dof en el vector de dofs
-  subroutine assignDof(this, iDof, index, dofArray)
+  subroutine assignDof(this, iDof, dof)
     implicit none
-    class(NodeDT)              , intent(inout) :: this
-    integer(ikind)             , intent(in)    :: iDof
-    integer(ikind)             , intent(in)    :: index
-    real(rkind)  , dimension(:), intent(in)    :: dofArray
-    this%dof(iDof) = dof(index, dofArray, .false.)
+    class(NodeDT) , intent(inout) :: this
+    integer(ikind), intent(in)    :: iDof
+    integer(ikind), intent(in)    :: index
+    real(rkind)   , intent(in)    :: dof
+    this%dof(iDof) = dof(dof, .false.)
   end subroutine assignDof
 
   subroutine fixDof(this, iDof)
