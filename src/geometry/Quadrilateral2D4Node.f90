@@ -22,6 +22,7 @@ module Quadrilateral2D4NodeM
      generic  , public  :: jacobianDet => jacobianDetFromCoord, jacobianDetFromJacobian
      procedure, private :: jacobianDetFromCoord
      procedure, private :: jacobianDetFromJacobian
+     procedure, private :: valueShapeFuncAtGPoints
   end type Quadrilateral2D4NodeDT
 
   interface quadrilateral2D4Node
@@ -32,21 +33,19 @@ module Quadrilateral2D4NodeM
 
 contains
 
-  type(Quadrilateral2D4NodeDT) function constructor(node, integrator)
+  type(Quadrilateral2D4NodeDT) function constructor(gaussOrder)
     implicit none
-    type(NodePtrDT), dimension(NNODE), intent(in) :: node
-    type(IntegratorDT)               , intent(in) :: integrator
-    call constructor%init(node, integrator)
+    integer(ikind), intent(in) :: gaussOrder
+    call constructor%init(gaussOrder)
   end function constructor
 
-  subroutine init(this, node, integrator)
+  subroutine init(this, gaussOrder)
     implicit none
-    class(Quadrilateral2D4NodeDT)         , intent(inout) :: this
-    type(NodePtrDT)     , dimension(NNODE), intent(in)    :: node
-    type(IntegratorDT)                    , intent(in)    :: integrator
+    class(Quadrilateral2D4NodeDT), intent(inout) :: this
+    integer(ikind)               , intent(in)    :: gaussOrder
     this%nNode = NNODE
-    this%node(1:NNODE) = node(1:NNODE)
-    this%integrator = integrator
+    this%integrator = integrator(gaussOrder, 'quadrilateral')
+    call this%valueShapeFuncAtGPoints()
   end subroutine init
 
   function shapeFunc(this, u, v)
@@ -115,5 +114,22 @@ contains
     real(rkind)                                  :: jacobianDetFromJacobian
     jacobianDet = jacobian(1,1)*jacobian(2,2)-jacobian(1,2)*jacobian(2,1)
   end function jacobianDetFromJacobian
+
+  subroutine valueShapeFuncAtGPoints(this)
+    implicit none
+    class(Quadrilateral2D4NodeDT), intent(inout) :: this
+    integer(ikind)                               :: integTerms
+    real(rkind)                                  :: x
+    real(rkind)                                  :: y
+    integTerms = this%integrator%integTerms
+    allocate(this%integrator%shapeFunc(integTerms, NNODE))
+    allocate(this%integrator%dShapeFunc(integTerms, 2, NNODE))
+    do i = 1, integTerms
+       x = this%integrator%gPoint(i,1)
+       y = this%integrator%gPoint(i,2)
+       this%integrator%shapeFunc(i, 1:NNODE) = this%shapeFunc(x, y)
+       this%integrator%dShapeFunc(i, 1:2, 1:NNODE) = this%dShapeFunc(x, y)
+    end do
+  end subroutine valueShapeFuncAtGPoints
 
 end module Quadrilateral2D4NodeM
