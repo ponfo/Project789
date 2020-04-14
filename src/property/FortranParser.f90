@@ -103,7 +103,7 @@ MODULE FortranParser
       private
 
       procedure, public :: evaluate
-      procedure:: parse
+      procedure :: parse
       procedure :: Compile
       procedure :: AddCompiledByte
       procedure :: CompileSubstr
