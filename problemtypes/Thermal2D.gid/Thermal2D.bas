@@ -1,5 +1,5 @@
 ###########################################################
-            PROGRAM POISSON'S 1D AND 2D ANALYSIS
+            PROGRAM POISSON'S 2D ANALYSIS
 ###########################################################
 
 ##################### PROBLEM DATA ########################
@@ -11,14 +11,10 @@ Elements_Number........................: *nelem
 Nodes_Number...........................: *npoin
 Are_Elements_Quadratic.................: *isQuadratic
 *#---------------------------------------------------------
-*set var i=0
 *set var j=0
 *set var k=0
 *loop elems
 *#ElemsTypeName
-*if(strcasecmp(ElemsTypeName(),"Linear")==0)
-*set var i=operation(i+1)
-*endif
 *if(strcasecmp(ElemsTypeName(),"Triangle")==0)
 *set var j=operation(j+1)
 *endif
@@ -27,7 +23,6 @@ Are_Elements_Quadratic.................: *isQuadratic
 *endif
 *end elems
 *#---------------------------------------------------------
-Linear_Elements_Number.................: *i
 Triangular_Elements_Number.............: *j
 Rectangular_Elements_Number............: *k
 *#---------------------------------------------------------
@@ -42,33 +37,19 @@ Gauss_Order............................: *GenData(Gauss_Order)
 *#---------------------------------------------------------
 Dirichlet_Conditions_Number............: *c
 *#---------------------------------------------------------
-*Set Cond Normal_Flux_On_Points *nodes
-Normal_Flux_Points_Condition_Nodes.....: *condnumentities
-*#---------------------------------------------------------
-*Set Cond Convection_On_Points *nodes
-Convection_Points_Condition_Nodes......: *condnumentities
-*#---------------------------------------------------------
 *Set Cond Normal_Flux_On_Lines *elems
 Normal_Flux_Line_Condition_Elements....: *condnumentities
 *#--------------------------------------------------------- REVISAR ESTAS DOS CONDICIONES DE LINEAR, *ELEMS ESTÁ MAL
 *Set Cond Convection_On_Lines *elems
 Convection_Lines_Condition_Elements....: *condnumentities
 *#---------------------------------------------------------
+Source_Number..........................: *Gendata(Source_Number,int)
+*#---------------------------------------------------------
 *Set Cond Source_On_Points *nodes
 Points_With_Point_Source...............: *condnumentities
 *#---------------------------------------------------------
-Source_Number_On_Points................: *Gendata(Source_Number_On_Points,int)
-*#---------------------------------------------------------
-*Set Cond Source_On_Lines *nodes
-*#---------------------------------------------------------
-Points_With_Line_Source.................: *condnumentities
-*#---------------------------------------------------------
-Source_Number_On_Lines.................: *Gendata(Source_Number_On_Lines,int)
-*#---------------------------------------------------------
 *Set Cond Source_On_Surfaces *elems
 Surfaces_With_Surface_Source...........: *condnumentities
-*#---------------------------------------------------------
-Source_Number_On_Surfaces..............: *Gendata(Source_Number_On_Surfaces,int)
 *#---------------------------------------------------------
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -93,6 +74,18 @@ Material | Thermal conductivity X | Thermal conductivity Y
 *matnum            *matprop(Thermal_Conductivity_X)               *matprop(Thermal_Conductivity_Y)
 *end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Element List:
+
+      Element  |      Type      |  Material  |   Nodes  |      Conectivities
+-----------------------------------------------------------------------------------
+*Set Cond Source_On_Surfaces *elems
+*loop elems
+*format "%10i%10i%9i%9i%9i"
+*elemsnum         *ElemstypeName  *elemsmat  *ElemsNnode  *elemsconec
+*end elems
+
 ################### Sources On Points ######################
 
 Conditions List:
@@ -110,24 +103,7 @@ Source   |  Function
 *end
 *end for
 
-################### Sources On Lines #######################
-
-Conditions List:
-
-Source   |  Function
-----------------------
-*Set cond Source_On_Lines *nodes
-*for(i=1;i<=Gendata(Source_Number_On_Lines,int);i=i+1))
-*loop nodes *OnlyInCond
-*if(i==cond(Source_Number_On_Lines,real))
-*format "%5i%10s"
-*cond(Source_Number_On_Lines) *cond(SourceOL)
-*break
-*endif
-*end
-*end for
-
-################## Sources On Surfaces #####################
+################## Sources On Surfaces ####################
 
 Conditions List:
 
@@ -144,19 +120,7 @@ Source   |  Function
 *end
 *end for
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-Element List:
-
-      Element  |      Type      |  Material  |   Nodes  |      Conectivities
------------------------------------------------------------------------------------
-*Set Cond Source_On_Surfaces *elems
-*loop elems
-*format "%10i%10i%9i%9i%9i"
-*elemsnum         *ElemstypeName  *elemsmat  *ElemsNnode  *elemsconec
-*end elems
-
-###################### point Sources ######################
+###################### Point Sources ######################
 
 Conditions List:
 
@@ -168,19 +132,7 @@ Conditions List:
 *NodesNum      *cond(Source_Number_On_Points) 
 *end
 
-###################### line Sources ######################
-
-Conditions List:
-
-  Node   |  Source
---------------------------
-*Set Cond Source_On_Lines *nodes
-*loop nodes *OnlyInCond
-*format "%5i%5i"
-*NodesNum     *cond(Source_Number_On_Lines) 
-*end
-
-###################### surface Sources ######################
+###################### Surface Sources #####################
 
 Conditions List:
 

@@ -5,13 +5,16 @@ module NodeM
 
   use DofM
 
+  use SourceM
+
   implicit none
 
   private
   public :: NodeDT, node
 
   type, extends(PointDT) :: NodeDT
-     type(DofDT), dimension(:), allocatable :: dof
+     type(DofDT)   , dimension(:), allocatable :: dof
+     type(SourceDT),             , pointer     :: source => null()
    contains
      procedure, public :: initNode1D
      procedure, public :: initNode2D

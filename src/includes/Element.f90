@@ -6,6 +6,9 @@ module ElementM
   use NodePtrM
 
   use GeometryM
+  use GeometryObjectM
+
+  use SourceM
 
   implicit none
 
@@ -16,6 +19,7 @@ module ElementM
      integer(ikind)                               :: id
      type(NodePtrDT)  , dimension(:), allocatable :: node
      class(GeometryDT)              , pointer     :: geometry
+     type(SourceDT)                 , pointer     :: source => null()
    contains
      procedure, public :: assignGeometry
      procedure, public :: assignNode

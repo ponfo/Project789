@@ -11,6 +11,7 @@ module Thermal2DApplicationM
      type(NodeDT)            , dimension(:), allocatable :: node
      type(ThermalElementDT)  , dimension(:), allocatable :: element
      type(ThermalConditionDT), dimension(:), allocatable :: condition
+     type(SourceFuncDT)      , dimension(:), allocatable :: sourceFunc
      type(ThermalSourceDT)   , dimension(:), allocatable :: source
      type(ThermalMaterial)   , dimension(:), allocatable :: material
      type(MeshM)                                         :: mesh

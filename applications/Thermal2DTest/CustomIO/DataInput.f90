@@ -25,9 +25,7 @@ module DataInputM
   integer(ikind)               :: nGauss
   integer(ikind)               :: nConvection
   integer(ikind)               :: isQuadratic
-  integer(ikind)               :: nSourceOP
-  integer(ikind)               :: nSourceOL
-  integer(ikind)               :: nSourceOS
+  integer(ikind)               :: nSource
   integer(ikind)               :: nPointSource
   integer(ikind)               :: nLineSource
   integer(ikind)               :: nSurfaceSource
@@ -40,7 +38,9 @@ module DataInputM
   interface initFEM2D
      procedure :: initFEM2D
   end interface initFEM2D
+  
 contains
+  
   subroutine initFEM2D(thermalAppl)
     implicit none
     type(Thermal2DApplicationDT), intent(inout) :: thermalAppl
@@ -97,12 +97,9 @@ contains
     read(project,*)  aux, nDirichlet
     read(project,*)  aux, nNormalFlux
     read(project,*)  aux, nConvection
+    read(project,*)  aux, nSource
     read(project,*)  aux, nPointSource
-    read(project,*)  aux, nSourceOP
-    read(project,*)  aux, nLineSource
-    read(project,*)  aux, nSourceOL
     read(project,*)  aux, nSurfaceSource
-    read(project,*)  aux, nSourceOS
     call debugLog('    Number of Elements.............................: ', nElem)
     call debugLog('    Are Elements Quadratic.........................: ', isQuadratic)
     call debugLog('    Number of Triangular elements..................: ', nTriangElem)
@@ -111,11 +108,8 @@ contains
     call debugLog('    Number of Dirichlet conditions.................: ', nDirichlet)
     call debugLog('    Number of NormalFluxOnLines conditions.........: ', nNormalFlux)   
     call debugLog('    Number of ConvectionOnLines conditions.........: ', nConvection)    
-    call debugLog('    Number of Sources on points....................: ', nSourceOP)
+    call debugLog('    Number of Sources..............................: ', nSource)
     call debugLog('    Number of points with pointSource..............: ', nPointSource)
-    call debugLog('    Number of Sources on lines.....................: ', nSourceOL)
-    call debugLog('    Number of points with lineSource...............: ', nLineSource)
-    call debugLog('    Number of Sources on surfaces..................: ', nSourceOS)
     call debugLog('    Number of Surfaces with surfaceSource..........: ', nSurfaceSource)
     call debugLog('    Number of Materials............................: ', nMaterial)
     call debugLog('    Gauss cuadrature order.........................: ', nGauss)
@@ -124,7 +118,7 @@ contains
            nNode = nPoint                                      &
          , nElement = nTriangElem + nRectElem                  &
          , nCondition = nDirichlet + nNormalFlux + nConvection &
-         , nSource = nSourceOP + nSourceOL + nSourceOS         &
+         , nSource = nSource                                   &
          , nMaterial = nMaterial                               &
          , nGauss = nGauss                                     )
     
@@ -172,9 +166,6 @@ contains
     integer(ikind) :: i, j, iElem, iMat, nNode, Conectivities(8)
     character(len=13) :: type
     Conectivities = 0
-    do i = 1, 28+nSourceOP+nSourceOL+nSourceOS
-       read(project,*)
-    end do
     if(verbose) print'(A)', 'Element  |      Type      |  material index  |  nNodes  |  connectivities'
     do i = 1, nElem
        read(project,*) iElem, type, iMat, nNode, (Conectivities(j),j=1,nNode)
@@ -191,48 +182,39 @@ contains
   subroutine readPointLineSurfaceSources(thermalAppl)
     implicit none
     type(Thermal2DApplicationDT), intent(inout) :: thermalAppl
-    integer(ikind)                     :: i
-    integer(ikind), dimension(:), allocatable :: iNode, iElem, iSource
-    allocate(iNode(max(nPointSource, nLineSource)))
-    allocate(iElem(nSurfaceSource))
-    allocate(iSource(max(nPointSource, nLineSource, nSurfaceSource)))
+    integer(ikind)                              :: i, countSource, auxInt
+    integer(ikind)                              :: iNode, iElem, iSource
+    character(150)                              :: func
+    allocate(thermalAppl%sourceFunc(nSource))
+    do i = 1, 7
+       read(project,*)
+    end do
+    if(verbose) print'(/,A)', 'nSource'
+    if(verbose) print'(A)', 'Source    Function'
+    do i = 1, nSourceOP
+       read(project,*) iSource, func
+       thermalAppl%sourceFunc(iSource) = sourceFunc(2, 1, (/'x','y'/), func)
+    end do
     do i = 1, 7
        read(project,*)
     end do
     if(verbose) print'(/,A)', 'pointSources'
     if(verbose) print'(A)', 'Node    Source'
     do i = 1, nPointSource
-       read(project,*) iNode(i), iSource(i)
-       if(verbose) print'(I0,5X,I0)', iNode(i), iSource(i)
-       call thermalAppl%addPointSource(iNode(i), iSource(i))
+       read(project,*) iNode, iSource
+       if(verbose) print'(I0,5X,I0)', iNode, iSource
+       thermalAppl%source(iSource) = source()
+       call thermalAppl%addPointSource(iNode, iSource)
     end do
-    do i = 1, 7
-       read(project,*)
-    end do
-    if(verbose) print'(/,A)', 'lineSources'
-    if(verbose) print'(A)', 'Node   Source'
-    do i = 1, nLineSource
-       read(project,*) iNode(i), iSource(i)
-       if(verbose) print'(I0,5X,I0)', iNode(i), iSource(i)
-    end do
-    if(isQuadratic == 0) then
-       do i = 1, nLineSource-1
-          call thermalAppl%addLineSource(iNode(i:i+1), iSource(i))
-       end do
-    else if(isQuadratic == 1) then
-       do i = 1, nLineSource-2, 2
-          call thermalAppl%addLineSource(iNode(i:i+2), iSource(i))
-       end do
-    end if
     do i = 1, 7
        read(project,*)
     end do
     if(verbose) print'(/,A)', 'surfaceSources'
     if(verbose) print'(A)', 'Element   Source'
     do i = 1, nSurfaceSource
-       read(project,*) iElem(i), iSource(i)
-       if(verbose) print'(I0,5X,I0)', iElem(i), iSource(i)
-       call thermalAppl%addSurfaceSource(iElem(i), iSource(i))
+       read(project,*) iElem, iSource
+       if(verbose) print'(I0,5X,I0)', iElem, iSource
+       call thermalAppl%addSurfaceSource(iElem, iSource)
     end do
   end subroutine readPointLineSurfaceSources
 
