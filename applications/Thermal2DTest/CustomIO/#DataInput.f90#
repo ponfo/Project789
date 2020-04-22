@@ -54,17 +54,10 @@ contains
     call readProjectData
     call debugLog('  Reading mesh data')
     call initMesh(thermalAppl)
-    if(isMaterialAsigned) then
-       call debugLog('  Reading materials properties')
-       call initMaterials(thermalAppl)
-       call debugLog('  Reading elements')
-       call initElements(thermalAppl)
-    else
-       call debugLog('  Auto asigning properties')
-       call autoAsignMaterial(thermalAppl)
-       call debugLog('  Reading elements')
-       call initElementsDefaultMat(thermalAppl)
-    end if
+    call debugLog('  Reading materials properties')
+    call initMaterials(thermalAppl)
+    call debugLog('  Reading elements')
+    call initElements(thermalAppl)
     call debugLog('  Reading point and line Sources')
     call readPointLineSurfaceSources(thermalAppl)
     call debugLog('  Reading Boundary Conditions')
@@ -283,52 +276,5 @@ contains
     close(project)
   end subroutine readBoundaryConditions
 
-  subroutine checknMaterial(nMaterial)
-    implicit none
-    integer(ikind), intent(inout) :: nMaterial
-    if(nMaterial == 0) then
-       print*, '*************************************************************'
-       print*, '**  Material not asigned, auto asigning values equal to 1  **'
-       print*, '*************************************************************'
-       nMaterial = 1
-       isMaterialAsigned = .false.
-    end if
-  end subroutine checknMaterial
-
-  subroutine autoAsignMaterial(thermalAppl)
-    implicit none
-    type(Thermal2DApplicationDT), intent(inout) :: thermalAppl
-    integer(ikind) :: i, iMat
-    real(rkind) :: kx, ky
-    do i = 1, 7
-       read(project,*)
-    end do
-    if(verbose) print'(A)', 'Material         Kx            Ky    '
-    do i = 1, nMaterial
-       iMat = 1
-       kx = 1
-       ky = 1
-       call thermalAppl%addMaterial(kx, ky)
-       if(verbose) print'(4X,I0,7X,2(E10.3,3X),A)', iMat, kx, ky, '*AUTO ASIGNED*'
-    end do
-  end subroutine autoAsignMaterial
-
-  subroutine initElementsDefaultMat(thermalAppl)
-    implicit none
-    type(Thermal2DApplicationDT), intent(inout) :: thermalAppl
-    integer(ikind) :: i, j, iElem, iMat, iSource, iNode, Conectivities(8), auxInt
-    character(len=13) :: type
-    iMat = 1
-    do i = 1, 28+nSource
-       read(project,*)
-    end do
-    if(verbose) print'(A)', 'Element  |      Type      |  material index  |  nNodes  |  connectivities'
-    do i = 1, nElem
-       read(project,*) iElem, type, iMat, iNode, (Conectivities(j),j=1,iNode)
-       iMat = 1
-       if(verbose) print'(I5,A15,I18,I14,5X,*(I5,X))', iElem, type, iMat, iNode, (Conectivities(j),j=1,iNode)
-       call thermalAppl%addElement(type, iNode, iMat, Conectivities)
-    end do
-  end subroutine initElementsDefaultMat
 end module DataInputMOD
   

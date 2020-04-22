@@ -14,11 +14,12 @@ module NodeM
 
   type, extends(PointDT) :: NodeDT
      type(DofDT)   , dimension(:), allocatable :: dof
-     type(SourceDT),             , pointer     :: source => null()
+     type(SourceDT),             , pointer     :: source
    contains
      procedure, public :: initNode1D
      procedure, public :: initNode2D
      procedure, public :: initNode3D
+     procedure, public :: assignSource
      procedure, public :: assignDof
      procedure, public :: fixDof
      procedure, public :: freeDof
@@ -89,6 +90,13 @@ contains
     call this%initPoint3D(id, x, y, z)
     allocate(this%dof(nDof))
   end subroutine initNode3D
+
+  subroutine assignSource(this, source)
+    implicit none
+    class(NodeDT)          , intent(inout) :: this
+    class(SourceDT), target, intent(in)    :: source
+    this%source => source
+  end subroutine assignSource
 
   ! iDof  -> índice del dof en el nodo
   ! index -> índice del dof en el vector de dofs

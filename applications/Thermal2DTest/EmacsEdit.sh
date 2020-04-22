@@ -1,7 +1,6 @@
 #!/bin/sh
 
-emacs ThermalProperties.f90                 \
-      CustomConditions/FixTemperature.f90   \
+emacs ThermalMaterial.f90                   \
       CustomConditions/FluxOnLine.f90       \
       CustomConditions/ConvectionOnLine.f90 \
       CustomElements/ThermalElement.f90     \

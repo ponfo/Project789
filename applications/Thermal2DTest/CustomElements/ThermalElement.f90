@@ -61,4 +61,115 @@ contains
     quadrilateral2D8Node = quadrilateral2D8Node(nGauss)
   end subroutine initGeometries
 
+  function calculateLHS(this)
+    implicit none
+    class(ThermalElementDT), intent(inout)                 :: this
+    real(rkind)            , dimension(:,:)  , allocatable :: calculateRHS
+    integer(ikind)                                         :: i, j, k, nNode
+    real(rkind)                                            :: bi, bj, ci, cj
+    real(rkind)            , dimension(:,:,:), allocatable :: jacobian
+    real(rkind)            , dimension(:)    , allocatable :: jacobianDet
+    type(IntegratorPtrDT)                                  :: integrator
+    allocate(calculateRHS(this%nNode,this%nNode))
+    integrator%ptr => this%geometry%integrator
+    allocate(jacobian(integrator%ptr%integTerms,2,2))
+    allocate(jacobianDet(integrator%ptr%integTerms))
+    do i = 1, integrator%ptr%integTerms
+       jacobian(i,1:2,1:2) = this%jacobian(integrator%ptr%gPoint(i,1),integrator%ptr%gPoint(i,2))
+       jacobianDet(i) = this%jacobianDet(jacobian(i,1:2,1:2))
+    end do
+    nNode = this%geometry%nNode
+    do i = 1, nNode
+       do j = 1, nNode
+          calculateRHS(i,j) = 0.d0
+          do k = 1, integrator%ptr%integTerms
+             bi = jacobian(k,2,2)*integrator%ptr%dShapeFunc(k,1,i) &
+                  - jacobian(k,1,2)*integrator%ptr%dShapeFunc(k,2,i)
+             bj = jacobian(k,2,2)*integrator%ptr%dShapeFunc(k,1,j) &
+                  - jacobian(k,1,2)*integrator%ptr%dShapeFunc(k,2,j)
+             ci = jacobian(k,1,1)*integrator%ptr%dShapeFunc(k,2,i) &
+                  - jacobian(k,2,1)*integrator%ptr%dShapeFunc(k,1,i)
+             cj = jacobian(k,1,1)*integrator%ptr%dShapeFunc(k,2,j) &
+                  - jacobian(k,2,1)*integrator%ptr%dShapeFunc(k,1,j)
+             calculateRHS(i,j) = calculateRHS(i,j)          &
+                  + integrator%ptr%weight(k)                 &
+                  *(this%material%ptr%conductivity(1)*bi*bj  &
+                  + this%material%ptr%conductivity(2)*ci*cj) &
+                  / jacobianDet(k)
+          end do
+       end do
+    end do
+  end subroutine calculateLHS
+
+  function calculateRHS(this)
+    implicit none
+    class(ThermalElementDT), intent(inout)             :: this
+    real(rkind)            , dimension(:), allocatable :: calculateRHS
+    integer(ikind)                                     :: i, j, nNode
+    real(rkind)                                        :: val
+    type(IntegratorPtrDT)                              :: integrator
+    allocate(calculateRHS(this%nNode))
+    calculateRHS = 0.d0
+    do i = 1, this%nNode
+       if(allocated(this%node(i)%ptr%source)) then
+          val = this%node(i)%ptr%source%func(1)%evaluate((/this%node(i)%getx(), this%node(i)%gety()/))
+          calculateRHS(i) = calculateRHS(i) + val
+       end if
+    end do
+    if(allocated(this%source)) then
+       integrator%ptr => this%geometry%integrator
+       allocate(valuedSource(integrator%ptr%integTerms))
+       allocate(jacobianDet(integrator%ptr%integTerms))
+       call this%setupIntegration(integrator, valuedSource, jacobianDet)
+       nNode = this%nNode
+       do i = 1, nNode
+          val = 0
+          do j = 1, integrator%ptr%integTerms
+             val = val + integrator%ptr%weight(j)*integrator%ptr%shapeFunc(j,i) &
+                  *valuedSource(j)*jacobianDet(j)
+          end do
+          calculateRHS(i) = calculateRHS(i) + val
+       end do
+       deallocate(valuedSource)
+       deallocate(jacobianDet)
+    end if
+  end function calculateRHS
+
+  subroutine setupIntegration(this, integrator, valuedSource, jacobianDet)
+    implicit none
+    class(ThermalElementDT)                          , intent(inout) :: this
+    type(IntegratorPtrDT)                          , intent(in)      :: integrator
+    real(rkind), dimension(integrator%ptr%integTerms), intent(out)   :: valuedSource
+    real(rkind), dimension(integrator%ptr%integTerms), intent(out)   :: jacobianDet
+    integer(ikind)                                                   :: i
+    real(rkind), dimension(2,2)                                      :: jacobian
+    valuedSource = this%getValuedSource(integrator)
+    do i = 1, integrator%ptr%integTerms
+       jacobian = this%jacobian(integrator%ptr%gPoint(i,1),integrator%ptr%gPoint(i,2))
+       jacobianDet(i) = this%jacobianDet(jacobian)
+    end do
+  end subroutine setupIntegration
+
+  function getValuedSource(this, integrator)
+    implicit none
+    class(ThermalElementDT), intent(inout) :: this
+    type(IntegratorPtrDT) , intent(in) :: integrator
+    real(rkind), dimension(integrator%ptr%integTerms) :: getValuedSource
+    integer(ikind) :: i, j, nNode
+    real(rkind) :: x, y
+    type(NodePtrDT), dimension(:), allocatable :: node
+    nNode = this%node
+    do i = 1, integrator%ptr%integTerms
+       node = this%node
+       x = 0
+       y = 0
+       do j = 1, nNode
+          x = x + integrator%ptr%shapeFunc(i,j)*node(j)%ptr%getx()
+          y = y + integrator%ptr%shapeFunc(i,j)*node(j)%ptr%gety()
+       end do
+       getValuedSource(i) = this%source%func(1)%evaluate((/x,y/))
+    end do
+  end function getValuedSource
+          
+
 end module ThermalElement2DM

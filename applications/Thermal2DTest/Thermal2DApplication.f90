@@ -1,6 +1,8 @@
 module Thermal2DApplicationM
   use ThermalElementM
-  use ThermalConditionM
+  use ConvectionOnLineM
+  use FluxOnLineM
+  use ThermalMaterialM
 
   implicit none
 
@@ -10,9 +12,9 @@ module Thermal2DApplicationM
   type :: Thermal2DApplicationDT
      type(NodeDT)            , dimension(:), allocatable :: node
      type(ThermalElementDT)  , dimension(:), allocatable :: element
-     type(ThermalConditionDT), dimension(:), allocatable :: condition
-     type(SourceFuncDT)      , dimension(:), allocatable :: sourceFunc
-     type(ThermalSourceDT)   , dimension(:), allocatable :: source
+     type(ConvectionOnLineDT), dimension(:), allocatable :: convectionOL
+     type(FluxOnLineDT)      , dimension(:), allocatable :: normalFluxOL
+     type(SourceDT)          , dimension(:), allocatable :: source
      type(ThermalMaterial)   , dimension(:), allocatable :: material
      type(MeshM)                                         :: mesh
      type(ModelM)                                        :: model
@@ -28,29 +30,32 @@ module Thermal2DApplicationM
 contains
 
   type(Thermal2DApplicationDT) function  &
-       constructor(nNode, nElement, nCondition, nSource, nMaterial, nGauss)
+       constructor(nNode, nElement, nConvection, nNormalFlux, nSource, nMaterial, nGauss)
     implicit none
     integer(ikind), intent(in) :: nNode
     integer(ikind), intent(in) :: nElement
-    integer(ikind), intent(in) :: nCondition
+    integer(ikind), intent(in) :: nConvection
+    integer(ikind), intent(in) :: nNormalFlux
     integer(ikind), intent(in) :: nSource
     integer(ikind), intent(in) :: nMaterial
     integer(ikind), intent(in) :: nGauss
-    call this%init(nNode, nElement, nCondition, nSource, nMaterial, nGauss)
+    call this%init(nNode, nElement, nConvection, nNormalFlux, nSource, nMaterial, nGauss)
   end function constructor
 
-  subroutine init(this, nNode, nElement, nCondition, nSource, nMaterial, nGauss)
+  subroutine init(this, nNode, nElement, nConvection, nNormalFlux, nSource, nMaterial, nGauss)
     implicit none
     class(Thermal2DApplicationDT), intent(inout) :: this
     integer(ikind)               , intent(in)    :: nNode
     integer(ikind)               , intent(in)    :: nElement
-    integer(ikind)               , intent(in)    :: nCondition
+    integer(ikind)               , intent(in)    :: nConvection
+    integer(ikind)               , intent(in)    :: nNormalFlux
     integer(ikind)               , intent(in)    :: nSource
     integer(ikind)               , intent(in)    :: nMaterial
     integer(ikind)               , intent(in)    :: nGauss
     allocate(this%node(nNode))
     allocate(this%element(nElement))
-    allocate(this%condition(nCondition))
+    allocate(this%convectionOL(nConvection))
+    allocate(this%normalFluxOL(nNormalFlux))
     allocate(this%source(nSource))
     allocate(this%material(nMaterial))
     call initGeometries(nGauss)
