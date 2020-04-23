@@ -30,4 +30,6 @@ emacs   src/lib/Utilities.f90    \
 	\
 	src/model/Mesh.f90 \
 	src/model/ProcessInfo.f90 \
-	src/model/Model.f90       &
+	src/model/Model.f90       \
+	\
+        src/io/IOData.f90&
