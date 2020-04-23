@@ -1,22 +1,22 @@
-module LinearSolverMod
+module LinearSolverM
 
-  use tools
-  use sparseKit
+  use UtilitiesM
+  use SparseKit
 
-  use DirectLinearSolverMod
-  use IterativeLinearSolverMod
+  use DirectLinearSolverM
+  use IterativeLinearSolverM
 
-  use UseReorderSystemMod
+  use UseReorderSystemM
 
   implicit none
 
   private
-  public :: LinearSolverTYPE, SetLinearSolver
+  public :: LinearSolverDT, SetLinearSolver
   
-  type, abstract :: LinearSolverTYPE
-     class(DirectLinearSolverTYPE)   , allocatable :: directSolver
-     class(IterativeLinearSolverTYPE), allocatable :: iterativeSolver
-     type(UseReorderSystemTYPE)                    :: reorder
+  type, abstract :: LinearSolverDT
+     class(DirectLinearSolverDT)   , allocatable :: directSolver
+     class(IterativeLinearSolverDT), allocatable :: iterativeSolver
+     type(UseReorderSystemDT)                    :: reorder
    contains
      generic   :: init            => iterativeInit, directInit
      procedure :: iterativeInit
@@ -25,7 +25,7 @@ module LinearSolverMod
      procedure :: changeIterative
      procedure :: changeDirect
      procedure :: solve           => useSolver
-  end type LinearSolverTYPE
+  end type LinearSolverDT
 
   interface SetLinearSolver
      procedure :: iterativeConstructor
@@ -34,36 +34,36 @@ module LinearSolverMod
   
 contains
 
-  type(LinearSolverTYPE) function iterativeConstructor(solver)
+  type(LinearSolverDT) function iterativeConstructor(solver)
     implicit none
-    class(IterativeLinearSolverTYPE), intent(in) :: solver
+    class(IterativeLinearSolverDT), intent(in) :: solver
     call iterativeConstructor%init(solver)
   end function iterativeConstructor
   
-  type(LinearSolverTYPE) function directConstructor(solver)
+  type(LinearSolverDT) function directConstructor(solver)
     implicit none
-    class(DirectLinearSolverTYPE), intent(in) :: solver
+    class(DirectLinearSolverDT), intent(in) :: solver
     call directConstructor%init(solver)
   end function directConstructor
 
   subroutine iterativeInit(this, solver)
     implicit none
-    class(LinearSolverTYPE)         , intent(inout) :: this
-    class(IterativeLinearSolverTYPE), intent(in)    :: solver
+    class(LinearSolverDT)         , intent(inout) :: this
+    class(IterativeLinearSolverDT), intent(in)    :: solver
     allocate(this%iterativeSolver, source = solver)
   end subroutine iterativeInit
 
   subroutine directInit(this, solver)
     implicit none
-    class(LinearSolverTYPE)      , intent(inout) :: this
-    class(DirectLinearSolverTYPE), intent(in)    :: solver
+    class(LinearSolverDT)      , intent(inout) :: this
+    class(DirectLinearSolverDT), intent(in)    :: solver
     allocate(this%directSolver, source = solver)
   end subroutine directInit
   
   subroutine changeIterative(this, newSolver)
     implicit none
-    class(LinearSolverTYPE)         , intent(inout) :: this
-    class(IterativeLinearSolverTYPE), intent(inout) :: newSolver
+    class(LinearSolverDT)         , intent(inout) :: this
+    class(IterativeLinearSolverDT), intent(inout) :: newSolver
     if(allocated(this%directSolver)) then
        deallocate(this%directSolver)
     else if(allocated(this%iterativeSolver)) then
@@ -77,8 +77,8 @@ contains
 
   subroutine changeDirect(this, newSolver)
     implicit none
-    class(LinearSolverTYPE)      , intent(inout) :: this
-    class(DirectLinearSolverTYPE), intent(inout) :: newSolver
+    class(LinearSolverDT)      , intent(inout) :: this
+    class(DirectLinearSolverDT), intent(inout) :: newSolver
     if(allocated(this%iterativeSolver)) then
        deallocate(this%iterativeSolver)
     else if(allocated(this%directSolver)) then
@@ -90,7 +90,7 @@ contains
   
   subroutine useSolver(this, vector, matrix, solution, arg)
     implicit none
-    class(LinearSolverTYPE)     , intent(inout) :: this
+    class(LinearSolverDT)     , intent(inout) :: this
     class(Sparse)               , intent(inout) :: matrix
     real(rkind)   , dimension(:), intent(inout) :: vector
     real(rkind)   , dimension(:), intent(inout) :: solution
@@ -104,4 +104,4 @@ contains
     end if
   end subroutine useSolver
   
-end module LinearSolverMod
+end module LinearSolverM

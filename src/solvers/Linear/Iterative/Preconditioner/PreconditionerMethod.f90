@@ -1,25 +1,25 @@
-module PreconditionerMethodMod
+module PreconditionerMethodM
 
-  use tools
-  use sparseKit
+  use UtilitiesM
+  use SparseKit
 
-  use PreconditionerMod
+  use PreconditionerM
 
   implicit none
 
   private
-  public :: PreconditionerMethodTYPE
+  public :: PreconditionerMethodDT
 
-  type, extends(PreconditionerTYPE) :: PreconditionerMethodTYPE
+  type, extends(PreconditionerDT) :: PreconditionerMethodDT
    contains
      procedure :: usePreconditioner => method
-  end type PreconditionerMethodTYPE
+  end type PreconditionerMethodDT
 
 contains
 
   subroutine method(this, vector, matrix, solution, arg)
     implicit none
-    class(PreconditionerMethodTYPE), intent(inout) :: this
+    class(PreconditionerMethodDT), intent(inout) :: this
     class(Sparse)                   , intent(inout) :: matrix
     real(rkind)   , dimension(:)    , intent(inout) :: vector
     real(rkind)   , dimension(:)    , intent(inout) :: solution
@@ -27,4 +27,4 @@ contains
     write(*,*) 'Preconditioner Method Implementation'
   end subroutine method
 
-end module PreconditionerMethodMod
+end module PreconditionerMethodM

@@ -1,28 +1,28 @@
 include 'mkl_pardiso.f90'
-module mklPardisoMod
+module mklPardisoM
 
-  use tools
-  use sparseKit
+  use UtilitiesM
+  use SparseKit
   
   use mkl_pardiso
   
-  use DirectLinearSolverMod
+  use DirectLinearSolverM
   
   implicit none
   
   private
-  public :: MKLpardisoTYPE
+  public :: MKLpardisoDT
   
-  type, extends(DirectLinearSolverTYPE) :: MKLpardisoTYPE
+  type, extends(DirectLinearSolverDT) :: MKLpardisoDT
    contains
      procedure :: solveSystem => pardisoMKL
-  end type MKLpardisoTYPE
+  end type MKLpardisoDT
   
 contains
   
   subroutine pardisoMKL(this, vector, matrix, solution, arg)
     implicit none
-    class(MKLpardisoTYPE)                  , intent(inout)  :: this
+    class(MKLpardisoDT)                  , intent(inout)  :: this
     class(Sparse)                          , intent(inout)  :: matrix
     real(rkind)             , dimension(:) , intent(inout)  :: vector
     real(rkind)             , dimension(:) , intent(inout)  :: solution
@@ -71,5 +71,5 @@ contains
     return
   end subroutine pardisoMKL
   
-end module mklPardisoMod
+end module mklPardisoM
   

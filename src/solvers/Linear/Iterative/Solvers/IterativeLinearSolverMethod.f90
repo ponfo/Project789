@@ -1,32 +1,32 @@
-module IterativeLinearSolverMethodMod
+module IterativeLinearSolverMethodM
 
-  use tools
-  use sparseKit
+  use UtilitiesM
+  use SparseKit
     
-  use IterativeLinearSolverMod
+  use IterativeLinearSolverM
   
   implicit none
   
   private
-  public :: IterativeLinearSolverMethodTYPE
+  public :: IterativeLinearSolverMethodDT
   
-  type, extends(IterativeLinearSolverTYPE) :: IterativeLinearSolverMethodTYPE
+  type, extends(IterativeLinearSolverDT) :: IterativeLinearSolverMethodDT
    contains
      procedure :: solveSystem => method
-  end type IterativeLinearSolverMethodTYPE
+  end type IterativeLinearSolverMethodDT
   
 contains
   
   subroutine method(this, vector, matrix, solution, arg)
     implicit none
-    class(IterativeLinearSolverMethodTYPE) , intent(inout)  :: this
-    class(Sparse)                          , intent(inout)  :: matrix
-    real(rkind)             , dimension(:) , intent(inout)  :: vector
-    real(rkind)             , dimension(:) , intent(inout)  :: solution
-    integer(ikind)          , dimension(:) , intent(inout)  :: arg
+    class(IterativeLinearSolverMethodDT)  , intent(inout)  :: this
+    class(Sparse)                         , intent(inout)  :: matrix
+    real(rkind)             , dimension(:), intent(inout)  :: vector
+    real(rkind)             , dimension(:), intent(inout)  :: solution
+    integer(ikind)          , dimension(:), intent(inout)  :: arg
     write(*,*), 'Iterative Method Implementation'
     return
   end subroutine method
   
-end module IterativeLinearSolverMethodMod
+end module IterativeLinearSolverMethodM
   
