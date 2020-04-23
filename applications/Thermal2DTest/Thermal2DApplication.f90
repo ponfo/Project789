@@ -4,6 +4,8 @@ module Thermal2DApplicationM
   use FluxOnLineM
   use ThermalMaterialM
 
+  use MeshM
+
   implicit none
 
   private
@@ -16,8 +18,7 @@ module Thermal2DApplicationM
      type(FluxOnLineDT)      , dimension(:), allocatable :: normalFluxOL
      type(SourceDT)          , dimension(:), allocatable :: source
      type(ThermalMaterial)   , dimension(:), allocatable :: material
-     type(MeshM)                                         :: mesh
-     type(ModelM)                                        :: model
+     type(MeshDT)                                        :: mesh
    contains
      procedure, public :: assemble
      procedure, public :: solve

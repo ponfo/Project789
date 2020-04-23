@@ -109,11 +109,12 @@ contains
     this%dof(iDof) = dof(dof, .false.)
   end subroutine assignDof
 
-  subroutine fixDof(this, iDof)
+  subroutine fixDof(this, iDof, fixedVal)
     implicit none
     class(NodeDT) , intent(inout) :: this
     integer(ikind), intent(in)    :: iDof
-    call this%dof(iDof)%fixDof()
+    real(rkind)   , intent(in)    :: fixedVal
+    call this%dof(iDof)%fixDof(fixedVal)
   end subroutine fixDof
 
   subroutine freeDof(this, iDof)
