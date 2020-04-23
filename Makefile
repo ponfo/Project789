@@ -1,22 +1,13 @@
 # Makefile
 
-help:
-	@echo ""
-	@echo " main: compila la librería"
-	@echo ""
-	@echo " debug: busca errores"
-	@echo ""
-	@echo " clean: borra los *.o y *.mod"
-	@echo ""
-#------------------------------------------------------------------------------
-
 # Defaults
+VPATH		:=  src
+BINDIR		:=  lib/Bin
+OBJECTDIR	:=  lib/Objects
+LIBDIR		:=  lib
 COMPILER	:=  ifort
 FFLAGS		:=  -Ofast -qopenmp -free -check bounds -mkl -liomp5 -lpthread -ldl -traceback -module $(OBJECTDIR)
 FFLAGSDebug 	:=  -O0 -fpp -check bounds -traceback -warn nounused -module $(OBJECTDIR)
-VPATH		:=  src
-BINDIR		:=  temp/Bin
-OBJECTDIR	:=  temp/Objects
 
 OBJECTS := $(BINDIR)/Debugger.o                 \
 	$(BINDIR)/utilities.o                   \
@@ -38,8 +29,8 @@ OBJECTS := $(BINDIR)/Debugger.o                 \
 	$(BINDIR)/Element.o                     \
                                                 \
 	$(BINDIR)/Element1D.o                   \
-	$(BINDIR)/Element1DPtr.o
-
+	$(BINDIR)/Element1DPtr.o		\
+						\
 	$(BINDIR)/Element2D.o                   \
 	$(BINDIR)/Element2DPtr.o                \
 	$(BINDIR)/TriangElement.o               \
@@ -61,25 +52,27 @@ OBJECTS := $(BINDIR)/Debugger.o                 \
                                                 \
 	$(BINDIR)/Solver.o  
 
+#=============================================================
 main: $(OBJECTS)
-	ar rcv project789.a $(OBJECTS)
+	ar rcv $(LIBDIR)/project789.a $(OBJECTS)
 
-project789.a : $(BINDIR)/%.o
+clean:
+	rm -f $(BINDIR)/*.o $(LIBDIR)/*.a $(OBJECTDIR)/*.mod
+#=============================================================
+
+%*.a : $(BINDIR)/%.o
 	ar rcv $^ $@
-
-debug: $(OBJECTS)
-	$(COMPILER) $(FFLAGSDebug) $(OBJECTS) -o main
 
 $(BINDIR)/main.o : main.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@ 
 
-$(BINDIR)/Debugger.o : $(VPATH)/Lib/Debugger.f90
+$(BINDIR)/Debugger.o : $(VPATH)/lib/Debugger.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
-$(BINDIR)/utilities.o : $(VPATH)/Lib/utilities.f90
+$(BINDIR)/utilities.o : $(VPATH)/lib/Utilities.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
-$(BINDIR)/quicksort.o : $(VPATH)/Lib/quicksort.f90
+$(BINDIR)/quicksort.o : $(VPATH)/lib/Quicksort.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
-$(BINDIR)/SparseKit.o : $(VPATH)/Lib/SparseKit.f90
+$(BINDIR)/SparseKit.o : $(VPATH)/lib/SparseKit.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 
 $(BINDIR)/Point.o : $(VPATH)/Point/Point.f90
@@ -145,6 +138,12 @@ $(BINDIR)/Solver.o : $(VPATH)/Solver/Solver.f90
 
 $(BINDIR)/IOData.o : $(VPATH)/DataIO/IOData.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
-
-clean:
-	rm -f $(BINDIR)/*.o *.a $(OBJECTDIR)/*.mod
+#------------------------------------------------------------------------------
+help:
+	@echo ""
+	@echo " make: compila la librería"
+	@echo ""
+	@echo ""
+	@echo " clean: borra los *.o y *.mod"
+	@echo ""
+#------------------------------------------------------------------------------
