@@ -2,13 +2,13 @@ module DebuggerM
   implicit none
   public
   
-  type :: DebuggerTYPE
+  type :: DebuggerDT
      logical :: isProblemInitiated = .false.
      logical :: isDomainInitiated = .false.
      logical :: isElementListInitiated = .false.
      logical :: areBoundaryCondInitiated = .false.
    contains
-  end type DebuggerTYPE
+  end type DebuggerDT
   
   interface debugLog
      procedure :: printStr

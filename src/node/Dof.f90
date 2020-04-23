@@ -7,8 +7,9 @@ module DofM
   public :: DofDT, dof
 
   type DofDT
-     real(rkind), pointer :: val
-     logical              :: isFixed
+     real(rkind), pointer     :: val
+     real(rkind), allocatable :: fixedVal
+     logical                  :: isFixed
    contains
      procedure, public :: init
      procedure, public :: fixDof
@@ -37,16 +38,19 @@ contains
     this%isFixed = isFixed
   end subroutine init
 
-  subroutine fixDof(this)
+  subroutine fixDof(this, fixedVal)
     implicit none
     class(DofDT), intent(inout) :: this
+    real(rkind) , intent(in)    :: fixedVal
     this%isFixed = .true.
+    allocate(this%fixedVal, source = fixedVal)
   end subroutine fixDof
 
   subroutine freeDof(this)
     implicit none
     class(DofDT), intent(inout) :: this
     this%isFixed = .false.
+    deallocate(this%fixedVal)
   end subroutine freeDof
   
 end module DofM

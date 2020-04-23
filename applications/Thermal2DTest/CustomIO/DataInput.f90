@@ -232,7 +232,7 @@ contains
     do i = 1, nDirichlet
        read(Project,*) id, value
        if(verbose) print'(I0,5X,E10.3)', id, value
-       call thermalAppl%addDirichletPoint(id, value) !Como hago esto?
+       call thermalAppl%node(id)%fixDof(1, value)
     end do
     do i = 1, 7
        read(project,*)
