@@ -1,22 +1,22 @@
-module NonLinearSolverMod
+module NonLinearSolverM
 
-  use tools
-  use sparseKit
+  use UtilitiesM
+  use SparseKit
 
-  use NonLinearSolversMod
+  use NonLinearSolversM
 
   implicit none
 
   private
-  public :: NonLinearSolverTYPE, SetNonLinearSolver
+  public :: NonLinearSolverDT, SetNonLinearSolver
 
-  type NonLinearSolverTYPE
-     class(NonLinearSolversTYPE), allocatable :: solver
+  type NonLinearSolverDT
+     class(NonLinearSolversDT), allocatable :: solver
    contains
      procedure :: init
      procedure :: changeSolver
      procedure :: solve
-  end type NonLinearSolverTYPE
+  end type NonLinearSolverDT
 
   interface SetNonLinearSolver
      procedure :: constructor
@@ -24,30 +24,30 @@ module NonLinearSolverMod
   
 contains
 
-  type(NonLinearSolverTYPE) function constructor(solver)
+  type(NonLinearSolverDT) function constructor(solver)
     implicit none
-    class(NonLinearSolversTYPE), intent(inout) :: solver
+    class(NonLinearSolversDT), intent(inout) :: solver
     call constructor%init(solver)
   end function constructor
 
   subroutine init(this, solver)
     implicit none
-    class(NonLinearSolverTYPE) , intent(inout) :: this
-    class(NonLinearSolversTYPE), intent(inout) :: solver
+    class(NonLinearSolverDT) , intent(inout) :: this
+    class(NonLinearSolversDT), intent(inout) :: solver
     allocate(this%solver, source = solver)
   end subroutine init
 
   subroutine changeSolver(this, newSolver)
     implicit none
-    class(NonLinearSolverTYPE) , intent(inout) :: this
-    class(NonLinearSolversTYPE), intent(inout) :: newSolver
+    class(NonLinearSolverDT) , intent(inout) :: this
+    class(NonLinearSolversDT), intent(inout) :: newSolver
     deallocate(this%solver)
     allocate(this%solver, source = newSolver)
   end subroutine changeSolver
 
   subroutine solve(this, matrix, vector, solution, arg)
     implicit none
-    class(NonLinearSolverTYPE)  , intent(inout) :: this
+    class(NonLinearSolverDT)    , intent(inout) :: this
     class(Sparse)               , intent(inout) :: matrix
     real(rkind)   , dimension(:), intent(inout) :: vector
     real(rkind)   , dimension(:), intent(inout) :: solution
@@ -55,4 +55,4 @@ contains
     call this%solver%useSolver(matrix, vector, solution, arg)
   end subroutine solve
 
-end module NonLinearSolverMod
+end module NonLinearSolverM

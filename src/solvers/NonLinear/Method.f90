@@ -1,25 +1,25 @@
-module MethodMod
+module MethodM
 
-  use tools
-  use sparseKit
+  use UtilitiesM
+  use SparseKit
 
-  use NonLinearSolversMod
+  use NonLinearSolversM
 
   implicit none
 
   private
-  public :: MethodTYPE
+  public :: MethodDT
 
-  type, extends(NonLinearSolversTYPE) :: MethodTYPE
+  type, extends(NonLinearSolversDT) :: MethodDT
    contains
      procedure :: useSolver => method
-  end type MethodTYPE
+  end type MethodDT
 
 contains
 
   subroutine method(this, matrix, vector, solution, arg)
     implicit none
-    class(MethodTYPE)           , intent(inout) :: this
+    class(MethodDT)           , intent(inout) :: this
     class(Sparse)               , intent(inout) :: matrix
     real(rkind)   , dimension(:), intent(inout) :: vector
     real(rkind)   , dimension(:), intent(inout) :: solution
@@ -27,4 +27,4 @@ contains
     write(*,*) 'Non Linear Solver Method Implementation'
   end subroutine method
 
-end module MethodMod
+end module MethodM

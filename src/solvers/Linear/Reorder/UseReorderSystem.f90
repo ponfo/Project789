@@ -1,22 +1,22 @@
-module UseReorderSystemMod
+module UseReorderSystemM
 
-  use tools
-  use sparseKit
+  use UtilitiesM
+  use SparseKit
 
-  use ReorderSystemMod
+  use ReorderSystemM
 
   implicit none
 
   private
-  public :: UseReorderSystemTYPE, SetReorderSystem
+  public :: UseReorderSystemDT, SetReorderSystem
 
-  type UseReorderSystemTYPE
-     class(ReorderSystemTYPE), allocatable :: reorderMethod
+  type UseReorderSystemDT
+     class(ReorderSystemDT), allocatable :: reorderMethod
    contains
      procedure :: init
      procedure :: changeMethod
      procedure :: use
-  end type UseReorderSystemTYPE
+  end type UseReorderSystemDT
 
   interface SetReorderSystem
      procedure :: constructor
@@ -24,30 +24,30 @@ module UseReorderSystemMod
   
 contains
 
-  type(UseReorderSystemTYPE) function constructor(method)
+  type(UseReorderSystemDT) function constructor(method)
     implicit none
-    class(ReorderSystemTYPE), intent(inout) :: method
+    class(ReorderSystemDT), intent(inout) :: method
     call constructor%init(method)
   end function constructor
 
   subroutine init(this, method)
     implicit none
-    class(UseReorderSystemTYPE), intent(inout) :: this
-    class(ReorderSystemTYPE)   , intent(inout) :: method
+    class(UseReorderSystemDT), intent(inout) :: this
+    class(ReorderSystemDT)   , intent(inout) :: method
     allocate(this%reorderMethod, source = method)
   end subroutine init
 
   subroutine changeMethod(this, newMethod)
     implicit none
-    class(UseReorderSystemTYPE), intent(inout) :: this
-    class(ReorderSystemTYPE)   , intent(inout) :: newMethod
+    class(UseReorderSystemDT), intent(inout) :: this
+    class(ReorderSystemDT)   , intent(inout) :: newMethod
     deallocate(this%reorderMethod)
     allocate(this%reorderMethod, source = newMethod)
   end subroutine changeMethod
 
   subroutine use(this, vector, matrix, solution, arg)
     implicit none
-    class(UseReorderSystemTYPE)   , intent(inout) :: this
+    class(UseReorderSystemDT)   , intent(inout) :: this
     class(Sparse)               , intent(inout) :: matrix
     real(rkind)   , dimension(:), intent(inout) :: vector
     real(rkind)   , dimension(:), intent(inout) :: solution
@@ -55,4 +55,4 @@ contains
     call this%reorderMethod%useReorder(vector, matrix, solution, arg)
   end subroutine use
 
-end module UseReorderSystemMod
+end module UseReorderSystemM

@@ -1,25 +1,25 @@
-module ReorderSystemMethodMod
+module ReorderSystemMethodM
 
-  use tools
-  use sparseKit
+  use UtilitiesM
+  use SparseKit
 
-  use ReorderSystemMod
+  use ReorderSystemM
 
   implicit none
 
   private
-  public :: ReorderSystemMethodTYPE
+  public :: ReorderSystemMethodDT
 
-  type, extends(ReorderSystemTYPE) :: ReorderSystemMethodTYPE
+  type, extends(ReorderSystemDT) :: ReorderSystemMethodDT
    contains
      procedure :: useReorder => method
-  end type ReorderSystemMethodTYPE
+  end type ReorderSystemMethodDT
 
 contains
 
   subroutine method(this, vector, matrix, solution, arg)
     implicit none
-    class(ReorderSystemMethodTYPE), intent(inout) :: this
+    class(ReorderSystemMethodDT), intent(inout) :: this
     class(Sparse)                   , intent(inout) :: matrix
     real(rkind)   , dimension(:)    , intent(inout) :: vector
     real(rkind)   , dimension(:)    , intent(inout) :: solution
@@ -27,4 +27,4 @@ contains
     write(*,*) 'Reorder Method implementation'
   end subroutine method
 
-end module ReorderSystemMethodMod
+end module ReorderSystemMethodM

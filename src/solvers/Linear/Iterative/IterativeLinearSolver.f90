@@ -1,30 +1,30 @@
-module IterativeLinearSolverMod
+module IterativeLinearSolverM
 
-  use tools
-  use sparsekit
+  use UtilitiesM
+  use Sparsekit
 
-  use UsePreconditionerMod
+  use UsePreconditionerM
   
   implicit none
 
   private
-  public :: IterativeLinearSolverTYPE
+  public :: IterativeLinearSolverDT
 
-  type, abstract :: IterativeLinearSolverTYPE
-     type(UsePreconditionerTYPE)                            :: preconditioner
+  type, abstract :: IterativeLinearSolverDT
+     type(UsePreconditionerDT)                            :: preconditioner
    contains
-     procedure(IterativeLinearSolver_procedure)  , deferred :: SolveSystem
-  end type IterativeLinearSolverTYPE
+     procedure(IterativeLinearSolver_procedure), deferred :: SolveSystem
+  end type IterativeLinearSolverDT
 
   abstract interface
      subroutine IterativeLinearSolver_procedure(this, vector, matrix, solution, arg)
-       import IterativeLinearSolverTYPE, sparse, rkind, ikind
-       class(IterativeLinearSolverTYPE)       , intent(inout) :: this
-       class(Sparse)                          , intent(inout) :: matrix
-       real(rkind)             , dimension(:) , intent(inout) :: vector
-       real(rkind)             , dimension(:) , intent(inout) :: solution
-       integer(ikind)          , dimension(:) , intent(inout) :: arg
+       import IterativeLinearSolverDT, sparse, rkind, ikind
+       class(IterativeLinearSolverDT)        , intent(inout) :: this
+       class(Sparse)                         , intent(inout) :: matrix
+       real(rkind)             , dimension(:), intent(inout) :: vector
+       real(rkind)             , dimension(:), intent(inout) :: solution
+       integer(ikind)          , dimension(:), intent(inout) :: arg
      end subroutine IterativeLinearSolver_procedure
   end interface
 
-end module IterativeLinearSolverMod
+end module IterativeLinearSolverM

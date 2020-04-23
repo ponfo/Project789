@@ -1,27 +1,27 @@
-module NonLinearSolversMod
+module NonLinearSolversM
 
-  use tools
-  use sparseKit
+  use UtilitiesM
+  use SparseKit
 
   implicit none
 
   private
-  public :: NonLinearSolversTYPE
+  public :: NonLinearSolversDT
 
-  type, abstract :: NonLinearSolversTYPE
+  type, abstract :: NonLinearSolversDT
    contains
      procedure(NonLinearSolvers_procedure), deferred  :: useSolver
-  end type NonLinearSolversTYPE
+  end type NonLinearSolversDT
 
   abstract interface
      subroutine NonLinearSolvers_procedure(this, matrix, vector, solution, arg)
-       import NonLinearSolversTYPE, sparse, rkind, ikind
-       class(NonLinearSolversTYPE)            , intent(inout) :: this
-       class(Sparse)                         , intent(inout) :: matrix
-       real(rkind)            , dimension(:) , intent(inout) :: vector
-       real(rkind)            , dimension(:) , intent(inout) :: solution
-       integer(ikind)         , dimension(:) , intent(inout) :: arg
+       import NonLinearSolversDT, sparse, rkind, ikind
+       class(NonLinearSolversDT)            , intent(inout) :: this
+       class(Sparse)                        , intent(inout) :: matrix
+       real(rkind)            , dimension(:), intent(inout) :: vector
+       real(rkind)            , dimension(:), intent(inout) :: solution
+       integer(ikind)         , dimension(:), intent(inout) :: arg
      end subroutine NonLinearSolvers_procedure
   end interface
 
-end module NonLinearSolversMod
+end module NonLinearSolversM

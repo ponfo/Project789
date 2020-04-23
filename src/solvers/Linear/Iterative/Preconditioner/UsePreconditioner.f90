@@ -1,22 +1,22 @@
-module UsePreconditionerMod
+module UsePreconditionerM
 
-  use tools
-  use sparseKit
+  use UtilitiesM
+  use SparseKit
 
-  use PreconditionerMod
+  use PreconditionerM
 
   implicit none
 
   private
-  public :: UsePreconditionerTYPE, SetPreconditioner
+  public :: UsePreconditionerDT, SetPreconditioner
 
-  type UsePreconditionerTYPE
-     class(PreconditionerTYPE), allocatable :: preconditionerMethod
+  type UsePreconditionerDT
+     class(PreconditionerDT), allocatable :: preconditionerMethod
    contains
      procedure :: init
      procedure :: changePreconditioner
      procedure :: use
-  end type UsePreconditionerTYPE
+  end type UsePreconditionerDT
 
   interface SetPreconditioner
      procedure :: constructor
@@ -24,30 +24,30 @@ module UsePreconditionerMod
   
 contains
 
-  type(UsePreconditionerTYPE) function constructor(preconditioner)
+  type(UsePreconditionerDT) function constructor(preconditioner)
     implicit none
-    class(PreconditionerTYPE), intent(inout) :: preconditioner
+    class(PreconditionerDT), intent(inout) :: preconditioner
     call constructor%init(preconditioner)
   end function constructor
 
   subroutine init(this, method)
     implicit none
-    class(UsePreconditionerTYPE), intent(inout) :: this
-    class(PreconditionerTYPE)   , intent(inout) :: method
+    class(UsePreconditionerDT), intent(inout) :: this
+    class(PreconditionerDT)   , intent(inout) :: method
     allocate(this%preconditionerMethod, source = method)
   end subroutine init
 
   subroutine changePreconditioner(this, newMethod)
     implicit none
-    class(UsePreconditionerTYPE), intent(inout) :: this
-    class(PreconditionerTYPE)   , intent(inout) :: newMethod
+    class(UsePreconditionerDT), intent(inout) :: this
+    class(PreconditionerDT)   , intent(inout) :: newMethod
     deallocate(this%preconditionerMethod)
     allocate(this%preconditionerMethod, source = newMethod)
   end subroutine changePreconditioner
 
   subroutine use(this, vector, matrix, solution, arg)
     implicit none
-    class(UsePreconditionerTYPE)   , intent(inout) :: this
+    class(UsePreconditionerDT)   , intent(inout) :: this
     class(Sparse)               , intent(inout) :: matrix
     real(rkind)   , dimension(:), intent(inout) :: vector
     real(rkind)   , dimension(:), intent(inout) :: solution
@@ -59,4 +59,4 @@ contains
     end if
   end subroutine use
 
-end module UsePreconditionerMod
+end module UsePreconditionerM
