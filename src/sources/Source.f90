@@ -8,8 +8,8 @@ module SourceM
   public :: SourceDT, source
 
   type :: SourceDT
-     integer(ikind)                       :: nDim
-     type(FortranParser), dimension(nDim) :: func
+     integer(ikind)                                  :: nDim
+     type(EquationParser), dimension(:), allocatable :: func
    contains
      procedure, public :: init
   end type SourceDT
@@ -20,23 +20,24 @@ module SourceM
 
 contains
 
-  type(SourceFuncDT) function constructor(nVar, nDim, var, func)
+  type(SourceDT) function constructor(nVar, nDim, var, func)
     implicit none
     integer(ikind)                   , intent(in) :: nVar
     integer(ikind)                   , intent(in) :: nDim
     character(len=*), dimension(nVar), intent(in) :: var
     character(len=*), dimension(nDim), intent(in) :: func
-    call constructor%initSourceFunc(nVar, nDim, var, func)
+    call constructor%init(nVar, nDim, var, func)
   end function constructor
 
   subroutine init(this, nVar, nDim, var, func)
     implicit none
-    class(SourceFuncDT)              , intent(inout) :: this
+    class(SourceDT)                  , intent(inout) :: this
     integer(ikind)                   , intent(in)    :: nVar
     integer(ikind)                   , intent(in)    :: nDim
     character(len=*), dimension(nVar), intent(in)    :: var
     character(len=*), dimension(nDim), intent(in)    :: func
     integer(ikind)                                   :: i
+    allocate(this%func(nDim))
     do i = 1, nDim
        this%func = EquationParser(func(i), var)
     end do

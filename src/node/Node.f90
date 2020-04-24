@@ -14,7 +14,7 @@ module NodeM
 
   type, extends(PointDT) :: NodeDT
      type(DofDT)   , dimension(:), allocatable :: dof
-     type(SourceDT),             , pointer     :: source
+     type(SourceDT)              , pointer     :: source
    contains
      procedure, public :: initNode1D
      procedure, public :: initNode2D
@@ -39,7 +39,7 @@ contains
     integer(ikind), intent(in) :: id
     integer(ikind), intent(in) :: nDof
     real(rkind)   , intent(in) :: x
-    call constructor%initNode1D(id, nDof, x)
+    call constructor1D%initNode1D(id, nDof, x)
   end function constructor1D
   subroutine initNode1D(this, id, nDof, x)
     implicit none
@@ -57,7 +57,7 @@ contains
     integer(ikind), intent(in) :: nDof
     real(rkind)   , intent(in) :: x
     real(rkind)   , intent(in) :: y
-    call constructor%initNode2D(id, nDof, x, y)
+    call constructor2D%initNode2D(id, nDof, x, y)
   end function constructor2D
   subroutine initNode2D(this, id, nDof, x, y)
     implicit none
@@ -77,7 +77,7 @@ contains
     real(rkind)   , intent(in) :: x
     real(rkind)   , intent(in) :: y
     real(rkind)   , intent(in) :: z
-    call constructor%initNode3D(id, nDof, x, y, z)
+    call constructor3D%initNode3D(id, nDof, x, y, z)
   end function constructor3D
   subroutine initNode3D(this, id, nDof, x, y, z)
     implicit none
@@ -104,9 +104,8 @@ contains
     implicit none
     class(NodeDT) , intent(inout) :: this
     integer(ikind), intent(in)    :: iDof
-    integer(ikind), intent(in)    :: index
     real(rkind)   , intent(in)    :: dof
-    this%dof(iDof) = dof(dof, .false.)
+    this%dof(iDof) = newDof(dof, .false.)
   end subroutine assignDof
 
   subroutine fixDof(this, iDof, fixedVal)

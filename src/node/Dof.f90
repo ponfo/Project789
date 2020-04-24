@@ -4,7 +4,7 @@ module DofM
   implicit none
 
   private
-  public :: DofDT, dof
+  public :: DofDT, newDof
 
   type DofDT
      real(rkind), pointer     :: val
@@ -16,18 +16,18 @@ module DofM
      procedure, public :: freeDof
   end type DofDT
 
-  interface dof
+  interface newDof
      procedure :: constructor
-  end interface dof
+  end interface newDof
 
 contains
 
-  type(DofDT) function contructor(dof, isFixed)
+  type(DofDT) function constructor(dof, isFixed)
     implicit none
     real(rkind), target, intent(in) :: dof
     logical            , intent(in) :: isFixed
     call constructor%init(dof, isFixed)
-  end function contructor
+  end function constructor
 
   subroutine init(this, dof, isFixed)
     implicit none

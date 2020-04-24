@@ -36,7 +36,7 @@ contains
     implicit none
     integer(ikind), intent(in) :: id
     real(rkind)   , intent(in) :: x
-    call this%initPoint1D(id, x)
+    call constructor1D%initPoint1D(id, x)
   end function constructor1D
   subroutine initPoint1D(this, id, x)
     implicit none
@@ -53,7 +53,7 @@ contains
     integer(ikind), intent(in) :: id
     real(rkind)   , intent(in) :: x
     real(rkind)   , intent(in) :: y
-    call this%initPoint2D(id, x, y)
+    call constructor2D%initPoint2D(id, x, y)
   end function constructor2D
   subroutine initPoint2D(this, id, x, y)
     implicit none
@@ -73,7 +73,7 @@ contains
     real(rkind)   , intent(in) :: x
     real(rkind)   , intent(in) :: y
     real(rkind)   , intent(in) :: z
-    call this%initPoint3D(id, x, y, z)
+    call constructor3D%initPoint3D(id, x, y, z)
   end function constructor3D
   subroutine initPoint3D(this, id, x, y, z)
     implicit none

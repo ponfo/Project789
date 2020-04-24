@@ -40,7 +40,7 @@ contains
     class(ConditionDT)        , intent(inout) :: this
     integer(ikind)            , intent(in)    :: index
     type(NodeDT)      , target, intent(in)    :: node
-    this%node(index) => node
+    this%node(index)%ptr => node
   end subroutine assignNode
 
   subroutine calculateLocalSystem(this, lhs, rhs)
@@ -61,7 +61,7 @@ contains
   function calculateRHS(this)
     implicit none
     class(ConditionDT), intent(inout)             :: this
-    real(rkind))      , dimension(:), allocatable :: calculateRHS
+    real(rkind)       , dimension(:), allocatable :: calculateRHS
     print*, "** Condition's calculateRHS not implemented **"
   end function calculateRHS
 

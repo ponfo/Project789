@@ -1,6 +1,6 @@
 module FortranParserPtrM
   use UtilitiesM
-  use FortranParserM
+  use FortranParser
 
   implicit none
 
@@ -8,7 +8,7 @@ module FortranParserPtrM
   public :: FortranParserPtrDT
 
   type :: FortranParserPtrDT
-     class(FortranParser), pointer :: ptr
+     class(EquationParser), pointer :: ptr
   end type FortranParserPtrDT
 
 end module FortranParserPtrM

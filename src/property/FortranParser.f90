@@ -183,7 +183,7 @@ CONTAINS
     INTEGER                            :: IP,              & ! Instruction pointer
                                           DP,              & ! Data pointer
                                           SP                 ! Stack pointer
-    REAL(rkind),                PARAMETER :: zero = 0._rn
+    REAL(rkind),                PARAMETER :: zero = 0._rkind
     integer       :: EvalErrType
 
     DP = 1
@@ -206,7 +206,7 @@ CONTAINS
 
        CASE   (cDiv)
 
-         IF (this%Stack(SP)==0._rn) THEN 
+         IF (this%Stack(SP)==0._rkind) THEN 
            EvalErrType=1
            res=zero
            exit
@@ -221,7 +221,7 @@ CONTAINS
 
        CASE (cLog10)
 
-         IF (this%Stack(SP)<=0._rn) THEN
+         IF (this%Stack(SP)<=0._rkind) THEN
            EvalErrType=3
            res=zero
            exit
@@ -230,7 +230,7 @@ CONTAINS
 
        CASE   (cLog)
 
-         IF (this%Stack(SP)<=0._rn) THEN
+         IF (this%Stack(SP)<=0._rkind) THEN
            EvalErrType=3
            res=zero
            exit
@@ -239,7 +239,7 @@ CONTAINS
 
        CASE  (cSqrt)
 
-         IF (this%Stack(SP)<0._rn) THEN
+         IF (this%Stack(SP)<0._rkind) THEN
            EvalErrType=3
            res=zero
            exit
@@ -260,7 +260,7 @@ CONTAINS
 
        CASE  (cAsin) 
 
-         IF ((this%Stack(SP)<-1._rn) .OR. (this%Stack(SP)>1._rn)) THEN
+         IF ((this%Stack(SP)<-1._rkind) .OR. (this%Stack(SP)>1._rkind)) THEN
            EvalErrType=4
            res=zero
            exit
@@ -268,7 +268,7 @@ CONTAINS
          this%Stack(SP)=ASIN(this%Stack(SP))
 
        CASE  (cAcos); 
-         IF ((this%Stack(SP)<-1._rn).OR.(this%Stack(SP)>1._rn)) THEN
+         IF ((this%Stack(SP)<-1._rkind).OR.(this%Stack(SP)>1._rkind)) THEN
            EvalErrType=4
            res=zero
            exit
@@ -820,7 +820,7 @@ CONTAINS
     END DO
     err = (ib > in-1) .OR. (.NOT.DInMan) .OR. ((Eflag.OR.InExp).AND..NOT.DInExp)
     IF (err) THEN
-       res = 0.0_rn
+       res = 0.0_rkind
     ELSE
        READ(str(ib:in-1),*,IOSTAT=istat) res
        err = istat /= 0

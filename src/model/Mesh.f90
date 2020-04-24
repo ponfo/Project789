@@ -32,7 +32,7 @@ module MeshM
      procedure, public :: removeElement
      procedure, public :: removeCondition
 
-     procedure, public :: free
+     final  :: free
   end type MeshDT
 
   interface mesh
@@ -47,7 +47,7 @@ contains
     integer(ikind), intent(in) :: nNode
     integer(ikind), intent(in) :: nElement
     integer(ikind), intent(in) :: nCondition
-    call contructor%init(id, nNode, nElement, nCondition)
+    call constructor%init(id, nNode, nElement, nCondition)
   end function constructor
 
   subroutine init(this, id, nNode, nElement, nCondition)
@@ -59,7 +59,7 @@ contains
     integer(ikind), intent(in)    :: nCondition
     this%id = id
     allocate(this%node(nNode))
-    allocate(this%element(nElemen))
+    allocate(this%element(nElement))
     allocate(this%condition(nCondition))
   end subroutine init
 
@@ -68,7 +68,7 @@ contains
     class(MeshDT)         , intent(inout) :: this
     integer(ikind)        , intent(in)    :: id
     class(NodeDT) , target, intent(in)    :: node
-    call this%node(id)%allocate(node)
+    this%node(id)%ptr => node
   end subroutine addNode
 
   subroutine addElement(this, id, element)
@@ -76,7 +76,7 @@ contains
     class(MeshDT)           , intent(inout) :: this
     integer(ikind)          , intent(in)    :: id
     class(ElementDT), target, intent(in)    :: element
-    call this%element(id)%allocate(element)
+    this%element(id)%ptr => element
   end subroutine addElement
 
   subroutine addCondition(this, id, condition)
@@ -84,33 +84,33 @@ contains
     class(MeshDT)             , intent(inout) :: this
     integer(ikind)            , intent(in)    :: id
     class(ConditionDT), target, intent(in)    :: condition
-    call this%condition(id)%allocate(condition)
+    this%condition(id)%ptr => condition
   end subroutine addCondition
 
   subroutine removeNode(this, id)
     implicit none
     class(MeshDT) , intent(inout) :: this
     integer(ikind), intent(in)    :: id
-    call this%node(id)%deallocate()
+    this%node(id)%ptr => null()
   end subroutine removeNode
 
   subroutine removeElement(this, id)
     implicit none
     class(MeshDT) , intent(inout) :: this
     integer(ikind), intent(in)    :: id
-    call this%element(id)%deallocate()
+    this%element(id)%ptr => null()
   end subroutine removeElement
 
   subroutine removeCondition(this, id)
     implicit none
     class(MeshDT) , intent(inout) :: this
     integer(ikind), intent(in)    :: id
-    call this%condition(id)%deallocate()
+    this%condition(id)%ptr => null()
   end subroutine removeCondition
 
-  final subroutine free(this)
+  subroutine free(this)
     implicit none
-    class(MeshDT), intent(inout) :: this
+    type(MeshDT), intent(inout) :: this
     deallocate(this%node)
     deallocate(this%element)
     deallocate(this%condition)

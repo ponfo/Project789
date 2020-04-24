@@ -10,7 +10,6 @@ module GeometryM
   public :: GeometryDT
 
   type, abstract :: GeometryDT
-     private
      integer(ikind)     :: nNode
      type(IntegratorDT) :: integrator
   end type GeometryDT

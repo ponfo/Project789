@@ -15,7 +15,7 @@ module PropertyM
   end type PropertyDT
 
   interface property
-     procedure :: contructor
+     procedure :: constructor
   end interface property
 
 contains

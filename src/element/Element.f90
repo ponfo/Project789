@@ -1,5 +1,5 @@
 module ElementM
-  use utilitiesM
+  use UtilitiesM
   use DebuggerM
 
   use NodeM
@@ -33,6 +33,7 @@ module ElementM
 
   abstract interface
      function calculateRHSInterf(this)
+       use UtilitiesM
        import ElementDT
        implicit none
        class(ElementDT), intent(inout) :: this
@@ -42,6 +43,7 @@ module ElementM
 
   abstract interface
      function calculateLHSInterf(this)
+       use UtilitiesM
        import ElementDT
        implicit none
        class(ElementDT), intent(inout) :: this
@@ -64,7 +66,7 @@ contains
     class(ElementDT)        , intent(inout) :: this
     integer(ikind)          , intent(in)    :: index
     type(NodeDT)    , target, intent(in)    :: node
-    this%node(index) => node
+    this%node(index)%ptr => node
   end subroutine assignNode
 
   subroutine assignSource(this, source)

@@ -2,6 +2,7 @@ module Triangle2D6NodeM
   use UtilitiesM
   use DebuggerM
 
+  use PointM
   use NodeM
   use NodePtrM
 
@@ -12,9 +13,10 @@ module Triangle2D6NodeM
   implicit none
 
   private
-  public :: Triangle2D6NodeM, triangle2D6Node
+  public :: Triangle2D6NodeDT, triangle2D6Node
 
-  type, extends(GeometryM) :: Triangle2D6NodeDT
+  type, extends(GeometryDT) :: Triangle2D6NodeDT
+   contains
      procedure, public  :: init
      procedure, public  :: shapeFunc
      procedure, public  :: dShapeFunc
@@ -26,7 +28,7 @@ module Triangle2D6NodeM
   end type Triangle2D6NodeDT
 
   interface triangle2D6Node
-     procedure :: contructor
+     procedure :: constructor
   end interface triangle2D6Node
 
   integer(ikind), parameter :: NNODE = 6
@@ -88,13 +90,13 @@ contains
 
   function jacobian(this, u, v, point)
     implicit none
-    class(Triangle2D6NodeDT), intent(inout)                :: this
-    real(rkind)             , intent(in)                   :: u
-    real(rkind)             , intent(in)                   :: v
-    class(PointDT)          , dimension(NNODE), intent(in) :: point
-    real(rkind)             , dimension(2,2)               :: jacobian
-    integer(ikind)                                         :: i
-    real(rkind)             , dimension(2, NNODE)          :: dsf
+    class(Triangle2D6NodeDT), intent(inout)                   :: this
+    real(rkind)             , intent(in)                      :: u
+    real(rkind)             , intent(in)                      :: v
+    class(PointDT)          , dimension(NNODE), intent(inout) :: point
+    real(rkind)             , dimension(2,2)                  :: jacobian
+    integer(ikind)                                            :: i
+    real(rkind)             , dimension(2, NNODE)             :: dsf
     jacobian = 0.d0
     dsf = this%dShapeFunc(u,v)
     do i = 1, NNODE
@@ -107,27 +109,26 @@ contains
 
   real(rkind) function jacobianDetFromCoord(this, u, v, point)
     implicit none
-    class(Triangle2D6NodeDT), intent(inout)                :: this
-    real(rkind)             , intent(in)                   :: u
-    real(rkind)             , intent(in)                   :: v
-    class(PointDT)          , dimension(NNODE), intent(in) :: point
-    real(rkind)                                            :: jacobianDetFromCoord
-    real(rkind)             , dimension(2,2)               :: jacobian
+    class(Triangle2D6NodeDT), intent(inout)                   :: this
+    real(rkind)             , intent(in)                      :: u
+    real(rkind)             , intent(in)                      :: v
+    class(PointDT)          , dimension(NNODE), intent(inout) :: point
+    real(rkind)             , dimension(2,2)                  :: jacobian
     jacobian = this%jacobian(u,v,point)
-    jacobianDet = jacobian(1,1)*jacobian(2,2)-jacobian(1,2)*jacobian(2,1)
+    jacobianDetFromCoord = jacobian(1,1)*jacobian(2,2)-jacobian(1,2)*jacobian(2,1)
   end function jacobianDetFromCoord
 
   real(rkind) function jacobianDetFromJacobian(this, jacobian)
     implicit none
     class(Triangle2D6NodeDT), intent(inout) :: this
     real(rkind), dimension(2,2), intent(in) :: jacobian
-    real(rkind)                             :: jacobianDetFromJacobian
-    jacobianDet = jacobian(1,1)*jacobian(2,2)-jacobian(1,2)*jacobian(2,1)
+    jacobianDetFromJacobian = jacobian(1,1)*jacobian(2,2)-jacobian(1,2)*jacobian(2,1)
   end function jacobianDetFromJacobian
 
   subroutine valueShapeFuncAtGPoints(this)
     implicit none
     class(Triangle2D6NodeDT), intent(inout) :: this
+    integer(ikind)                          :: i
     integer(ikind)                          :: integTerms
     real(rkind)                             :: x
     real(rkind)                             :: y
