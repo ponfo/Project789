@@ -52,15 +52,15 @@ contains
     msglvl        = arg(136)
     error         = arg(137)
     solution      = vector
-    call pardiso (pt, maxfct, mnum, mtype, phase, matrix%n  &
-         , matrix%a, matrix%ai, matrix%aj, idum, nrhs, iparm &
+    call pardiso (pt, maxfct, mnum, mtype, phase, matrix%getn()  &
+         , matrix%geta(), matrix%getai(), matrix%getaj(), idum, nrhs, iparm &
          , msglvl, vector, solution, error                  )
     if (error /= 0) then
        write(*,'(a,i5)') 'the following error was detected: ', error
        stop
     end if
     phase = -1 ! release internal memory
-    call pardiso (pt, maxfct, mnum, mtype, phase, matrix%n  &
+    call pardiso (pt, maxfct, mnum, mtype, phase, matrix%getn()  &
          , ddum, idum, idum, idum, nrhs, iparm, msglvl,     &
          ddum, ddum, error                                  )
     if (error /= 0) then

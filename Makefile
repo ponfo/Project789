@@ -42,18 +42,24 @@ OBJECTS := $(BINDIR)/Debugger.o                 \
 	$(BINDIR)/ConditionPtr.o                \
                                                 \
 	$(BINDIR)/Mesh.o                        \
+						\
+	$(BINDIR)/Preconditioner.o		\
+	$(BINDIR)/PreconditionerMethod.o	\
+	$(BINDIR)/UsePreconditioner.o		\
+						\
+	$(BINDIR)/ReorderSystem.o		\
+	$(BINDIR)/ReorderSystemMethod.o		\
+	$(BINDIR)/UseReorderSystem.o		\
                                                 \
+	$(BINDIR)/DirectLinearSolver.o		\
+	$(BINDIR)/IterativeLinearSolver.o	\
+	$(BINDIR)/LinearSolver.o		\
 	$(BINDIR)/mklPardiso.o                  \
-	$(BINDIR)/DirectLinearSolver.o          \
-	$(BINDIR)/Preconditioner.o              \
-	$(BINDIR)/PreconditionerMethod.o        \
-	$(BINDIR)/UsePreconditioner.o           \
 	$(BINDIR)/IterativeLinearSolverMethod.o \
-	$(BINDIR)/IterativeLinearSolver.o       \
-	$(BINDIR)/ReorderSystem.o               \
-	$(BINDIR)/ReorderSystemMethod.o         \
-	$(BINDIR)/UseReorderSystem.o            \
-	$(BINDIR)/LinearSolver.o                &
+						\
+	$(BINDIR)/NonLinearSolvers.o		\
+	$(BINDIR)/NonLinearSolver.o		\
+	$(BINDIR)/Method.o 
 
 #=============================================================
 main: $(OBJECTS)
@@ -148,7 +154,14 @@ $(BINDIR)/ReorderSystemMethod.o : $(VPATH)/solvers/Linear/Reorder/ReorderSystemM
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/UseReorderSystem.o : $(VPATH)/solvers/Linear/Reorder/UseReorderSystem.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
-$(BINDIR)/LinearSolver.o : $(VPATH)/solvers/LinearSolver.f90
+$(BINDIR)/LinearSolver.o : $(VPATH)/solvers/Linear/LinearSolver.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+
+$(BINDIR)/NonLinearSolvers.o : $(VPATH)/solvers/NonLinear/NonLinearSolvers.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/Method.o : $(VPATH)/solvers/NonLinear/Method.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/NonLinearSolver.o : $(VPATH)/solvers/NonLinear/NonLinearSolver.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 
 #------------------------------------------------------------------------------

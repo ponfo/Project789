@@ -98,6 +98,9 @@ module SparseKit
      procedure, public  :: get
      procedure, public  :: getnnz
      procedure, public  :: getn
+     procedure, public  :: getA
+     procedure, public  :: getAI
+     procedure, public  :: getAJ
 
      procedure, public  :: printValue
      procedure, public  :: printNonZeros
@@ -151,7 +154,7 @@ module SparseKit
   real(rkind), dimension(:), allocatable :: auxA
   integer(ikind), dimension(:), allocatable :: auxAJ
   integer(ikind), dimension(:), allocatable :: rowVector
-  integer(ikind) :: repeats, l
+  integer(ikind) :: repeats, l, i
 
 contains
   
@@ -473,6 +476,51 @@ contains
     class(Sparse), intent(inout) :: this
     getn = this%n
   end function getn
+
+  !***************************************************
+  ! getA:
+  !     get A vector of matrix
+  !  
+  ! Parameters:
+  !     Input, -
+  !     Output, getA(:)(Real(rkind))
+  !***************************************************
+  function getA(this)
+    implicit none
+    class(Sparse), intent(inout)    :: this
+    real(rkind), dimension(this%nnz) :: getA
+       getA = this%A
+  end function getA
+
+  !***************************************************
+  ! getAI:
+  !     get AI vector of matrix
+  !  
+  ! Parameters:
+  !     Input, -
+  !     Output, getAI(:)(Integer(ikind))
+  !***************************************************
+  function getAI(this)
+    implicit none
+    class(Sparse), intent(inout)       :: this
+    integer(ikind), dimension(this%n+1) :: getAI
+       getAI = this%AI
+  end function getAI
+
+    !***************************************************
+  ! getAJ:
+  !     get AJ vector of matrix
+  !  
+  ! Parameters:
+  !     Input, -
+  !     Output, getAJ(:)(Integer(ikind))
+  !***************************************************
+  function getAJ(this)
+    implicit none
+    class(Sparse), intent(inout)       :: this
+    integer(ikind), dimension(this%nnz) :: getAJ
+       getAJ = this%AJ
+  end function getAJ
   
   !***************************************************
   ! printValue:
