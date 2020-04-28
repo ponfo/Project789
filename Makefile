@@ -42,6 +42,8 @@ OBJECTS := $(BINDIR)/Debugger.o                 \
 	$(BINDIR)/ConditionPtr.o                \
                                                 \
 	$(BINDIR)/Mesh.o                        \
+	$(BINDIR)/Model.o			\
+	$(BINDIR)/ProcessInfo.o			\
 						\
 	$(BINDIR)/Preconditioner.o		\
 	$(BINDIR)/PreconditionerMethod.o	\
@@ -139,16 +141,20 @@ $(BINDIR)/Source.o : $(VPATH)/sources/Source.f90
 
 $(BINDIR)/Mesh.o : $(VPATH)/model/Mesh.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/Model.o : $(VPATH)/model/Model.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/ProcessInfo.o : $(VPATH)/model/ProcessInfo.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
 
 $(BINDIR)/mklPardiso.o : $(VPATH)/solvers/Linear/Direct/Solvers/mklPardiso.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/DirectLinearSolver.o : $(VPATH)/solvers/Linear/Direct/DirectLinearSolver.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
-$(BINDIR)/Preconditioner.o : $(VPATH)/solvers/Linear/Iterative/Preconditioner/Preconditioner.f90
+$(BINDIR)/Preconditioner.o : $(VPATH)/solvers/Linear/Preconditioner/Preconditioner.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
-$(BINDIR)/PreconditionerMethod.o : $(VPATH)/solvers/Linear/Iterative/Preconditioner/PreconditionerMethod.f90
+$(BINDIR)/PreconditionerMethod.o : $(VPATH)/solvers/Linear/Preconditioner/PreconditionerMethod.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
-$(BINDIR)/UsePreconditioner.o : $(VPATH)/solvers/Linear/Iterative/Preconditioner/UsePreconditioner.f90
+$(BINDIR)/UsePreconditioner.o : $(VPATH)/solvers/Linear/Preconditioner/UsePreconditioner.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/IterativeLinearSolverMethod.o : $(VPATH)/solvers/Linear/Iterative/Solvers/IterativeLinearSolverMethod.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@

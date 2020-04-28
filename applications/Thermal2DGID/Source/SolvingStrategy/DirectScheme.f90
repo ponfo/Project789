@@ -1,53 +1,47 @@
-module HeatFluxMOD
-  use tools
-  use DebuggerMOD
+module DirectSchemeM
 
-  use PointMOD
-  use PointPtrMOD
+  use UtilitiesM
+  use DebuggerM
 
-  use MaterialPtrMOD
-  use ThermalMaterialMOD
+  use PointPtrM
 
-  use IntegratorMOD
-  use IntegratorPtrMOD
+  use IntegratorPtrM
 
-  use Element1DPtrMOD
-  use Element2DPtrMOD
+  use Element1DPtrM
+  use Element2DPtrM
+  
+  use ThermalmodelM
+  
+  use SchemeM
 
-  use ThermalProblemMOD
   implicit none
+
   private
-  public :: HeatFluxTYPE
-  type HeatFluxTYPE
-     integer(ikind) , dimension(:)  , allocatable :: lineElemID
-     real(rkind)    , dimension(:)  , allocatable :: lineQ
-     real(rkind)    , dimension(:)  , allocatable :: lineGPoint
-     integer(ikind) , dimension(:)  , allocatable :: triangElemID
-     real(rkind)    , dimension(:)  , allocatable :: triangQx
-     real(rkind)    , dimension(:)  , allocatable :: triangQy
-     real(rkind)    , dimension(:,:), allocatable :: triangGPoint
-     integer(ikind) , dimension(:)  , allocatable :: quadElemID
-     real(rkind)    , dimension(:)  , allocatable :: quadQx
-     real(rkind)    , dimension(:)  , allocatable :: quadQy
-     real(rkind)    , dimension(:,:), allocatable :: quadGPoint
+  public :: DirectSchemeDT
+
+  type, extends(NewSchemeDT) :: DirectSchemeDT
    contains
-     procedure, public  :: calculateFlux
-     procedure, private :: valueGPoints1D
-     procedure, private :: valueGPointsTriang
-     procedure, private :: valueGPointsQuad
-  end type HeatFluxTYPE
+     procedure, public              :: calculateFlux
+     procedure                      :: valueGPoints1D
+     procedure                      :: valueGPointsTriang
+     procedure                      :: valueGPointsQuad
+  end type DirectSchemeDT
 
   procedure(addTriangFlux), pointer :: addFlux => null()
-  integer(ikind) :: lineCount
-  integer(ikind) :: triangCount
-  integer(ikind) :: quadCount
-
+  integer(ikind)                    :: lineCount
+  integer(ikind)                    :: triangCount
+  integer(ikind)                    :: quadCount
+  
 contains
 
-  subroutine calculateFlux(this, problem)
+  subroutine calculateFlux(this, model)
     implicit none
-    class(HeatFluxTYPE), intent(inout) :: this
-    class(ThermalProblemTYPE), intent(inout) :: problem
+    class(DirectSchemeDT), intent(inout)          :: this
+    class(ThermalModelDT), intent(inout)          :: model
+    type(Element1DPtrTYPE)                        :: element1D
+    type(Element2DPtrTYPE)                        :: element2D
+    type(IntegratorPtrTYPE)                       :: integrator
+    type(PointPtrTYPE), dimension(:), allocatable :: point
     integer(ikind) :: iElem, iGauss, i, triangElemCount, quadElemCount
     integer(ikind) :: nElem, nPoint, nLine, nTriang, nQuad
     integer(ikind) :: nGauss, nGaussPointLine, nGaussPointTriang, nGaussPointQuad
@@ -55,28 +49,24 @@ contains
     real(rkind) :: k, kx, ky, q, qx, qy, jacobian1D
     real(rkind), dimension(:,:), allocatable :: dsf
     real(rkind), dimension(2,2) :: jacobian
-    type(Element1DPtrTYPE) :: element1D
-    type(Element2DPtrTYPE) :: element2D
-    type(IntegratorPtrTYPE) :: integrator
-    type(PointPtrTYPE), dimension(:), allocatable :: point
-    call debugLog('Calculating heat flux')
-    print'(A)', 'Calculating heat flux'
-    call this%valueGPoints1D(problem)
-    nLine = problem%domain%nLine
+    write(*,*) '***  Direct Scheme ***'
+    write(*,*) '*** Calculate Flux ***'
+    call this%valueGPoints1D(model)
+    nLine = model%nLine
     if(nLine > 0) then
-       nGauss = problem%domain%elementList1D%getGaussOrder()
+       nGauss = model%elementList1D%getGaussOrder()
     else
-       nGauss = problem%domain%elementList2D%getGaussOrder()
+       nGauss = model%elementList2D%getGaussOrder()
     end if
     nGaussPointLine = getnGaussPointLine(nGauss, nLine)
-    allocate(this%lineElemID(nLine))
-    allocate(this%lineQ(nGaussPointLine))
+    allocate(model%heatFlux%lineElemID(nLine))
+    allocate(model%heatFlux%lineQ(nGaussPointLine))
     !Flux for one dimensional elements:
     lineCount = 0
-    nElem = problem%domain%getnLine()
+    nElem = model%getnLine()
     do iElem = 1, nElem
-       element1D = problem%domain%elementList1D%getElement(iElem)
-       this%lineElemID(iElem) = element1D%getID()
+       element1D = model%elementList1D%getElement(iElem)
+       model%heatFlux%lineElemID(iElem) = element1D%getID()
        nPoint = element1D%getnPoint()
        integrator = element1D%getIntegrator()
        do iGauss = 1, integrator%ptr%integTerms
@@ -88,40 +78,40 @@ contains
                   *problem%dof(element1D%getPointID(i))/jacobian1D
           end do
           k = element1D%ptr%material%ptr%conductivity(1)
-          call addLineFlux(this, -1.d0*k*q)
+          call addLineFlux(this, -1.d0*k*q, model)
        end do
     end do
     !Flux for bidimensional elements:
-    nTriang = problem%domain%nTriang
-    nQuad = problem%domain%nQuad
+    nTriang = model%nTriang
+    nQuad = model%nQuad
     if(nTriang == 0 .and. nQuad == 0) return
-    call this%valueGPointsTriang(problem)
-    call this%valueGPointsQuad(problem)
+    call this%valueGPointsTriang(model)
+    call this%valueGPointsQuad(model)
     nGaussPointTriang = getnGaussPointTriang(nGauss, nTriang)
     nGaussPointQuad = getnGaussPointQuad(nGauss, nQuad)
-    allocate(this%triangElemID(nTriang))
-    allocate(this%triangQx(nGaussPointTriang))
-    allocate(this%triangQy(nGaussPointTriang))
-    allocate(this%quadElemID(nQuad))
-    allocate(this%quadQx(nGaussPointQuad))
-    allocate(this%quadQy(nGaussPointQuad))
+    allocate(model%heatFlux%triangElemID(nTriang))
+    allocate(model%heatFlux%triangQx(nGaussPointTriang))
+    allocate(model%heatFlux%triangQy(nGaussPointTriang))
+    allocate(model%heatFlux%quadElemID(nQuad))
+    allocate(model%heatFlux%quadQx(nGaussPointQuad))
+    allocate(model%heatFlux%quadQy(nGaussPointQuad))
     triangCount = 0
     quadCount = 0
     triangElemCount = 0
     quadElemCount = 0
-    nElem = problem%domain%getnTriang() + problem%domain%getnQuad()
+    nElem = model%getnTriang() + model%getnQuad()
     do iElem = 1, nElem
-       element2D = problem%domain%elementList2D%getElement(iElem)
+       element2D = model%elementList2D%getElement(iElem)
        nPoint = element2D%getnPoint()
        integrator = element2D%getIntegrator()
        if(nPoint == 3 .or. nPoint == 6) then
           triangElemCount = triangElemCount + 1
           addFlux => addTriangFlux
-          this%triangElemID(triangElemCount) = element2D%getID()
+          model%heatFlux%triangElemID(triangElemCount) = element2D%getID()
        else if(nPoint == 4 .or. nPoint == 8) then
           quadElemCount = quadElemCount + 1
           addFlux => addQuadFlux
-          this%quadElemID(quadElemCount) = element2D%getID()
+          model%heatFlux%quadElemID(quadElemCount) = element2D%getID()
        else
           print'(A)', '** PostProcess ERROR1 **'
        end if
@@ -144,74 +134,78 @@ contains
           end do
           kx = element2D%ptr%material%ptr%conductivity(1)
           ky = element2D%ptr%material%ptr%conductivity(2)
-          call addFlux(this, -1.d0*kx*qx, -1.d0*ky*qy)
+          call addFlux(this, -1.d0*kx*qx, -1.d0*ky*qy, model)
           deallocate(dsf)
        end do
     end do
+    
   end subroutine calculateFlux
 
-  subroutine valueGPoints1D(this, problem)
+subroutine valueGPoints1D(this, model)
     implicit none
-    class(HeatFluxTYPE), intent(inout) :: this
-    class(ThermalProblemTYPE), intent(inout) :: problem
-    type(IntegratorPtrTYPE) :: integrator
-    integrator = problem%domain%elementList1D%getIntegrator()
+    class(DirectSchemeDT), intent(inout) :: this
+    class(ThermalmodelDT), intent(inout) :: model
+    type(IntegratorPtrDT) :: integrator
+    integrator = model%elementList1D%getIntegrator()
     if(allocated(integrator%ptr%gPoint)) then
-       allocate(this%lineGPoint(size(integrator%ptr%gPoint,1)))
-       this%lineGPoint(:) = integrator%ptr%gPoint(:,1)
+       allocate(model%heatFlux%lineGPoint(size(integrator%ptr%gPoint,1)))
+       model%heatFlux%lineGPoint(:) = integrator%ptr%gPoint(:,1)
     end if
   end subroutine valueGPoints1D
 
-  subroutine valueGPointsTriang(this, problem)
+  subroutine valueGPointsTriang(this, model)
     implicit none
-    class(HeatFluxTYPE), intent(inout) :: this
-    class(ThermalProblemTYPE), intent(inout) :: problem
-    type(IntegratorPtrTYPE) :: integrator
-    integrator = problem%domain%elementList2D%getTriangIntegrator()
+    class(DirectSchemeDT), intent(inout) :: this
+    class(ThermalModelDT), intent(inout) :: model
+    type(IntegratorPtrDT) :: integrator
+    integrator = model%elementList2D%getTriangIntegrator()
     if(allocated(integrator%ptr%gPoint)) then
-       allocate(this%triangGPoint(size(integrator%ptr%gPoint,1),size(integrator%ptr%gPoint,2)))
-       this%triangGPoint = integrator%ptr%gPoint
+       allocate(model%heatFlux%triangGPoint(size(integrator%ptr%gPoint,1),size(integrator%ptr%gPoint,2)))
+       model%heatFlux%triangGPoint = integrator%ptr%gPoint
     end if
   end subroutine valueGPointsTriang
 
-  subroutine valueGPointsQuad(this, problem)
+  subroutine valueGPointsQuad(this, model)
     implicit none
-    class(HeatFluxTYPE), intent(inout) :: this
-    class(ThermalProblemTYPE), intent(inout) :: problem
-    type(IntegratorPtrTYPE) :: integrator
-    integrator = problem%domain%elementList2D%getQuadIntegrator()
+    class(DirectSchemeDT), intent(inout) :: this
+    class(ThermalModelDT), intent(inout) :: model
+    type(IntegratorPtrDT) :: integrator
+    integrator = model%elementList2D%getQuadIntegrator()
     if(allocated(integrator%ptr%gPoint)) then
-       allocate(this%quadGPoint(size(integrator%ptr%gPoint,1),size(integrator%ptr%gPoint,2)))
-       this%quadGPoint = integrator%ptr%gPoint
+       allocate(model%heatFlux%quadGPoint(size(integrator%ptr%gPoint,1),size(integrator%ptr%gPoint,2)))
+       model%heatFlux%quadGPoint = integrator%ptr%gPoint
     end if
   end subroutine valueGPointsQuad
 
-  subroutine addLineFlux(this, q)
+  subroutine addLineFlux(this, q, model)
     implicit none
-    class(HeatFluxTYPE), intent(inout) :: this
+    class(DirectSchemeDT), intent(inout) :: this
+    class(ThermalModelDT), intent(inout) :: model
     real(rkind), intent(in) :: q
     lineCount = lineCount + 1
-    this%lineQ(lineCount) = q
+    model%heatFlux%lineQ(lineCount) = q
   end subroutine addLineFlux
 
-  subroutine addTriangFlux(this, qx, qy)
+  subroutine addTriangFlux(this, qx, qy, model)
     implicit none
-    class(HeatFluxTYPE), intent(inout) :: this
+    class(DirectSchemeDT)   , intent(inout) :: this
+    class(ThermalStrategyDT), intent(inout) :: model
     real(rkind), intent(in) :: qx
     real(rkind), intent(in) :: qy
     triangCount = triangCount + 1
-    this%triangQx(triangCount) = qx
-    this%triangQy(triangCount) = qy
+    model%heatFlux%triangQx(triangCount) = qx
+    model%heatFlux%triangQy(triangCount) = qy
   end subroutine addTriangFlux
 
-  subroutine addQuadFlux(this, qx, qy)
+  subroutine addQuadFlux(this, qx, qy, model)
     implicit none
-    class(HeatFluxTYPE), intent(inout) :: this
-    real(rkind), intent(in) :: qx
-    real(rkind), intent(in) :: qy
+    class(DirectSchemeDT), intent(inout) :: this
+    class(ThermalModelDT), intent(inout) :: model
+    real(rkind)          , intent(in)    :: qx
+    real(rkind)          , intent(in)    :: qy
     quadCount = quadCount + 1
-    this%quadQx(quadCount) = qx
-    this%quadQy(quadCount) = qy
+    model%heatFlux%quadQx(quadCount) = qx
+    model%heatFlux%quadQy(quadCount) = qy
   end subroutine addQuadFlux
 
   integer(ikind) function getnGaussPointLine(nGauss, nLine)
@@ -250,5 +244,5 @@ contains
        print*, '** Input Gauss Order not supported! **'
     end if
   end function getnGaussPointQuad
-
-end module HeatFluxMOD
+  
+end module DirectSchemeM

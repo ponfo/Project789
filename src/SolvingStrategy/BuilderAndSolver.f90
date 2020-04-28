@@ -6,16 +6,7 @@ module BuilderAndSolverM
   public :: NewBuilderAndSolverDT, BuilderAndSolverDT, SetBuilderAndSolver
 
   type, abstract :: NewBuilderAndSolverDT
-   contains
-     procedure(BuilderAndSolver_procedure), deferred :: useBAndS
   end type NewBuilderAndSolverDT
-
-  abstract interface
-     subroutine BuilderAndSolver_Procedure(this)
-       import NewBuilderAndSolverDT
-       class(NewBuilderAndSolverDT), intent(inout) :: this
-     end subroutine BuilderAndSolver_Procedure
-  end interface
 
   interface SetBuilderAndSolver
      procedure :: constructor
@@ -26,13 +17,6 @@ module BuilderAndSolverM
    contains
      procedure :: init
      procedure :: change
-     procedure :: use
-!!$     procedure :: buildAndSolve
-!!$     procedure :: buildLHS
-!!$     procedure :: buildRHS
-!!$     procedure :: applyDirichletConditions
-!!$     procedure :: systemSolve
-     !procedure :: CalculateReactions
   end type BuilderAndSolverDT
 
 contains
@@ -57,11 +41,5 @@ contains
     deallocate(this%builderAndSolver)
     allocate(this%builderAndSolver, source = newBuilderAndSolver)
   end subroutine change
-
-  subroutine use(this)
-    implicit none
-    class(BuilderAndSolverDT), intent(inout) :: this
-    call this%builderAndSolver%useBandS()
-  end subroutine use
   
 end module BuilderAndSolverM

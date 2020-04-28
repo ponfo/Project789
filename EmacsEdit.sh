@@ -11,9 +11,9 @@ emacs   src/lib/Utilities.f90\
 	src/solvers/Linear/Iterative/IterativeLinearSolver.f90\
 	src/solvers/Linear/Iterative/Solvers/IterativeLinearSolverMethod.f90\
 	\
-	src/solvers/Linear/Iterative/Preconditioner/Preconditioner.f90\
-	src/solvers/Linear/Iterative/Preconditioner/PreconditionerMethod.f90\
-	src/solvers/Linear/Iterative/Preconditioner/UsePreconditioner.f90\
+	src/solvers/Linear/Preconditioner/Preconditioner.f90\
+	src/solvers/Linear/Preconditioner/PreconditionerMethod.f90\
+	src/solvers/Linear/Preconditioner/UsePreconditioner.f90\
 	\
 	src/solvers/Linear/Reorder/ReorderSystem.f90\
 	src/solvers/Linear/Reorder/ReorderSystemMethod.f90\
@@ -40,10 +40,13 @@ emacs   src/lib/Utilities.f90\
 	src/geometry/Triangle2D6Node.f90\
 	src/geometry/Quadrilateral2D4Node.f90\
 	src/geometry/Quadrilateral2D8Node.f90\
-	\
 	src/geometry/GeometryObject.f90\
+	\
 	src/element/Element.f90\
+	src/element/ElementPtr.f90\
+	\
 	src/condition/Condition.f90\
+	src/condition/ConditionPtr.f90\
 	\
 	src/model/Mesh.f90\
 	src/model/ProcessInfo.f90\
