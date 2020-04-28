@@ -52,11 +52,9 @@ emacs   src/lib/Utilities.f90\
 	src/sources/Source.f90\
 	\
 	src/Process/Process.f90\
-	src/Process/ProcessMethod.f90\
-	src/Process/UseProcess.f90\
 	\
-	src/SolvingStrategy/AssembleStrategy.f90\
-	src/SolvingStrategy/SolveStrategy.f90\
-	src/SolvingStrategy/UserAssembleStrategy.f90\
+	src/SolvingStrategy/SolvingStrategy.f90\
+	src/SolvingStrategy/Scheme.f90\
+	src/SolvingStrategy/BuilderAndSolver.f90\
 	\
         src/io/IOData.f90&

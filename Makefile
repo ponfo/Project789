@@ -59,7 +59,13 @@ OBJECTS := $(BINDIR)/Debugger.o                 \
 						\
 	$(BINDIR)/NonLinearSolvers.o		\
 	$(BINDIR)/NonLinearSolver.o		\
-	$(BINDIR)/Method.o 
+	$(BINDIR)/Method.o			\
+						\
+	$(BINDIR)/Process.o			\
+						\
+	$(BINDIR)/BuilderAndSolver.o		\
+	$(BINDIR)/Scheme.o			\
+	$(BINDIR)/SolvingStrategy.o
 
 #=============================================================
 main: $(OBJECTS)
@@ -162,6 +168,16 @@ $(BINDIR)/NonLinearSolvers.o : $(VPATH)/solvers/NonLinear/NonLinearSolvers.f90
 $(BINDIR)/Method.o : $(VPATH)/solvers/NonLinear/Method.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/NonLinearSolver.o : $(VPATH)/solvers/NonLinear/NonLinearSolver.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+
+$(BINDIR)/Process.o : $(VPATH)/Process/Process.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+
+$(BINDIR)/BuilderAndSolver.o : $(VPATH)/SolvingStrategy/BuilderAndSolver.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/Scheme.o : $(VPATH)/SolvingStrategy/Scheme.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/SolvingStrategy.o : $(VPATH)/SolvingStrategy/SolvingStrategy.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 
 #------------------------------------------------------------------------------
