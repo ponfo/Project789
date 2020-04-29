@@ -121,12 +121,6 @@ contains
          , nMaterial = nMaterial                               &
          , nGauss = nGauss                                     )
     
-    thermalAppl%mesh = mesh(                                   &
-           id = 1                                              &
-         , nNode = nPoint                                      &
-         , nElement = nTriangElem + nRectElem                  &
-         , nCondition = nDirichlet + nNormalFlux + nConvection )
-    
     do i = 1, 6
        read(project,*)
     end do
@@ -136,7 +130,7 @@ contains
        read(project,*) iPoint, x, y
        if(verbose) print'(3X,I0,3X,E10.3,3X,E10.3,3X,E10.3)', iPoint, x, y
        thermalAppl%node(iPoint) = node(iPoint, 1, x, y)
-       call mesh%addNode(iPoint, thermalAppl%node(iPoint))
+       call thermalAppl%model%addNode(iPoint, thermalAppl%node(iPoint))
     end do
   end subroutine initMesh
   
@@ -171,7 +165,7 @@ contains
           auxNode(j)%ptr => thermalAppl%node(conectivities(j))
        end do
        thermalAppl%element(iElem) = thermalElement(iElem, auxNode, thermalAppl%material(iMat))
-       call thermalAppl%mesh%addElement(thermalAppl%element(iElem))
+       call thermalAppl%model%addElement(i, thermalAppl%element(iElem))
        deallocate(auxNode)
     end do
   end subroutine initElements
@@ -244,9 +238,11 @@ contains
     end if
     allocate(pointID(nPointID))
     allocate(node(nPointID))
+    conditionCounter = 0
     if(verbose) print'(/,A)', 'Normal Flux On Lines conditions'
     if(verbose) print'(A)', 'Elem    Nodes     Value'
     do i = 1, nNormalFlux
+       conditionCounter = conditionCounter + 1
        read(Project,*) elemID, (pointID(j),j=1,nPointID), value
        if(verbose) print*, elemID, (pointID(j),j=1,nPointID), value
        element = thermalAppl%element(elemID)
@@ -255,7 +251,7 @@ contains
        end do
        geometry = element%geometry
        thermalAppl%normalFluxOL(i) = fluxOnLine(i, value, node, geometry)
-       call mesh%addCondition(thermalAppl%normalFluxOL(i))
+       call thermalAppl%model%addCondition(conditionCounter, thermalAppl%normalFluxOL(i))
     end do
     do i = 1, 7
        read(project,*)
@@ -263,6 +259,7 @@ contains
     if(verbose) print'(/,A)', 'Convection On Lines conditions'
     if(verbose) print'(A)', 'Elem    Nodes     Coef     Temp'
     do i = 1, nConvection
+       conditionCounter = conditionCounter + 1
        read(Project,*) elemID, (pointID(j),j=1,nPointID), coef, temp
        if(verbose) print*, elemID, (pointID(j),j=1,nPointID), coef, temp
        element = thermalAppl%element(elemID)
@@ -271,7 +268,7 @@ contains
        end do
        geometry = element%geometry
        thermalAppl%convectionOL(i) = convectionOnLine(i, coef, temp, node, geometry)
-       call mesh%addCondition(thermalAppl%convectionOL(i))
+       call thermalAppl%model%addCondition(conditionCounter, thermalAppl%convectionOL(i))
     end do
     close(project)
   end subroutine readBoundaryConditions

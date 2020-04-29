@@ -3,8 +3,7 @@ module Thermal2DApplicationM
   use ConvectionOnLineM
   use FluxOnLineM
   use ThermalMaterialM
-
-  use MeshM
+  use ThermalModelM
 
   implicit none
 
@@ -18,7 +17,7 @@ module Thermal2DApplicationM
      type(FluxOnLineDT)      , dimension(:), allocatable :: normalFluxOL
      type(SourceDT)          , dimension(:), allocatable :: source
      type(ThermalMaterial)   , dimension(:), allocatable :: material
-     type(MeshDT)                                        :: mesh
+     type(ThermalModelDT)    ,                           :: model
    contains
      procedure, public :: assemble
      procedure, public :: solve
@@ -60,6 +59,13 @@ contains
     allocate(this%source(nSource))
     allocate(this%material(nMaterial))
     call initGeometries(nGauss)
+    this%model = thermalModel(                    &
+           nDof = nNode                           &
+         , nnz = nElement*64                      &
+         , id = 1                                 &
+         , nNode = nNode                          &
+         , nElement = nElement                    &
+         , nCondition = nConvection + nNormalFlux )
   end subroutine init
 
 end module Thermal2DApplicationM

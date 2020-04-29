@@ -25,30 +25,46 @@ module ElementM
      procedure, public :: assignNode
      procedure, public :: assignSource
 
-     procedure                                   :: calculateLocalSystem
-     procedure(calculateLHSInterf)    , deferred :: calculateLHS
-     procedure(calculateRHSInterf)    , deferred :: calculateRHS
-     procedure                                   :: calculateResults
+     procedure, public :: getID
+     procedure, public :: getnNode
+     procedure, public :: getNode
+     procedure, public :: getNodeID
+
+     procedure(calculateLocalSystemInterf), deferred :: calculateLocalSystem
+     procedure(calculateLHSInterf)        , deferred :: calculateLHS
+     procedure(calculateRHSInterf)        , deferred :: calculateRHS
+     procedure                                       :: calculateResults
   end type ElementDT
 
   abstract interface
-     function calculateRHSInterf(this)
+     subroutine calculateLocalSystem(this, lhs, rhs)
        use UtilitiesM
        import ElementDT
        implicit none
-       class(ElementDT), intent(inout) :: this
-       real(rkind)     , dimension(:), allocatable :: calculateRHSInterf
-     end function calculateRHSInterf
+       class(ElementDT)                             , intent(inout) :: this
+       real(rkind)     , dimension(:,:), allocatable, intent(inout) :: lhs
+       real(rkind)     , dimension(:)  , allocatable, intent(inout) :: rhs
+     end subroutine calculateLocalSystem
   end interface
 
   abstract interface
-     function calculateLHSInterf(this)
+     subroutine calculateRHSInterf(this, rhs)
        use UtilitiesM
        import ElementDT
        implicit none
-       class(ElementDT), intent(inout) :: this
-       real(rkind)     , dimension(:,:), allocatable :: calculateLHSInterf
-     end function calculateLHSInterf
+       class(ElementDT)                           , intent(inout) :: this
+       real(rkind)     , dimension(:), allocatable, intent(inout) :: rhs
+     end subroutine calculateRHSInterf
+  end interface
+
+  abstract interface
+     subroutine calculateLHSInterf(this)
+       use UtilitiesM
+       import ElementDT
+       implicit none
+       class(ElementDT)                             , intent(inout) :: this
+       real(rkind)     , dimension(:,:), allocatable, intent(inout) :: lhs
+     end subroutine calculateLHSInterf
   end interface
 
 contains
@@ -75,6 +91,32 @@ contains
     class(SourceDT) , target, intent(in)    :: source
     this%source => source
   end subroutine assignSource
+
+  integer(ikind) function getID(this)
+    implicit none
+    class(ElementDT), intent(inout) :: this
+    getID = this%id
+  end function getID
+
+  integer(ikind) function getnNode(this)
+    implicit none
+    class(ElementDT), intent(inout) :: this
+    getnNode = size(this%node)
+  end function getnNode
+
+  type(NodePtrDT) function getNode(this, iNode)
+    implicit none
+    class(ElementDT), intent(inout) :: this
+    integer(ikind)  , intent(in)    :: iNode
+    getNode = this%node(iNode)
+  end function getNode
+
+  integer(ikind) function getNodeID(this, iNode)
+    implicit none
+    class(ElementDT), intent(inout) :: this
+    integer(ikind)  , intent(in)    :: iNode
+    getNodeID = this%node(iNode)%getID()
+  end function getNodeID
 
   subroutine calculateLocalSystem(this, lhs, rhs)
     implicit none

@@ -11,6 +11,8 @@ module FluxOnLineM
    contains
      procedure, public :: init
 
+     procedure, public :: calculateLocalSystem
+     procedure, public :: calculateLHS
      procedure, public :: calculateRHS
   end type FluxOnLineDT
 
@@ -42,12 +44,30 @@ contains
     this%geometry => geometry
   end subroutine init
 
-  function calculateRHS(this)
+  subroutine calculateLocalSystem(this, lhs, rhs)
     implicit none
-    class(FluxOnLineDT), intent(inout) :: this
-    real(rkind), dimension(:), allocatable :: calculateRHS
+    class(FluxOnLineDT)                                   , intent(inout) :: this
+    real(rkind)              , dimension(:,:), allocatable, intent(inout) :: lhs
+    real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
+    nNode = this%geometry%nNode
+    allocate(lhs(nNode,nNode))
+    allocate(rhs(nNode))
     print*, 'Reimplementación pendiente'
-  end function calculateRHS
+  end subroutine calculateLocalSystem
+
+  subroutine calculateLHS(this, lhs)
+    implicit none
+    class(FluxOnLineDT)                                   , intent(inout) :: this
+    real(rkind)              , dimension(:,:), allocatable, intent(inout) :: lhs
+    print*, 'Reimplementación pendiente'
+  end subroutine calculateLHS
+
+  subroutine calculateRHS(this, rhs)
+    implicit none
+    class(FluxOnLineDT)                                   , intent(inout) :: this
+    real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
+    print*, 'Reimplementación pendiente'
+  end subroutine calculateRHS
 
 end module FluxOnLineM
     

@@ -13,6 +13,8 @@ module ConvectionOnLineM
      procedure, public :: init
 
      procedure, public :: calculateLocalSystem
+     procedure, public :: calculateLHS
+     procedure, public :: calculateRHS
   end type ConvectionOnLineDT
 
   interface convectionOnLine
@@ -48,13 +50,27 @@ contains
 
   subroutine calculateLocalSystem(this, lhs, rhs)
     implicit none
-    class(ConvectionOnLineDT), intent(inout) :: this
-    real(rkind), dimension(:,:), allocatable :: lhs
-    real(rkind), dimension(:)  , allocatable :: rhs
+    class(ConvectionOnLineDT)                             , intent(inout) :: this
+    real(rkind)              , dimension(:,:), allocatable, intent(inout) :: lhs
+    real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
     nNode = this%geometry%nNode
     allocate(lhs(nNode,nNode))
     allocate(rhs(nNode))
     print*, 'Reimplementación pendiente'
   end subroutine calculateLocalSystem
+
+  subroutine calculateLHS(this, lhs)
+    implicit none
+    class(ConvectionOnLineDT)                             , intent(inout) :: this
+    real(rkind)              , dimension(:,:), allocatable, intent(inout) :: lhs
+    print*, 'Reimplementación pendiente'
+  end subroutine calculateLHS
+
+  subroutine calculateRHS(this, rhs)
+    implicit none
+    class(ConvectionOnLineDT)                             , intent(inout) :: this
+    real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
+    print*, 'Reimplementación pendiente'
+  end subroutine calculateRHS
 
 end module ConvectionOnLineM

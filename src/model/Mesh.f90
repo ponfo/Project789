@@ -28,6 +28,14 @@ module MeshM
      procedure, public :: addElement
      procedure, public :: addCondition
 
+     procedure, public :: getnNode
+     procedure, public :: getnElement
+     procedure, public :: getnCondition
+     procedure, public :: getID
+     procedure, public :: getNode
+     procedure, public :: getElement
+     procedure, public :: getCondition
+
      procedure, public :: removeNode
      procedure, public :: removeElement
      procedure, public :: removeCondition
@@ -86,6 +94,51 @@ contains
     class(ConditionDT), target, intent(in)    :: condition
     this%condition(id)%ptr => condition
   end subroutine addCondition
+
+  integer(ikind) function getnNode(this)
+    implicit none
+    class(MeshDT), intent(inout) :: this
+    getnNode = size(this%node)
+  end function getnNode
+
+  integer(ikind) function getnElement(this)
+    implicit none
+    class(MeshDT), intent(inout) :: this
+    getnElement = size(this%element)
+  end function getnElement
+
+  integer(ikind) function getnCondition(this)
+    implicit none
+    class(MeshDT), intent(inout) :: this
+    getnCondition = size(this%condition)
+  end function getnCondition
+
+  integer(ikind) function getID(this)
+    implicit none
+    class(MeshDT), intent(inout) :: this
+    getID = this%id
+  end function getID
+
+  type(NodePtrDT) function getNode(this, id)
+    implicit none
+    class(MeshDT) , intent(inout) :: this
+    integer(ikind), intent(in)    :: id
+    getNode = this%node(id)
+  end function getNode
+
+  type(ElementPtrDT) function getElement(this, id)
+    implicit none
+    class(MeshDT) , intent(inout) :: this
+    integer(ikind), intent(in)    :: id
+    getElement = this%element(id)
+  end function getElement
+
+  type(ConditionPtrDT) function getCondition(this, id)
+    implicit none
+    class(MeshDT) , intent(inout) :: this
+    integer(ikind), intent(in)    :: id
+    getCondition = this%condition(id)
+  end function getCondition
 
   subroutine removeNode(this, id)
     implicit none
