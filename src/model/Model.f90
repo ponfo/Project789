@@ -1,6 +1,16 @@
 module ModelM
+  use UtilitiesM
 
   use SparseKit
+
+  use NodeM
+  use NodePtrM
+
+  use ElementM
+  use ElementPtrM
+
+  use ConditionM
+  use ConditionPtrM
   
   use MeshM
 
@@ -62,8 +72,6 @@ module ModelM
      procedure, private :: removeElementMultiMesh
      procedure, private :: removeConditionOneMesh
      procedure, private :: removeConditionMultiMesh
-   contains
-     
   end type ModelDT
 
   interface model
@@ -72,11 +80,11 @@ module ModelM
 
 contains
 
-  type(ModelDT) function contructor(nMesh)
+  type(ModelDT) function constructor(nMesh)
     implicit none
     integer(ikind), intent(in) :: nMesh
     call constructor%initModel(nMesh)
-  end function contructor
+  end function constructor
 
   subroutine initModel(this, nMesh)
     implicit none
@@ -95,7 +103,7 @@ contains
     this%mesh(id) = mesh(id, nNode, nElement, nCondition)
   end subroutine addMesh
 
-  subroutine addNodeOneMesh(this,  nodeID, node)
+  subroutine addNodeOneMesh(this, nodeID, node)
     implicit none
     class(ModelDT)        , intent(inout) :: this
     integer(ikind)        , intent(in)    :: nodeID
@@ -198,43 +206,49 @@ contains
     getIDMultiMesh = this%mesh(meshID)%getID()
   end function getIDMultiMesh
 
-  type(NodePtrDT) function getNodeOneMesh(this)
+  type(NodePtrDT) function getNodeOneMesh(this, nodeID)
     implicit none
     class(ModelDT), intent(inout) :: this
-    getNodeOneMesh = this%mesh(1)%getNode()
+    integer(ikind), intent(in)    :: nodeID
+    getNodeOneMesh = this%mesh(1)%getNode(nodeID)
   end function getNodeOneMesh
 
-  type(NodePtrDT) function getNodeMultiMesh(this, meshID)
+  type(NodePtrDT) function getNodeMultiMesh(this, meshID, nodeID)
     implicit none
     class(ModelDT), intent(inout) :: this
     integer(ikind), intent(in)    :: meshID
-    getNodeMultiMesh = this%mesh(meshID)%getNode()
+    integer(ikind), intent(in)    :: nodeID
+    getNodeMultiMesh = this%mesh(meshID)%getNode(nodeID)
   end function getNodeMultiMesh
 
-  type(ElementPtrDT) function getElementOneMesh(this)
+  type(ElementPtrDT) function getElementOneMesh(this, elementID)
     implicit none
     class(ModelDT), intent(inout) :: this
-    getElementOneMesh = this%mesh(1)%getElement()
+    integer(ikind), intent(in)    :: elementID
+    getElementOneMesh = this%mesh(1)%getElement(elementID)
   end function getElementOneMesh
 
-  type(ElementPtrDT) function getElementMultiMesh(this, meshID)
+  type(ElementPtrDT) function getElementMultiMesh(this, meshID, elementID)
     implicit none
     class(ModelDT), intent(inout) :: this
     integer(ikind), intent(in)    :: meshID
-    getElementMultiMesh = this%mesh(meshID)%getElement()
+    integer(ikind), intent(in)    :: elementID
+    getElementMultiMesh = this%mesh(meshID)%getElement(elementID)
   end function getElementMultiMesh
 
-  type(ConditionPtrDT) function getConditionOneMesh(this)
+  type(ConditionPtrDT) function getConditionOneMesh(this, conditionID)
     implicit none
     class(ModelDT), intent(inout) :: this
-    getConditionOneMesh = this%mesh(1)%getCondition()
+    integer(ikind), intent(in)    :: conditionID
+    getConditionOneMesh = this%mesh(1)%getCondition(conditionID)
   end function getConditionOneMesh
 
-  type(ConditionPtrDT) function getConditionMultiMesh(this, meshID)
+  type(ConditionPtrDT) function getConditionMultiMesh(this, meshID, conditionID)
     implicit none
     class(ModelDT), intent(inout) :: this
     integer(ikind), intent(in)    :: meshID
-    getConditionMultiMesh = this%mesh(meshID)%getCondition()
+    integer(ikind), intent(in)    :: conditionID
+    getConditionMultiMesh = this%mesh(meshID)%getCondition(conditionID)
   end function getConditionMultiMesh
 
   subroutine removeNodeOneMesh(this, nodeID)

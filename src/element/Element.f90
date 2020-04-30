@@ -37,14 +37,14 @@ module ElementM
   end type ElementDT
 
   abstract interface
-     subroutine calculateLocalSystem(this, lhs, rhs)
+     subroutine calculateLocalSystemInterf(this, lhs, rhs)
        use UtilitiesM
        import ElementDT
        implicit none
        class(ElementDT)                             , intent(inout) :: this
        real(rkind)     , dimension(:,:), allocatable, intent(inout) :: lhs
        real(rkind)     , dimension(:)  , allocatable, intent(inout) :: rhs
-     end subroutine calculateLocalSystem
+     end subroutine calculateLocalSystemInterf
   end interface
 
   abstract interface
@@ -58,7 +58,7 @@ module ElementM
   end interface
 
   abstract interface
-     subroutine calculateLHSInterf(this)
+     subroutine calculateLHSInterf(this, lhs)
        use UtilitiesM
        import ElementDT
        implicit none
@@ -115,7 +115,7 @@ contains
     implicit none
     class(ElementDT), intent(inout) :: this
     integer(ikind)  , intent(in)    :: iNode
-    getNodeID = this%node(iNode)%getID()
+    getNodeID = this%node(iNode)%ptr%getID()
   end function getNodeID
 
   subroutine calculateLocalSystem(this, lhs, rhs)

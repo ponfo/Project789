@@ -3,9 +3,6 @@ module DirectBuilderAndSolverM
   use UtilitiesM
   use DebuggerM
 
-  use Element1DPtrM
-  use Element2DPtrM
-
   use SparseKit
 
   use ThermalModelM

@@ -67,7 +67,9 @@ OBJECTS := $(BINDIR)/Debugger.o                 \
 						\
 	$(BINDIR)/BuilderAndSolver.o		\
 	$(BINDIR)/Scheme.o			\
-	$(BINDIR)/SolvingStrategy.o
+	$(BINDIR)/SolvingStrategy.o             \
+                                                \
+	$(BINDIR)/GIDDataOutput.o               
 
 #=============================================================
 main: $(OBJECTS)
@@ -184,6 +186,9 @@ $(BINDIR)/BuilderAndSolver.o : $(VPATH)/SolvingStrategy/BuilderAndSolver.f90
 $(BINDIR)/Scheme.o : $(VPATH)/SolvingStrategy/Scheme.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/SolvingStrategy.o : $(VPATH)/SolvingStrategy/SolvingStrategy.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+
+$(BINDIR)/GIDDataOutput.o : $(VPATH)/io/GIDDataOutput.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 
 #------------------------------------------------------------------------------

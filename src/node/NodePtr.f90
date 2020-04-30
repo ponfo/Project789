@@ -1,5 +1,13 @@
 module NodePtrM
+  use UtilitiesM
+  
   use NodeM
+
+  use PointM
+
+  use DofM
+
+  use SourceM
 
   implicit none
 

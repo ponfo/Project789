@@ -31,14 +31,14 @@ module ConditionM
   end type ConditionDT
 
   abstract interface
-     subroutine calculateLocalSystem(this, lhs, rhs)
+     subroutine calculateLocalSystemInterf(this, lhs, rhs)
        use UtilitiesM
        import ConditionDT
        implicit none
        class(ConditionDT)                             , intent(inout) :: this
        real(rkind)       , dimension(:,:), allocatable, intent(inout) :: lhs
        real(rkind)       , dimension(:)  , allocatable, intent(inout) :: rhs
-     end subroutine calculateLocalSystem
+     end subroutine calculateLocalSystemInterf
   end interface
 
   abstract interface
@@ -52,7 +52,7 @@ module ConditionM
   end interface
 
   abstract interface
-     subroutine calculateLHSInterf(this)
+     subroutine calculateLHSInterf(this, lhs)
        use UtilitiesM
        import ConditionDT
        implicit none
@@ -97,28 +97,6 @@ contains
     integer(ikind)    , intent(in)    :: iNode
     getNode = this%node(iNode)
   end function getNode
-
-  subroutine calculateLocalSystem(this, lhs, rhs)
-    implicit none
-    class(ConditionDT)                             , intent(inout) :: this
-    real(rkind)       , dimension(:,:), allocatable, intent(out)   :: lhs
-    real(rkind)       , dimension(:)  , allocatable, intent(out)   :: rhs
-    print*, "** Condition's calculateLocalSystem not implemented **"
-  end subroutine calculateLocalSystem
-
-  function calculateLHS(this)
-    implicit none
-    class(ConditionDT), intent(inout)               :: this
-    real(rkind)       , dimension(:,:), allocatable :: calculateLHS
-    print*, "** Condition's calculateLHS not implemented **"
-  end function calculateLHS
-
-  function calculateRHS(this)
-    implicit none
-    class(ConditionDT), intent(inout)             :: this
-    real(rkind)       , dimension(:), allocatable :: calculateRHS
-    print*, "** Condition's calculateRHS not implemented **"
-  end function calculateRHS
 
   subroutine calculateResults(this)
     implicit none

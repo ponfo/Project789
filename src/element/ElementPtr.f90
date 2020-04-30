@@ -1,4 +1,15 @@
 module ElementPtrM
+  use UtilitiesM
+  use DebuggerM
+
+  use NodeM
+  use NodePtrM
+
+  use GeometryM
+  use GeometryObjectM
+
+  use SourceM
+  
   use ElementM
 
   implicit none
@@ -88,11 +99,11 @@ contains
     call this%ptr%calculateLHS(lhs)
   end subroutine calculateLHS
 
-  subroutine calculateRHS(this, lhs)
+  subroutine calculateRHS(this, rhs)
     implicit none
     class(ElementPtrDT)                           , intent(inout) :: this
     real(rkind)        , dimension(:), allocatable, intent(inout) :: rhs
-    call this%ptr%calculateLHS(lhs)
+    call this%ptr%calculateRHS(rhs)
   end subroutine calculateRHS
     
 end module ElementPtrM

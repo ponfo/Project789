@@ -19,8 +19,7 @@ module Thermal2DApplicationM
      type(ThermalMaterial)   , dimension(:), allocatable :: material
      type(ThermalModelDT)    ,                           :: model
    contains
-     procedure, public :: assemble
-     procedure, public :: solve
+     procedure, public :: init
   end type Thermal2DApplicationDT
 
   interface thermal2DApplication

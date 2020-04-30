@@ -1,4 +1,12 @@
 module ConditionPtrM
+  use UtilitiesM
+  use DebuggerM
+
+  use NodeM
+  use NodePtrM
+
+  use GeometryM
+  
   use ConditionM
 
   implicit none
@@ -11,7 +19,6 @@ module ConditionPtrM
    contains
      procedure, public :: assignGeometry
      procedure, public :: assignNode
-     procedure, public :: assignSource
 
      procedure, public :: getID
      procedure, public :: getnNode
@@ -38,13 +45,6 @@ contains
     type(NodeDT)         , target, intent(in)    :: node
     call this%ptr%assignNode(index, node)
   end subroutine assignNode
-
-  subroutine assignSource(this, source)
-    implicit none
-    class(ConditionPtrDT)        , intent(inout) :: this
-    class(SourceDT)      , target, intent(in)    :: source
-    call this%ptr%assignSource(source)
-  end subroutine assignSource
 
   integer(ikind) function getID(this)
     implicit none
@@ -80,11 +80,11 @@ contains
     call this%ptr%calculateLHS(lhs)
   end subroutine calculateLHS
 
-  subroutine calculateRHS(this, lhs)
+  subroutine calculateRHS(this, rhs)
     implicit none
     class(ConditionPtrDT)                           , intent(inout) :: this
     real(rkind)          , dimension(:), allocatable, intent(inout) :: rhs
-    call this%ptr%calculateLHS(lhs)
+    call this%ptr%calculateRHS(rhs)
   end subroutine calculateRHS
 
 end module ConditionPtrM
