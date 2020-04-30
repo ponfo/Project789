@@ -4,24 +4,25 @@ module PointM
   implicit none
 
   private
-  public :: PointDT, point
+  public :: PointDT, point, updatedPoint
   
   type PointDT
-     integer(ikind)                         :: id
      real(rkind), dimension(:), allocatable :: coord
    contains
      procedure, public :: initPoint1D
      procedure, public :: initPoint2D
      procedure, public :: initPoint3D
-     procedure, public :: setID
+     procedure, public :: updatePoint1D
+     procedure, public :: updatePoint2D
+     procedure, public :: updatePoint3D
      procedure, public :: setX
      procedure, public :: setY
      procedure, public :: setZ
-     procedure, public :: getID
      procedure, public :: getX
      procedure, public :: getY
      procedure, public :: getZ
      procedure, public :: getDimension
+     procedure, public :: free
   end type PointDT
 
   interface point
@@ -30,71 +31,106 @@ module PointM
      procedure :: constructor3D
   end interface point
 
+  interface updatedPoint
+     procedure :: updater1D
+     procedure :: updater2D
+     procedure :: updater3D
+  end interface updatedPoint
+
 contains
 
-  type(PointDT) function constructor1D(id, x)
+  type(PointDT) function constructor1D(x)
     implicit none
-    integer(ikind), intent(in) :: id
     real(rkind)   , intent(in) :: x
-    call constructor1D%initPoint1D(id, x)
+    call constructor1D%initPoint1D(x)
   end function constructor1D
-  subroutine initPoint1D(this, id, x)
+  subroutine initPoint1D(this, x)
     implicit none
     class(PointDT), intent(inout) :: this
-    integer(ikind), intent(in)    :: id
     real(rkind)   , intent(in)    :: x
-    this%id = id
     allocate(this%coord(1))
     this%coord(1) = x
   end subroutine initPoint1D
 
-  type(PointDT) function constructor2D(id, x, y)
+  type(PointDT) function constructor2D(x, y)
     implicit none
-    integer(ikind), intent(in) :: id
     real(rkind)   , intent(in) :: x
     real(rkind)   , intent(in) :: y
-    call constructor2D%initPoint2D(id, x, y)
+    call constructor2D%initPoint2D(x, y)
   end function constructor2D
-  subroutine initPoint2D(this, id, x, y)
+  subroutine initPoint2D(this, x, y)
     implicit none
     class(PointDT), intent(inout) :: this
-    integer(ikind), intent(in)    :: id
     real(rkind)   , intent(in)    :: x
     real(rkind)   , intent(in)    :: y
-    this%id = id
     allocate(this%coord(2))
     this%coord(1) = x
     this%coord(2) = y
   end subroutine initPoint2D
 
-  type(PointDT) function constructor3D(id, x, y, z)
+  type(PointDT) function constructor3D(x, y, z)
     implicit none
-    integer(ikind), intent(in) :: id
     real(rkind)   , intent(in) :: x
     real(rkind)   , intent(in) :: y
     real(rkind)   , intent(in) :: z
-    call constructor3D%initPoint3D(id, x, y, z)
+    call constructor3D%initPoint3D(x, y, z)
   end function constructor3D
-  subroutine initPoint3D(this, id, x, y, z)
+  subroutine initPoint3D(this, x, y, z)
     implicit none
     class(PointDT), intent(inout) :: this
-    integer(ikind), intent(in)    :: id
     real(rkind)   , intent(in)    :: x
     real(rkind)   , intent(in)    :: y
     real(rkind)   , intent(in)    :: z
-    this%id = id
     allocate(this%coord(3))
     this%coord(1) = x
     this%coord(2) = y
     this%coord(3) = z
   end subroutine initPoint3D
 
-  subroutine setID(this, id)
+  type(PointDT) function updater1D(x)
+    implicit none
+    real(rkind), intent(in) :: x
+    call updater1D%updatePoint1D(x)
+  end function updater1D
+  subroutine updatePoint1D(this, x)
     implicit none
     class(PointDT), intent(inout) :: this
-    integer(ikind), intent(in)    :: id
-    this%id = id
-  end subroutine setID
+    real(rkind)   , intent(in)    :: x
+    this%coord(1) = x
+  end subroutine updatePoint1D
+
+  type(PointDT) function updater2D(x, y)
+    implicit none
+    real(rkind), intent(in) :: x
+    real(rkind), intent(in) :: y
+    call updater2D%updatePoint2D(x, y)
+  end function updater2D
+  subroutine updatePoint2D(this, x, y)
+    implicit none
+    class(PointDT), intent(inout) :: this
+    real(rkind)   , intent(in)    :: x
+    real(rkind)   , intent(in)    :: y
+    this%coord(1) = x
+    this%coord(2) = y
+  end subroutine updatePoint2D
+
+  type(PointDT) function updater3D(x, y, z)
+    implicit none
+    real(rkind), intent(in) :: x
+    real(rkind), intent(in) :: y
+    real(rkind), intent(in) :: z
+    call updater3D%updatePoint3D(x, y, z)
+  end function updater3D
+  subroutine updatePoint3D(this, x, y, z)
+    implicit none
+    class(PointDT), intent(inout) :: this
+    real(rkind)   , intent(in)    :: x
+    real(rkind)   , intent(in)    :: y
+    real(rkind)   , intent(in)    :: z
+    this%coord(1) = x
+    this%coord(2) = y
+    this%coord(3) = z
+  end subroutine updatePoint3D
 
   subroutine setX(this, x)
     implicit none
@@ -116,28 +152,22 @@ contains
     real(rkind)   , intent(in)    :: z
     this%coord(3) = z
   end subroutine setZ
-
-  integer(ikind) function getID(this)
-    implicit none
-    class(PointDT), intent(inout) :: this
-    getID = this%id
-  end function getID
   
-  real(rkind) function getX(this)
+  real(rkind) pure function getX(this)
     implicit none
-    class(PointDT), intent(inout) :: this
+    class(PointDT), intent(in) :: this
     getX = this%coord(1)
   end function getX
 
-  real(rkind) function getY(this)
+  real(rkind) pure function getY(this)
     implicit none
-    class(PointDT), intent(inout) :: this
+    class(PointDT), intent(in) :: this
     getY = this%coord(2)
   end function getY
 
-  real(rkind) function getZ(this)
+  real(rkind) pure function getZ(this)
     implicit none
-    class(PointDT), intent(inout) :: this
+    class(PointDT), intent(in) :: this
     getZ = this%coord(3)
   end function getZ
 
@@ -146,5 +176,11 @@ contains
     class(PointDT), intent(inout) :: this
     getDimension = size(this%coord)
   end function getDimension
+
+  subroutine free(this)
+    implicit none
+    class(PointDT), intent(inout) :: this
+    deallocate(this%coord)
+  end subroutine free
 
 end module PointM

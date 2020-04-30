@@ -13,6 +13,7 @@ module NodeM
   public :: NodeDT, node
 
   type, extends(PointDT) :: NodeDT
+     integer(ikind)                            :: id
      type(DofDT)   , dimension(:), allocatable :: dof
      type(SourceDT)              , pointer     :: source
    contains
@@ -24,6 +25,8 @@ module NodeM
      procedure, public :: fixDof
      procedure, public :: freeDof
      procedure, public :: getnDof
+     procedure, public :: setID
+     procedure, public :: getID
   end type NodeDT
 
   interface node
@@ -47,7 +50,8 @@ contains
     integer(ikind), intent(in)    :: id
     integer(ikind), intent(in)    :: nDof
     real(rkind)   , intent(in)    :: x
-    call this%initPoint1D(id, x)
+    call this%initPoint1D(x)
+    call this%setID(id)
     allocate(this%dof(nDof))
   end subroutine initNode1D
 
@@ -66,7 +70,8 @@ contains
     integer(ikind), intent(in)    :: nDof
     real(rkind)   , intent(in)    :: x
     real(rkind)   , intent(in)    :: y
-    call this%initPoint2D(id, x, y)
+    call this%initPoint2D(x, y)
+    call this%setID(id)
     allocate(this%dof(nDof))
   end subroutine initNode2D
 
@@ -87,7 +92,8 @@ contains
     real(rkind)   , intent(in)    :: x
     real(rkind)   , intent(in)    :: y
     real(rkind)   , intent(in)    :: z
-    call this%initPoint3D(id, x, y, z)
+    call this%initPoint3D(x, y, z)
+    call this%setID(id)
     allocate(this%dof(nDof))
   end subroutine initNode3D
 
@@ -128,5 +134,18 @@ contains
     class(NodeDT), intent(inout) :: this
     getnDof = size(this%dof)
   end function getnDof
+
+  subroutine setID(this, id)
+    implicit none
+    class(NodeDT), intent(inout) :: this
+    integer(ikind), intent(in)    :: id
+    this%id = id
+  end subroutine setID
+
+  integer(ikind) function getID(this)
+    implicit none
+    class(NodeDT), intent(inout) :: this
+    getID = this%id
+  end function getID
   
 end module NodeM

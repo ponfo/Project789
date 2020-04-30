@@ -5,6 +5,9 @@ module DirectBuilderAndSolverM
 
   use SparseKit
 
+  use NodePtrM
+  use ElementPtrM
+
   use ThermalModelM
 
   use BuilderAndSolverM
@@ -46,7 +49,7 @@ contains
     type(ElementPtrDT)                       :: element
     nElem = model%getnElement()
     do iElem = 1, nElem
-       element = model%getElement()
+       element = model%getElement(iElem)
        nNode = element%getnNode()
        allocate(localLHS(nNode, nNode))
        allocate(localRHS(nNode))
@@ -77,6 +80,8 @@ contains
   subroutine applyDirichlet(model)
     implicit none
     class(ThermalModelDT), intent(inout) :: model
+    integer(ikind)                       :: i, nNode, nodeID
+    type(NodePtrDT)                      :: node
     nNode = model%getnNode()
     do i = 1, nNode
        node = model%getNode(i)

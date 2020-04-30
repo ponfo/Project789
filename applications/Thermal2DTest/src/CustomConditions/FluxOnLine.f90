@@ -1,4 +1,9 @@
 module FluxOnLineM
+  use UtilitiesM
+
+  use NodePtrM
+  use GeometryM
+  
   use ConditionM
 
   implicit none
@@ -27,7 +32,7 @@ contains
     integer(ikind)                 , intent(in) :: id
     real(rkind)                    , intent(in) :: flux
     type(NodePtrDT)  , dimension(:), intent(in) :: node
-    class(GeometryDT), target      , intent(in) :: geometry
+    class(GeometryDT), pointer     , intent(in) :: geometry
     call constructor%init(id, flux, node, geometry)
   end function constructor
 
@@ -37,7 +42,7 @@ contains
     integer(ikind)                 , intent(in)    :: id
     real(rkind)                    , intent(in)    :: flux
     type(NodePtrDT)  , dimension(:), intent(in)    :: node
-    class(GeometryDT), target      , intent(in)    :: geometry
+    class(GeometryDT), pointer     , intent(in)    :: geometry
     this%id = id
     this%flux = flux
     this%node = node
@@ -49,6 +54,7 @@ contains
     class(FluxOnLineDT)                                   , intent(inout) :: this
     real(rkind)              , dimension(:,:), allocatable, intent(inout) :: lhs
     real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
+    integer(ikind)                                                        :: nNode
     nNode = this%geometry%nNode
     allocate(lhs(nNode,nNode))
     allocate(rhs(nNode))
@@ -59,6 +65,7 @@ contains
     implicit none
     class(FluxOnLineDT)                                   , intent(inout) :: this
     real(rkind)              , dimension(:,:), allocatable, intent(inout) :: lhs
+    integer(ikind)                                                        :: nNode
     print*, 'Reimplementación pendiente'
   end subroutine calculateLHS
 
@@ -66,6 +73,7 @@ contains
     implicit none
     class(FluxOnLineDT)                                   , intent(inout) :: this
     real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
+    integer(ikind)                                                        :: nNode
     print*, 'Reimplementación pendiente'
   end subroutine calculateRHS
 

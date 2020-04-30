@@ -1,4 +1,7 @@
 module ThermalModelM
+  use UtilitiesM
+
+  use SparseKit
 
   use MeshM
   use ModelM
@@ -6,7 +9,7 @@ module ThermalModelM
   implicit none
 
   private
-  public :: ThermalModelDT
+  public :: ThermalModelDT, thermalModel
 
   type, extends(modelDT) :: ThermalModelDT
      type(Sparse)                           :: lhs
@@ -22,7 +25,7 @@ module ThermalModelM
   
 contains
 
-  type(ThermalModelDT) function contructor(nDof, nnz, id, nNode, nElement, nCondition)
+  type(ThermalModelDT) function constructor(nDof, nnz, id, nNode, nElement, nCondition)
     implicit none
     integer(ikind), intent(in) :: nDof
     integer(ikind), intent(in) :: nnz
@@ -30,8 +33,8 @@ contains
     integer(ikind), intent(in) :: nNode
     integer(ikind), intent(in) :: nElement
     integer(ikind), intent(in) :: nCondition
-    call contructor%init(nDof, nnz, id, nNode, nElement, nCondition)
-  end function contructor
+    call constructor%init(nDof, nnz, id, nNode, nElement, nCondition)
+  end function constructor
 
   subroutine init(this, nDof, nnz, id, nNode, nElement, nCondition)
     implicit none
@@ -46,7 +49,7 @@ contains
     allocate(this%rhs(nDof))
     allocate(this%dof(nDof))
     call this%initModel(1) !una sola malla en el modelo
-    call this%initMesh(id, nNode, nElement, nCondition)
+    this%mesh(1) = mesh(id, nNode, nElement, nCondition)
   end subroutine init
   
 end module ThermalModelM

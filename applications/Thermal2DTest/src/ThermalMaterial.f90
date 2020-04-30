@@ -1,4 +1,5 @@
 module ThermalMaterialM
+  use UtilitiesM
   use PropertyM
   
   implicit none
@@ -18,7 +19,7 @@ module ThermalMaterialM
   
 contains
   
-  type(ThermalMaterialTYPE) function constructor(kx,ky)
+  type(ThermalMaterialDT) function constructor(kx,ky)
     implicit none
     real(rkind), intent(in) :: kx, ky
     call constructor%init(kx, ky)
@@ -27,7 +28,7 @@ contains
   subroutine init(this, kx, ky)
     implicit none
     real(rkind), intent(in) :: kx, ky
-    class(ThermalMaterialTYPE), intent(inout) :: this
+    class(ThermalMaterialDT), intent(inout) :: this
     this%conductivity = (/kx, ky/)
   end subroutine init
   

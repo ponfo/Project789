@@ -3,9 +3,14 @@ module DataInputM
   use DebuggerM
 
   use NodeM
+  use NodePtrM
   use GeometryM
+  use SourceM
+  use ThermalMaterialM
   use ThermalElementM
   use Thermal2DApplicationM
+  use ConvectionOnLineM
+  use FluxOnLineM
 
   use MeshM
   use ModelM
@@ -75,9 +80,9 @@ contains
     call debugLog('    Path: ', trim(path))
   end subroutine readProjectData
   
-  subroutine initMesh(mesh)
+  subroutine initMesh(thermalAppl)
     implicit none
-    type(MeshDT), intent(inout) :: mesh
+    type(Thermal2DApplicationDT), intent(inout) :: thermalAppl
     integer(ikind) :: i
     real(rkind)    :: x, y, z
     open(project, file = trim(projectName)//'.dat')
@@ -90,7 +95,6 @@ contains
     read(project,*)  aux, nTriangElem
     read(project,*)  aux, nRectElem
     read(project,*)  aux, nMaterial
-    call checknMaterial(nMaterial)
     read(project,*)  aux, nGauss    
     read(project,*)  aux, nDirichlet
     read(project,*)  aux, nNormalFlux
@@ -162,7 +166,8 @@ contains
        if(verbose) print'(I5,A15,I18,I14,5X,*(I5,X))', iElem, type, iMat, nNode, (Conectivities(j),j=1,nNode)
        allocate(auxNode(nNode))
        do j = 1, nNode
-          auxNode(j)%ptr => thermalAppl%node(conectivities(j))
+          !auxNode(j)%ptr => thermalAppl%node(conectivities(j))
+          call auxNode(j)%associate(thermalAppl%node(conectivities(j)))
        end do
        thermalAppl%element(iElem) = thermalElement(iElem, auxNode, thermalAppl%material(iMat))
        call thermalAppl%model%addElement(i, thermalAppl%element(iElem))
@@ -175,16 +180,16 @@ contains
     type(Thermal2DApplicationDT), intent(inout) :: thermalAppl
     integer(ikind)                              :: i, countSource, auxInt
     integer(ikind)                              :: iNode, iElem, iSource
-    character(150)                              :: func
-    allocate(thermalAppl%sourceFunc(nSource))
+    character(150), dimension(1)                :: func
+    allocate(thermalAppl%source(nSource))
     do i = 1, 7
        read(project,*)
     end do
     if(verbose) print'(/,A)', 'nSource'
     if(verbose) print'(A)', 'Source    Function'
-    do i = 1, nSourceOP
-       read(project,*) iSource, func
-       thermalAppl%sourceFunc(iSource) = sourceFunc(2, 1, (/'x','y'/), func)
+    do i = 1, nSource
+       read(project,*) iSource, func(1)
+       thermalAppl%source(iSource) = source(2, 1, (/'x', 'y'/), func)
     end do
     do i = 1, 7
        read(project,*)
@@ -210,14 +215,14 @@ contains
 
   subroutine readBoundaryConditions(thermalAppl)
     implicit none
-    type(Thermal2DApplicationDT), intent(inout) :: thermalAppl
-    integer(ikind)                              :: i, j, id, elemID, nPointID, iPoint
-    integer(ikind), dimension(:), allocatable   :: pointID
-    real(rkind)                                 :: value
-    real(rkind)                                 :: coef, temp
-    type(ThermalElementDT)                      :: element
-    type(NodeDT)                                :: node
-    type(GeometryDT)                            :: geometry
+    type(Thermal2DApplicationDT), intent(inout)  :: thermalAppl
+    integer(ikind)                               :: i, j, id, elemID, nPointID
+    integer(ikind)                               :: iPoint, conditionCounter
+    integer(ikind), dimension(:), allocatable    :: pointID
+    real(rkind)                                  :: value
+    real(rkind)                                  :: coef, temp
+    type(ThermalElementDT)                       :: element
+    type(NodePtrDT)  , dimension(:), allocatable :: node
     do i = 1, 7
        read(project,*)
     end do
@@ -249,8 +254,7 @@ contains
        do j = 1, nPointID
           node(j) = element%node(pointID(j))
        end do
-       geometry = element%geometry
-       thermalAppl%normalFluxOL(i) = fluxOnLine(i, value, node, geometry)
+       thermalAppl%normalFluxOL(i) = fluxOnLine(i, value, node, element%geometry)
        call thermalAppl%model%addCondition(conditionCounter, thermalAppl%normalFluxOL(i))
     end do
     do i = 1, 7
@@ -266,12 +270,11 @@ contains
        do j = 1, nPointID
           node(j) = element%node(pointID(j))
        end do
-       geometry = element%geometry
-       thermalAppl%convectionOL(i) = convectionOnLine(i, coef, temp, node, geometry)
+       thermalAppl%convectionOL(i) = convectionOnLine(i, coef, temp, node, element%geometry)
        call thermalAppl%model%addCondition(conditionCounter, thermalAppl%convectionOL(i))
     end do
     close(project)
   end subroutine readBoundaryConditions
 
-end module DataInputMOD
+end module DataInputM
   

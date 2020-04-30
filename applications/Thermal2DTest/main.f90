@@ -7,11 +7,12 @@ program main
 
   implicit none
 
-  type(Thermal2DApplicationDT) :: application
+  type(Thermal2DApplicationDT)   :: application
+  type(DirectBuilderAndSolverDT) :: builderAndSolver
 
   call initFEM2D(application)
-  call buildAndSolve(application%model)
-  call call printResults(resultName = 'Temperature'  &
+  call builderAndSolver%buildAndSolve(application%model)
+  call printResults(resultName = 'Temperature'  &
        , step         = 1                            &
        , graphType    = 'Scalar'                     &
        , locationName = 'onNodes'                    &

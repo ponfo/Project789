@@ -1,4 +1,9 @@
 module ConvectionOnLineM
+  use UtilitiesM
+
+  use NodePtrM
+  use GeometryM
+  
   use ConditionM
 
   implicit none
@@ -29,7 +34,7 @@ contains
     real(rkind)                    , intent(in) :: coef
     real(rkind)                    , intent(in) :: temp
     type(NodePtrDT)  , dimension(:), intent(in) :: node
-    class(GeometryDT), target      , intent(in) :: geometry
+    class(GeometryDT), pointer     , intent(in) :: geometry
     call constructor%init(id, coef, temp, node, geometry)
   end function constructor
 
@@ -40,7 +45,7 @@ contains
     real(rkind)                    , intent(in)    :: coef
     real(rkind)                    , intent(in)    :: temp
     type(NodePtrDT)  , dimension(:), intent(in)    :: node
-    class(GeometryDT), target      , intent(in)    :: geometry
+    class(GeometryDT), pointer     , intent(in)    :: geometry
     this%id = id
     this%coef = coef
     this%temp = temp
@@ -53,6 +58,7 @@ contains
     class(ConvectionOnLineDT)                             , intent(inout) :: this
     real(rkind)              , dimension(:,:), allocatable, intent(inout) :: lhs
     real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
+    integer(ikind)                                                        :: nNode
     nNode = this%geometry%nNode
     allocate(lhs(nNode,nNode))
     allocate(rhs(nNode))
@@ -63,6 +69,7 @@ contains
     implicit none
     class(ConvectionOnLineDT)                             , intent(inout) :: this
     real(rkind)              , dimension(:,:), allocatable, intent(inout) :: lhs
+    integer(ikind)                                                        :: nNode
     print*, 'Reimplementación pendiente'
   end subroutine calculateLHS
 
@@ -70,6 +77,7 @@ contains
     implicit none
     class(ConvectionOnLineDT)                             , intent(inout) :: this
     real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
+    integer(ikind)                                                        :: nNode
     print*, 'Reimplementación pendiente'
   end subroutine calculateRHS
 

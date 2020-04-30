@@ -35,11 +35,11 @@ $(BINDIR)/main.o : main.f90
 
 $(BINDIR)/ThermalMaterial.o : $(VPATH)/ThermalMaterial.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
-$(BINDIR)/ThermalElement.o : $(VPATH)/CustomElement/ThermalElement.f90
+$(BINDIR)/ThermalElement.o : $(VPATH)/CustomElements/ThermalElement.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
-$(BINDIR)/ConvectionOnLine.o : $(VPATH)/CustomCondition/ConvectionOnLine.f90
+$(BINDIR)/ConvectionOnLine.o : $(VPATH)/CustomConditions/ConvectionOnLine.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
-$(BINDIR)/FluxOnLine.o : $(VPATH)/CustomCondition/FluxOnLine.f90
+$(BINDIR)/FluxOnLine.o : $(VPATH)/CustomConditions/FluxOnLine.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/ThermalModel.o : $(VPATH)/Model/ThermalModel.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@

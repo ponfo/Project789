@@ -1,6 +1,23 @@
-module ThermalElement2DM
+module ThermalElementM
 
+  use UtilitiesM
+
+  use Triangle2D3NodeM
+  use Triangle2D6NodeM
+  use Quadrilateral2D4NodeM
+  use Quadrilateral2D8NodeM
+
+  use IntegratorPtrM
+
+  use PointM
+  use NodeM
+  use NodePtrM
+
+  use SourceM
+  
   use ElementM
+
+  use ThermalMaterialM
 
   implicit none
 
@@ -10,27 +27,32 @@ module ThermalElement2DM
   type, extends(ElementDT) :: ThermalElementDT
      type(ThermalMaterialDT), pointer :: material
    contains
-     procedure, public :: init
+     procedure, public  :: init
+     procedure, public  :: calculateLHS
+     procedure, public  :: calculateRHS
+     procedure, public  :: calculateLocalSystem
+     procedure, private :: setupIntegration
+     procedure, private :: getValuedSource
   end type ThermalElementDT
 
-  interface thermalElement2D
+  interface thermalElement
      procedure :: constructor
-  end interface thermalElement2D
+  end interface thermalElement
 
-  type(Triangle2D3NodeDT)     , save :: triangle2D3Node
-  type(Triangle2D6NodeDT)     , save :: triangle2D6Node
-  type(Quadrilateral2D4NodeDT), save :: Quadrilateral2D4Node
-  type(Quadrilateral2D8NodeDT), save :: Quadrilateral2D8Node
+  type(Triangle2D3NodeDT)     , target, save :: myTriangle2D3Node
+  type(Triangle2D6NodeDT)     , target, save :: myTriangle2D6Node
+  type(Quadrilateral2D4NodeDT), target, save :: myQuadrilateral2D4Node
+  type(Quadrilateral2D8NodeDT), target, save :: myQuadrilateral2D8Node
 
 contains
 
-  type(ThermalElementDT) function contructor(id, node, material)
+  type(ThermalElementDT) function constructor(id, node, material)
     implicit none
     integer(ikind)                       , intent(in) :: id
     type(NodePtrDT)        , dimension(:), intent(in) :: node
     type(ThermalMaterialDT), target      , intent(in) :: material
-    call this%init(id, nGauss, node, material)
-  end function contructor
+    call constructor%init(id, node, material)
+  end function constructor
 
   subroutine init(this, id, node, material)
     implicit none
@@ -42,23 +64,23 @@ contains
     this%node = node
     this%material = material
     if(size(node) == 3) then
-       this%geometry => triangle2D3Node
+       this%geometry => myTriangle2D3Node
     else if(size(node) == 4) then
-       this%geometry => quadrilateral2D4Node
+       this%geometry => myQuadrilateral2D4Node
     else if(size(node) == 6) then
-       this%geometry => triangle2D6Node
+       this%geometry => myTriangle2D6Node
     else if(size(node) == 8) then
-       this%geometry => quadrilateral2D8Node
+       this%geometry => myQuadrilateral2D8Node
     end if
   end subroutine init
 
   subroutine initGeometries(nGauss)
     implicit none
     integer(ikind), intent(in) :: nGauss
-    triangle2D3Node = triangle2D3Node(nGauss)
-    triangle2D6Node = triangle2D6Node(nGauss)
-    quadrilateral2D4Node = quadrilateral2D4Node(nGauss)
-    quadrilateral2D8Node = quadrilateral2D8Node(nGauss)
+    myTriangle2D3Node = triangle2D3Node(nGauss)
+    myTriangle2D6Node = triangle2D6Node(nGauss)
+    myQuadrilateral2D4Node = quadrilateral2D4Node(nGauss)
+    myQuadrilateral2D8Node = quadrilateral2D8Node(nGauss)
   end subroutine initGeometries
 
   subroutine calculateLocalSystem(this, lhs, rhs)
@@ -79,15 +101,23 @@ contains
     real(rkind)            , dimension(:,:,:), allocatable                :: jacobian
     real(rkind)            , dimension(:)    , allocatable                :: jacobianDet
     type(IntegratorPtrDT)                                                 :: integrator
-    allocate(lhs(this%nNode,this%nNode))
-    integrator%ptr => this%geometry%integrator
+    type(PointDT)                                                         :: gaussPoint
+    type(NodeDT)           , dimension(:)    , allocatable                :: nodalPoints
+    nNode = this%getnNode()
+    allocate(lhs(nNode, nNode))
     allocate(jacobian(integrator%ptr%integTerms,2,2))
     allocate(jacobianDet(integrator%ptr%integTerms))
-    do i = 1, integrator%ptr%integTerms
-       jacobian(i,1:2,1:2) = this%jacobian(integrator%ptr%gPoint(i,1),integrator%ptr%gPoint(i,2))
-       jacobianDet(i) = this%jacobianDet(jacobian(i,1:2,1:2))
+    allocate(nodalPoints(nNode))
+    integrator%ptr => this%geometry%integrator
+    gaussPoint = point(0._rkind, 0._rkind)
+    do i = 1, nNode
+       nodalPoints(i) = this%node(i)%ptr
     end do
-    nNode = this%geometry%nNode
+    do i = 1, integrator%ptr%integTerms
+       gaussPoint = updatedPoint(integrator%ptr%gPoint(i,1),integrator%ptr%gPoint(i,2))
+       jacobian(i,1:2,1:2) = this%geometry%jacobian(gaussPoint, nodalPoints)
+       jacobianDet(i) = this%geometry%jacobianDet(jacobian(i,1:2,1:2))
+    end do
     do i = 1, nNode
        do j = 1, nNode
           lhs(i,j) = 0.d0
@@ -102,8 +132,8 @@ contains
                   - jacobian(k,2,1)*integrator%ptr%dShapeFunc(k,1,j)
              lhs(i,j) = lhs(i,j)                            &
                   + integrator%ptr%weight(k)                 &
-                  *(this%material%ptr%conductivity(1)*bi*bj  &
-                  + this%material%ptr%conductivity(2)*ci*cj) &
+                  *(this%material%conductivity(1)*bi*bj  &
+                  + this%material%conductivity(2)*ci*cj) &
                   / jacobianDet(k)
           end do
        end do
@@ -116,21 +146,23 @@ contains
     real(rkind)            , dimension(:), allocatable, intent(inout) :: rhs
     integer(ikind)                                                    :: i, j, nNode
     real(rkind)                                                       :: val
+    real(rkind)            , dimension(:), allocatable                :: valuedSource
+    real(rkind)            , dimension(:), allocatable                :: jacobianDet
     type(IntegratorPtrDT)                                             :: integrator
-    allocate(rhs(this%nNode))
+    allocate(rhs(this%getnNode()))
     rhs = 0.d0
-    do i = 1, this%nNode
-       if(allocated(this%node(i)%ptr%source)) then
+    do i = 1, this%getnNode()
+       if(associated(this%node(i)%ptr%source)) then
           val = this%node(i)%ptr%source%func(1)%evaluate((/this%node(i)%getx(), this%node(i)%gety()/))
           rhs(i) = rhs(i) + val
        end if
     end do
-    if(allocated(this%source)) then
+    if(associated(this%source)) then
        integrator%ptr => this%geometry%integrator
        allocate(valuedSource(integrator%ptr%integTerms))
        allocate(jacobianDet(integrator%ptr%integTerms))
        call this%setupIntegration(integrator, valuedSource, jacobianDet)
-       nNode = this%nNode
+       nNode = this%getnNode()
        do i = 1, nNode
           val = 0
           do j = 1, integrator%ptr%integTerms
@@ -147,15 +179,24 @@ contains
   subroutine setupIntegration(this, integrator, valuedSource, jacobianDet)
     implicit none
     class(ThermalElementDT)                          , intent(inout) :: this
-    type(IntegratorPtrDT)                          , intent(in)      :: integrator
+    type(IntegratorPtrDT)                            , intent(in)    :: integrator
     real(rkind), dimension(integrator%ptr%integTerms), intent(out)   :: valuedSource
     real(rkind), dimension(integrator%ptr%integTerms), intent(out)   :: jacobianDet
-    integer(ikind)                                                   :: i
+    integer(ikind)                                                   :: i, nNode
     real(rkind), dimension(2,2)                                      :: jacobian
+    type(PointDT)                                                    :: gaussPoint
+    type(NodeDT), dimension(:), allocatable                         :: nodalPoints
+    nNode = this%getnNode()
+    allocate(nodalPoints(nNode))
     valuedSource = this%getValuedSource(integrator)
+    gaussPoint = point(0._rkind, 0._rkind)
+    do i = 1, nNode
+       nodalPoints(i) = this%node(i)%ptr
+    end do
     do i = 1, integrator%ptr%integTerms
-       jacobian = this%jacobian(integrator%ptr%gPoint(i,1),integrator%ptr%gPoint(i,2))
-       jacobianDet(i) = this%jacobianDet(jacobian)
+       gaussPoint = updatedPoint(integrator%ptr%gPoint(i,1),integrator%ptr%gPoint(i,2))
+       jacobian = this%geometry%jacobian(gaussPoint, nodalPoints)
+       jacobianDet(i) = this%geometry%jacobianDet(jacobian)
     end do
   end subroutine setupIntegration
 
@@ -167,7 +208,7 @@ contains
     integer(ikind) :: i, j, nNode
     real(rkind) :: x, y
     type(NodePtrDT), dimension(:), allocatable :: node
-    nNode = this%node
+    nNode = this%getnNode()
     do i = 1, integrator%ptr%integTerms
        node = this%node
        x = 0
@@ -181,4 +222,4 @@ contains
   end function getValuedSource
           
 
-end module ThermalElement2DM
+end module ThermalElementM

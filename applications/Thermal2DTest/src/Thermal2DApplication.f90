@@ -1,4 +1,10 @@
 module Thermal2DApplicationM
+  use UtilitiesM
+  use DebuggerM
+
+  use SourceM
+  use NodeM
+  
   use ThermalElementM
   use ConvectionOnLineM
   use FluxOnLineM
@@ -16,8 +22,8 @@ module Thermal2DApplicationM
      type(ConvectionOnLineDT), dimension(:), allocatable :: convectionOL
      type(FluxOnLineDT)      , dimension(:), allocatable :: normalFluxOL
      type(SourceDT)          , dimension(:), allocatable :: source
-     type(ThermalMaterial)   , dimension(:), allocatable :: material
-     type(ThermalModelDT)    ,                           :: model
+     type(ThermalMaterialDT) , dimension(:), allocatable :: material
+     type(ThermalModelDT)                                :: model
    contains
      procedure, public :: init
   end type Thermal2DApplicationDT
@@ -38,7 +44,7 @@ contains
     integer(ikind), intent(in) :: nSource
     integer(ikind), intent(in) :: nMaterial
     integer(ikind), intent(in) :: nGauss
-    call this%init(nNode, nElement, nConvection, nNormalFlux, nSource, nMaterial, nGauss)
+    call constructor%init(nNode, nElement, nConvection, nNormalFlux, nSource, nMaterial, nGauss)
   end function constructor
 
   subroutine init(this, nNode, nElement, nConvection, nNormalFlux, nSource, nMaterial, nGauss)

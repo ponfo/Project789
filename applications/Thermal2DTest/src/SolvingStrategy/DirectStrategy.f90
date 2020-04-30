@@ -4,7 +4,7 @@ module ThermalStrategyM
   
   use SolvingStrategyM
 
-  use DirectSchemeM
+  !use DirectSchemeM
   use DirectBuilderAndSolverM
   use SchemeM
   use BuilderAndSolverM
@@ -30,13 +30,13 @@ contains
   subroutine buildStrategyAndSolve(this, model)
     implicit none
     class(ThermalStrategyDT), intent(inout) :: this
-    class(ThermalmodelDT)   , intent(inout) :: thermalModel
-    type(DirectSchemeDT)                    :: directScheme
+    class(ThermalmodelDT)   , intent(inout) :: model
+    !type(DirectSchemeDT)                    :: directScheme
     type(DirectBuilderAndSolverDT)          :: directBAndS
-    allocate(this%scheme, source = SetScheme(directScheme))
+    !allocate(this%scheme, source = SetScheme(directScheme))
     allocate(this%builderAndSolver, source = SetBuilderAndSolver(directBAndS))
     call directBAndS%buildAndSolve(model)
-    call DirectScheme%calculateFlux(model)
+    !call DirectScheme%calculateFlux(model)
   end subroutine buildStrategyAndSolve
   
 end module ThermalStrategyM
