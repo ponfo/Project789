@@ -1,12 +1,13 @@
 # Makefile
 
+VPATH		:=  src
+BINDIR		:=  Bin
+OBJECTDIR	:=  Objects
+LIB		:=  ../../lib
+LIBOBJECTS	:=  $(LIB)/Objects
 COMPILER	:=  ifort
-VPATH		:=  $(PWD)/src
-BINDIR		:=  $(PWD)/Bin
-OBJECTDIR	:=  $(PWD)/Objects
-FRAMEWORK       :=  ../lib/project789.a
-FFLAGS		:=  -Ofast -free -static -check bounds -traceback -I $(FRAMEWORK) -module $(OBJECTDIR)
-FFLAGSDebug 	:=  -O0 -fpp -check bounds -traceback -warn nounused -I $(FRAMEWORK) -module $(OBJECTDIR)
+FFLAGS		:=  -Ofast -qopenmp -free -check bounds -mkl -liomp5 -lpthread -ldl -traceback -module $(OBJECTDIR)
+FFLAGSDebug 	:=  -O0 -fpp -check bounds -traceback -warn nounused -module $(OBJECTDIR)
 
 OBJECTS := $(BINDIR)/ThermalMaterial.o     \
 	$(BINDIR)/ThermalElement.o         \
@@ -19,45 +20,45 @@ OBJECTS := $(BINDIR)/ThermalMaterial.o     \
 	$(BINDIR)/DataInput.o              \
 	$(BINDIR)/main.o
 
+LIBRARIES := $(LIB)/project789.a
+
+#========================================================================
 main: $(OBJECTS)
-	$(COMPILER) $(FFLAGS) $(OBJECTS) -o main
-
-debug: $(OBJECTS)
-	$(COMPILER) $(FFLAGSDebug) $(OBJECTS) -o main
-
-$(BINDIR)/main.o : main.f90
-	$(COMPILER) $(FFLAGS) -c $^ -o $@ 
-
-$(BINDIR)/ThermalMaterial.o : $(VPATH)/ThermalMaterial.f90
-	$(COMPILER) $(FFLAGS) -c $^ -o $@
-$(BINDIR)/ThermalElement.o : $(VPATH)/CustomElement/ThermalElement.f90
-	$(COMPILER) $(FFLAGS) -c $^ -o $@
-$(BINDIR)/ConvectionOnLine.o : $(VPATH)/CustomCondition/ConvectionOnLine.f90
-	$(COMPILER) $(FFLAGS) -c $^ -o $@
-$(BINDIR)/FluxOnLine.o : $(VPATH)/CustomCondition/FluxOnLine.f90
-	$(COMPILER) $(FFLAGS) -c $^ -o $@
-$(BINDIR)/ThermalModel.o : $(VPATH)/Model/ThermalModel.f90
-	$(COMPILER) $(FFLAGS) -c $^ -o $@
-$(BINDIR)/DirectBuilderAndSolver.o : $(VPATH)/SolvingStrategy/DirectBuilderAndSolver.f90
-	$(COMPILER) $(FFLAGS) -c $^ -o $@
-$(BINDIR)/DirectStrategy.o : $(VPATH)/SolvingStrategy/DirectStrategy.f90
-	$(COMPILER) $(FFLAGS) -c $^ -o $@
-$(BINDIR)/Thermal2DApplication.o : $(VPATH)/Thermal2DApplication.f90
-	$(COMPILER) $(FFLAGS) -c $^ -o $@
-$(BINDIR)/DataInput.o : $(VPATH)/CustomIO/DataInput.f90
-	$(COMPILER) $(FFLAGS) -c $^ -o $@
-
+	$(COMPILER) $(FFLAGS) $^ -I$(LIBOBJECTS) -L$(LIB) $(LIBRARIES) -o $@
 
 clean:
 	rm -f $(BINDIR)/*.o main $(OBJECTDIR)/*.mod
+#========================================================================
+
+$(BINDIR)/main.o : main.f90
+	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@ 
+
+$(BINDIR)/ThermalMaterial.o : $(VPATH)/ThermalMaterial.f90
+	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
+$(BINDIR)/ThermalElement.o : $(VPATH)/CustomElement/ThermalElement.f90
+	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
+$(BINDIR)/ConvectionOnLine.o : $(VPATH)/CustomCondition/ConvectionOnLine.f90
+	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
+$(BINDIR)/FluxOnLine.o : $(VPATH)/CustomCondition/FluxOnLine.f90
+	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
+$(BINDIR)/ThermalModel.o : $(VPATH)/Model/ThermalModel.f90
+	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
+$(BINDIR)/DirectBuilderAndSolver.o : $(VPATH)/SolvingStrategy/DirectBuilderAndSolver.f90
+	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
+$(BINDIR)/DirectStrategy.o : $(VPATH)/SolvingStrategy/DirectStrategy.f90
+	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
+$(BINDIR)/Thermal2DApplication.o : $(VPATH)/Thermal2DApplication.f90
+	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
+$(BINDIR)/DataInput.o : $(VPATH)/CustomIO/DataInput.f90
+	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
+
+
 
 help:
 	@echo ""
-	@echo " main: compila la aplicacion"
+	@echo " make      : compila la aplicacion"
 	@echo ""
-	@echo " debug: busca errores"
-	@echo ""
-	@echo " clean: borra los *.o y *.mod"
+	@echo " make clean: borra los *.o y *.mod"
 	@echo ""
 #------------------------------------------------------------------------------
 
