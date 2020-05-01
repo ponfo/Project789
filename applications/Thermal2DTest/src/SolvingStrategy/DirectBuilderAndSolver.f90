@@ -63,6 +63,7 @@ contains
           model%rhs(row) = localRHS(i)
        end do
        deallocate(localLHS)
+       deallocate(localRHS)
     end do
     call model%lhs%makeCRS()
   end subroutine assembleSystem

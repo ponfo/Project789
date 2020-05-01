@@ -4,7 +4,7 @@ module PointM
   implicit none
 
   private
-  public :: PointDT, point, updatedPoint
+  public :: PointDT, point
   
   type PointDT
      real(rkind), dimension(:), allocatable :: coord
@@ -12,6 +12,7 @@ module PointM
      procedure, public :: initPoint1D
      procedure, public :: initPoint2D
      procedure, public :: initPoint3D
+     generic  , public :: updatePoint    => updatePoint1D, updatePoint2D, updatePoint3D
      procedure, public :: updatePoint1D
      procedure, public :: updatePoint2D
      procedure, public :: updatePoint3D
@@ -31,11 +32,6 @@ module PointM
      procedure :: constructor3D
   end interface point
 
-  interface updatedPoint
-     procedure :: updater1D
-     procedure :: updater2D
-     procedure :: updater3D
-  end interface updatedPoint
 
 contains
 
@@ -87,11 +83,6 @@ contains
     this%coord(3) = z
   end subroutine initPoint3D
 
-  type(PointDT) function updater1D(x)
-    implicit none
-    real(rkind), intent(in) :: x
-    call updater1D%updatePoint1D(x)
-  end function updater1D
   subroutine updatePoint1D(this, x)
     implicit none
     class(PointDT), intent(inout) :: this
@@ -99,12 +90,6 @@ contains
     this%coord(1) = x
   end subroutine updatePoint1D
 
-  type(PointDT) function updater2D(x, y)
-    implicit none
-    real(rkind), intent(in) :: x
-    real(rkind), intent(in) :: y
-    call updater2D%updatePoint2D(x, y)
-  end function updater2D
   subroutine updatePoint2D(this, x, y)
     implicit none
     class(PointDT), intent(inout) :: this
@@ -114,13 +99,6 @@ contains
     this%coord(2) = y
   end subroutine updatePoint2D
 
-  type(PointDT) function updater3D(x, y, z)
-    implicit none
-    real(rkind), intent(in) :: x
-    real(rkind), intent(in) :: y
-    real(rkind), intent(in) :: z
-    call updater3D%updatePoint3D(x, y, z)
-  end function updater3D
   subroutine updatePoint3D(this, x, y, z)
     implicit none
     class(PointDT), intent(inout) :: this

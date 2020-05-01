@@ -115,7 +115,7 @@ contains
        nodalPoints(i) = this%node(i)%ptr
     end do
     do i = 1, integrator%ptr%integTerms
-       gaussPoint = updatedPoint(integrator%ptr%gPoint(i,1),integrator%ptr%gPoint(i,2))
+       call gaussPoint%updatePoint(integrator%ptr%gPoint(i,1),integrator%ptr%gPoint(i,2))
        jacobian(i,1:2,1:2) = this%geometry%jacobian(gaussPoint, nodalPoints)
        jacobianDet(i) = this%geometry%jacobianDet(jacobian(i,1:2,1:2))
     end do
@@ -150,9 +150,10 @@ contains
     real(rkind)            , dimension(:), allocatable                :: valuedSource
     real(rkind)            , dimension(:), allocatable                :: jacobianDet
     type(IntegratorPtrDT)                                             :: integrator
-    allocate(rhs(this%getnNode()))
+    nNode = this%getnNode()
+    allocate(rhs(nNode))
     rhs = 0.d0
-    do i = 1, this%getnNode()
+    do i = 1, nNode
        if(associated(this%node(i)%ptr%source)) then
           val = this%node(i)%ptr%source%func(1)%evaluate((/this%node(i)%getx(), this%node(i)%gety()/))
           rhs(i) = rhs(i) + val
@@ -195,7 +196,7 @@ contains
        nodalPoints(i) = this%node(i)%ptr
     end do
     do i = 1, integrator%ptr%integTerms
-       gaussPoint = updatedPoint(integrator%ptr%gPoint(i,1),integrator%ptr%gPoint(i,2))
+       call gaussPoint%updatePoint(integrator%ptr%gPoint(i,1),integrator%ptr%gPoint(i,2))
        jacobian = this%geometry%jacobian(gaussPoint, nodalPoints)
        jacobianDet(i) = this%geometry%jacobianDet(jacobian)
     end do
