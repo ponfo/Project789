@@ -51,8 +51,6 @@ contains
     do iElem = 1, nElem
        element = model%getElement(iElem)
        nNode = element%getnNode()
-       allocate(localLHS(nNode, nNode))
-       allocate(localRHS(nNode))
        call element%calculateLocalSystem(localLHS, localRHS)
        do i = 1, nNode
           row = element%getNodeID(i)

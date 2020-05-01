@@ -1,0 +1,33 @@
+22:49: 1  Initiating Program
+22:49: 1    Reading project data
+22:49: 1      Project name: test1
+22:49: 1      Path: /home/ponfo/Documents/Project789/problemtypes/Thermal2D.gid
+22:49: 1    Reading mesh data
+22:49: 1      Number of Elements.............................: 210
+22:49: 1      Are Elements Quadratic.........................: 0
+22:49: 1      Number of Triangular elements..................: 210
+22:49: 1      Number of Rectangular elements.................: 0
+22:49: 1      Number of Nodes................................: 126
+22:49: 1      Number of Dirichlet conditions.................: 22
+22:49: 1      Number of NormalFluxOnLines conditions.........: 0
+22:49: 1      Number of ConvectionOnLines conditions.........: 0
+22:49: 1      Number of Sources on points....................: 0
+22:49: 1      Number of Sources on surfaces..................: 1
+22:49: 1      Number of points with pointSource..............: 0
+22:49: 1      Number of Surfaces with surfaceSource..........: 210
+22:49: 1      Number of Materials............................: 1
+22:49: 1      Gauss cuadrature order.........................: 3
+22:49: 1          Allocated weights: 4
+22:49: 1          Allocated gPoints: 8
+22:49: 1          Allocated weights: 4
+22:49: 1          Allocated gPoints: 8
+22:49: 1          Allocated weights: 9
+22:49: 1          Allocated gPoints: 18
+22:49: 1          Allocated weights: 9
+22:49: 1          Allocated gPoints: 18
+22:49: 1    Reading materials properties
+22:49: 1    Reading elements
+22:49: 1    Reading point and line Sources
+22:49: 1    Reading Boundary Conditions
+22:49: 1  End loading data
+22:49: 1    Assembling stiffness matrix and right hand side vector

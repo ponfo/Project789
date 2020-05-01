@@ -62,7 +62,7 @@ contains
     type(ThermalMaterialDT), target      , intent(in)    :: material
     this%id = id
     this%node = node
-    this%material = material
+    this%material => material
     if(size(node) == 3) then
        this%geometry => myTriangle2D3Node
     else if(size(node) == 4) then
@@ -104,6 +104,7 @@ contains
     type(PointDT)                                                         :: gaussPoint
     type(NodeDT)           , dimension(:)    , allocatable                :: nodalPoints
     nNode = this%getnNode()
+    integrator%ptr => this%geometry%integrator
     allocate(lhs(nNode, nNode))
     allocate(jacobian(integrator%ptr%integTerms,2,2))
     allocate(jacobianDet(integrator%ptr%integTerms))

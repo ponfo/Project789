@@ -35,14 +35,15 @@ module DataInputM
   integer(ikind)               :: nGauss
   integer(ikind)               :: nConvection
   integer(ikind)               :: isQuadratic
-  integer(ikind)               :: nSource
+  integer(ikind)               :: nSourceOnPoints
+  integer(ikind)               :: nSourceOnSurfaces
   integer(ikind)               :: nPointSource
   integer(ikind)               :: nLineSource
   integer(ikind)               :: nSurfaceSource
   character(100)               :: projectName
   character(100)               :: path
   character(100)               :: aux
-  logical       , parameter    :: verbose = .false.
+  logical       , parameter    :: verbose = .true.
   logical                      :: isMaterialAsigned = .true.
   
   interface initFEM2D
@@ -99,7 +100,8 @@ contains
     read(project,*)  aux, nDirichlet
     read(project,*)  aux, nNormalFlux
     read(project,*)  aux, nConvection
-    read(project,*)  aux, nSource
+    read(project,*)  aux, nSourceOnPoints
+    read(project,*)  aux, nSourceOnSurfaces
     read(project,*)  aux, nPointSource
     read(project,*)  aux, nSurfaceSource
     call debugLog('    Number of Elements.............................: ', nElem)
@@ -110,7 +112,8 @@ contains
     call debugLog('    Number of Dirichlet conditions.................: ', nDirichlet)
     call debugLog('    Number of NormalFluxOnLines conditions.........: ', nNormalFlux)   
     call debugLog('    Number of ConvectionOnLines conditions.........: ', nConvection)    
-    call debugLog('    Number of Sources..............................: ', nSource)
+    call debugLog('    Number of Sources on points....................: ', nSourceOnPoints) 
+    call debugLog('    Number of Sources on surfaces..................: ', nSourceOnSurfaces)
     call debugLog('    Number of points with pointSource..............: ', nPointSource)
     call debugLog('    Number of Surfaces with surfaceSource..........: ', nSurfaceSource)
     call debugLog('    Number of Materials............................: ', nMaterial)
@@ -121,7 +124,7 @@ contains
          , nElement = nTriangElem + nRectElem                  &
          , nNormalFlux = nNormalFlux                           &
          , nConvection = nConvection                           &
-         , nSource = nSource                                   &
+         , nSource = nSourceOnPoints + nSourceOnSurfaces       &
          , nMaterial = nMaterial                               &
          , nGauss = nGauss                                     )
     
@@ -160,6 +163,9 @@ contains
     integer(ikind) :: i, j, iElem, iMat, nNode, Conectivities(8)
     character(len=13) :: type
     Conectivities = 0
+    do i = 1, 7
+       read(project,*)
+    end do
     if(verbose) print'(A)', 'Element  |      Type      |  material index  |  nNodes  |  connectivities'
     do i = 1, nElem
        read(project,*) iElem, type, iMat, nNode, (Conectivities(j),j=1,nNode)
@@ -181,15 +187,15 @@ contains
     integer(ikind)                              :: i, countSource, auxInt
     integer(ikind)                              :: iNode, iElem, iSource
     character(150), dimension(1)                :: func
-    allocate(thermalAppl%source(nSource))
     do i = 1, 7
        read(project,*)
     end do
     if(verbose) print'(/,A)', 'nSource'
     if(verbose) print'(A)', 'Source    Function'
-    do i = 1, nSource
+    do i = 1, nSourceOnPoints+nSourceOnSurfaces
        read(project,*) iSource, func(1)
        thermalAppl%source(iSource) = source(2, 1, (/'x', 'y'/), func)
+       if(verbose) print'(I0,5X,A)', iSource, func(1)
     end do
     do i = 1, 7
        read(project,*)
@@ -209,7 +215,7 @@ contains
     do i = 1, nSurfaceSource
        read(project,*) iElem, iSource
        if(verbose) print'(I0,5X,I0)', iElem, iSource
-       call thermalAppl%node(iElem)%assignSource(thermalAppl%source(iSource))
+       call thermalAppl%element(iElem)%assignSource(thermalAppl%source(iSource))
     end do
   end subroutine readPointLineSurfaceSources
 

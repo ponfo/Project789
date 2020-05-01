@@ -40,7 +40,7 @@ module MeshM
      procedure, public :: removeElement
      procedure, public :: removeCondition
 
-     final  :: free
+     procedure, public :: free
   end type MeshDT
 
   interface mesh
@@ -163,7 +163,7 @@ contains
 
   subroutine free(this)
     implicit none
-    type(MeshDT), intent(inout) :: this
+    class(MeshDT), intent(inout) :: this
     deallocate(this%node)
     deallocate(this%element)
     deallocate(this%condition)
