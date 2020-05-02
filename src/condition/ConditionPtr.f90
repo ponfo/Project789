@@ -23,6 +23,9 @@ module ConditionPtrM
      procedure, public :: getID
      procedure, public :: getnNode
      procedure, public :: getNode
+     procedure, public :: getNodeID
+     procedure, public :: getAffectsLHS
+     procedure, public :: getAffectsRHS
 
      procedure, public :: calculateLocalSystem
      procedure, public :: calculateLHS
@@ -64,6 +67,25 @@ contains
     integer(ikind)       , intent(in)    :: iNode
     getNode = this%ptr%getNode(iNode)
   end function getNode
+
+  integer(ikind) function getNodeID(this, iNode)
+    implicit none
+    class(ConditionPtrDT), intent(inout) :: this
+    integer(ikind)     , intent(in)    :: iNode
+    getNodeID = this%ptr%getNodeID(iNode)
+  end function getNodeID
+
+  logical function getAffectsLHS(this)
+    implicit none
+    class(ConditionPtrDT), intent(inout) :: this
+    getAffectsLHS = this%ptr%getAffectsLHS()
+  end function getAffectsLHS
+
+  logical function getAffectsRHS(this)
+    implicit none
+    class(ConditionPtrDT), intent(inout) :: this
+    getAffectsRHS = this%ptr%getAffectsRHS()
+  end function getAffectsRHS
 
   subroutine calculateLocalSystem(this, lhs, rhs)
     implicit none

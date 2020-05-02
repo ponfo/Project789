@@ -149,9 +149,9 @@ contains
     getZ = this%coord(3)
   end function getZ
 
-  integer(ikind) function getDimension(this)
+  integer(ikind) pure function getDimension(this)
     implicit none
-    class(PointDT), intent(inout) :: this
+    class(PointDT), intent(in) :: this
     getDimension = size(this%coord)
   end function getDimension
 

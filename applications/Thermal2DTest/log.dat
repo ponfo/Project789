@@ -1,35 +1,35 @@
- 1:46:45  Initiating Program
- 1:46:45    Reading project data
- 1:46:45      Project name: test1
- 1:46:45      Path: /home/ponfo/Documents/Project789/problemtypes/Thermal2D.gid
- 1:46:45    Reading mesh data
- 1:46:45      Number of Elements.............................: 210
- 1:46:45      Are Elements Quadratic.........................: 0
- 1:46:45      Number of Triangular elements..................: 210
- 1:46:45      Number of Rectangular elements.................: 0
- 1:46:45      Number of Nodes................................: 126
- 1:46:45      Number of Dirichlet conditions.................: 22
- 1:46:45      Number of NormalFluxOnLines conditions.........: 0
- 1:46:45      Number of ConvectionOnLines conditions.........: 0
- 1:46:45      Number of Sources on points....................: 0
- 1:46:45      Number of Sources on surfaces..................: 1
- 1:46:45      Number of points with pointSource..............: 0
- 1:46:45      Number of Surfaces with surfaceSource..........: 210
- 1:46:45      Number of Materials............................: 1
- 1:46:45      Gauss cuadrature order.........................: 3
- 1:46:45          Allocated weights: 4
- 1:46:45          Allocated gPoints: 8
- 1:46:45          Allocated weights: 4
- 1:46:45          Allocated gPoints: 8
- 1:46:45          Allocated weights: 9
- 1:46:45          Allocated gPoints: 18
- 1:46:45          Allocated weights: 9
- 1:46:45          Allocated gPoints: 18
- 1:46:45    Reading materials properties
- 1:46:45    Reading elements
- 1:46:45    Reading point and line Sources
- 1:46:45    Reading Boundary Conditions
- 1:46:45  End loading data
- 1:46:45    Assembling stiffness matrix and right hand side vector
- 1:46:45  solving linear system
- 1:46:45  done solving
+ 4:34:47  Initiating Program
+ 4:34:47    Reading project data
+ 4:34:47      Project name: test2
+ 4:34:47      Path: /home/ponfo/Documents/Project789/problemtypes/Thermal2D.gid
+ 4:34:47    Reading mesh data
+ 4:34:47      Number of Elements.............................: 3376
+ 4:34:47      Are Elements Quadratic.........................: 1
+ 4:34:47      Number of Triangular elements..................: 3376
+ 4:34:47      Number of Rectangular elements.................: 0
+ 4:34:47      Number of Nodes................................: 6913
+ 4:34:47      Number of Dirichlet conditions.................: 62
+ 4:34:47      Number of NormalFluxOnLines conditions.........: 0
+ 4:34:47      Number of ConvectionOnLines conditions.........: 79
+ 4:34:47      Number of Sources on points....................: 0
+ 4:34:47      Number of Sources on surfaces..................: 0
+ 4:34:47      Number of points with pointSource..............: 0
+ 4:34:47      Number of Surfaces with surfaceSource..........: 0
+ 4:34:47      Number of Materials............................: 1
+ 4:34:47      Gauss cuadrature order.........................: 3
+ 4:34:47          Allocated weights: 4
+ 4:34:47          Allocated gPoints: 8
+ 4:34:47          Allocated weights: 4
+ 4:34:47          Allocated gPoints: 8
+ 4:34:47          Allocated weights: 9
+ 4:34:47          Allocated gPoints: 18
+ 4:34:47          Allocated weights: 9
+ 4:34:47          Allocated gPoints: 18
+ 4:34:47    Reading materials properties
+ 4:34:47    Reading elements
+ 4:34:47    Reading point and line Sources
+ 4:34:47    Reading Boundary Conditions
+ 4:34:47  End loading data
+ 4:34:47    Assembling stiffness matrix and right hand side vector
+ 4:34:47  solving linear system
+ 4:34:47  done solving

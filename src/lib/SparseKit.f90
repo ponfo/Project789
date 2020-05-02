@@ -353,10 +353,10 @@ contains
   !***************************************************
   subroutine appendPostCRS(this, val, row, col)
     implicit none
-    class(Sparse), intent(inout) :: this
-    real(rkind), intent(in) :: val
-    integer(ikind), intent(in) :: row
-    integer(ikind), intent(in) :: col
+    class(Sparse) , intent(inout) :: this
+    real(rkind)   , intent(in)    :: val
+    integer(ikind), intent(in)    :: row
+    integer(ikind), intent(in)    :: col
     integer(ikind) :: index
     logical :: positionExists = .false.
     index = this%AI(row)

@@ -3,6 +3,7 @@ module Triangle2D3NodeM
   use DebuggerM
 
   use PointM
+  use NodePtrM
 
   use IntegratorM
   
@@ -18,8 +19,10 @@ module Triangle2D3NodeM
      procedure, public  :: init
      procedure, public  :: shapeFunc
      procedure, public  :: dShapeFunc
-     procedure, public  :: jacobian
-     procedure, public  :: jacobianDetFromCoord
+     procedure, public  :: jacobianAllNodes
+     procedure, public  :: jacobianSomeNodes
+     procedure, public  :: jacobianDetFromCoordAllNodes
+     procedure, public  :: jacobianDetFromCoordSomeNodes
      procedure, public  :: jacobianDetFromJacobian
      procedure, private :: valueShapeFuncAtGPoints
   end type Triangle2D3NodeDT
@@ -71,33 +74,63 @@ contains
     dShapeFunc(2,3) = 1
   end function dShapeFunc
 
-  function jacobian(this, pointToValue, nodalPoints)
+  function jacobianAllNodes(this, pointToValue, node)
     implicit none
     class(Triangle2D3NodeDT), intent(inout)                     :: this
     class(PointDT)          , intent(in)                        :: pointToValue
-    class(PointDT)          , dimension(this%nNode), intent(in) :: nodalPoints
-    real(rkind)             , dimension(this%dim, this%dim)      :: jacobian
+    class(NodePtrDT)        , dimension(this%nNode), intent(in) :: node
+    real(rkind)             , dimension(this%dim, this%dim)      :: jacobianAllNodes
     integer(ikind)                                               :: i
     real(rkind)             , dimension(2, NNODE)                :: dsf
-    jacobian = 0.d0
+    jacobianAllNodes = 0.d0
     dsf = this%dShapeFunc(pointToValue)
-    do i = 1, NNODE
-       jacobian(1,1) = jacobian(1,1) + dsf(1,i)*nodalPoints(i)%getx() !dx/d(xi)
-       jacobian(1,2) = jacobian(1,2) + dsf(1,i)*nodalPoints(i)%gety() !dy/d(xi)
-       jacobian(2,1) = jacobian(2,1) + dsf(2,i)*nodalPoints(i)%getx() !dx/d(eta)
-       jacobian(2,2) = jacobian(2,2) + dsf(2,i)*nodalPoints(i)%gety() !dy/d(eta)
+    do i = 1, this%nNode
+       jacobianAllNodes(1,1) = jacobianAllNodes(1,1) + dsf(1,i)*node(i)%getx() !dx/d(xi)
+       jacobianAllNodes(1,2) = jacobianAllNodes(1,2) + dsf(1,i)*node(i)%gety() !dy/d(xi)
+       jacobianAllNodes(2,1) = jacobianAllNodes(2,1) + dsf(2,i)*node(i)%getx() !dx/d(eta)
+       jacobianAllNodes(2,2) = jacobianAllNodes(2,2) + dsf(2,i)*node(i)%gety() !dy/d(eta)
     end do
-  end function jacobian
+  end function jacobianAllNodes
 
-  real(rkind) function jacobianDetFromCoord(this, pointToValue, nodalPoints)
+  function jacobianSomeNodes(this, indexList, pointToValue, node)
     implicit none
-    class(Triangle2D3NodeDT), intent(inout)                        :: this
-    class(PointDT)          , intent(in)                           :: pointToValue
-    class(PointDT)          , dimension(this%nNode), intent(in)    :: nodalPoints
-    real(rkind)             , dimension(2,2)                       :: jacobian
-    jacobian = this%jacobian(pointToValue, nodalPoints)
-    jacobianDetFromCoord = jacobian(1,1)*jacobian(2,2)-jacobian(1,2)*jacobian(2,1)
-  end function jacobianDetFromCoord
+    class(Triangle2D3NodeDT), intent(inout)                     :: this
+    integer(ikind)          , dimension(:)         , intent(in) :: indexList
+    class(PointDT)          , intent(in)                        :: pointToValue
+    class(NodePtrDT)        , dimension(:)         , intent(in) :: node
+    real(rkind)             , dimension(this%dim, this%dim)      :: jacobianSomeNodes
+    integer(ikind)                                               :: i
+    real(rkind)             , dimension(2, NNODE)                :: dsf
+    jacobianSomeNodes = 0.d0
+    dsf = this%dShapeFunc(pointToValue)
+    do i = 1, size(node)
+       jacobianSomeNodes(1,1) = jacobianSomeNodes(1,1) + dsf(1,indexList(i))*node(i)%getx() !dx/d(xi)
+       jacobianSomeNodes(1,2) = jacobianSomeNodes(1,2) + dsf(1,indexList(i))*node(i)%gety() !dy/d(xi)
+       jacobianSomeNodes(2,1) = jacobianSomeNodes(2,1) + dsf(2,indexList(i))*node(i)%getx() !dx/d(eta)
+       jacobianSomeNodes(2,2) = jacobianSomeNodes(2,2) + dsf(2,indexList(i))*node(i)%gety() !dy/d(eta)
+    end do
+  end function jacobianSomeNodes
+
+  real(rkind) function jacobianDetFromCoordAllNodes(this, pointToValue, node)
+    implicit none
+    class(Triangle2D3NodeDT), intent(inout)                     :: this
+    class(PointDT)          , intent(in)                        :: pointToValue
+    class(NodePtrDT)        , dimension(this%nNode), intent(in) :: node
+    real(rkind)             , dimension(2,2)                    :: jacobian
+    jacobian = this%jacobian(pointToValue, node)
+    jacobianDetFromCoordAllNodes = jacobian(1,1)*jacobian(2,2)-jacobian(1,2)*jacobian(2,1)
+  end function jacobianDetFromCoordAllNodes
+
+  real(rkind) function jacobianDetFromCoordSomeNodes(this, indexList, pointToValue, node)
+    implicit none
+    class(Triangle2D3NodeDT), intent(inout)            :: this
+    integer(ikind)          , dimension(:), intent(in) :: indexList
+    class(PointDT)          , intent(in)               :: pointToValue
+    class(NodePtrDT)        , dimension(:), intent(in) :: node
+    real(rkind)             , dimension(2,2)           :: jacobian
+    jacobian = this%jacobian(indexList, pointToValue, node)
+    jacobianDetFromCoordSomeNodes = jacobian(1,1)*jacobian(2,2)-jacobian(1,2)*jacobian(2,1)
+  end function jacobianDetFromCoordSomeNodes
 
   real(rkind) function jacobianDetFromJacobian(this, jacobian)
     implicit none

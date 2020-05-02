@@ -260,7 +260,7 @@ contains
        do j = 1, nPointID
           node(j) = element%node(pointID(j))
        end do
-       thermalAppl%normalFluxOL(i) = fluxOnLine(i, value, node, element%geometry)
+       thermalAppl%normalFluxOL(i) = fluxOnLine(i, pointID, value, node, element%geometry)
        call thermalAppl%model%addCondition(conditionCounter, thermalAppl%normalFluxOL(i))
     end do
     do i = 1, 7
@@ -276,7 +276,7 @@ contains
        do j = 1, nPointID
           node(j) = element%node(pointID(j))
        end do
-       thermalAppl%convectionOL(i) = convectionOnLine(i, coef, temp, node, element%geometry)
+       thermalAppl%convectionOL(i) = convectionOnLine(i, pointID, coef, temp, node, element%geometry)
        call thermalAppl%model%addCondition(conditionCounter, thermalAppl%convectionOL(i))
     end do
     close(project)

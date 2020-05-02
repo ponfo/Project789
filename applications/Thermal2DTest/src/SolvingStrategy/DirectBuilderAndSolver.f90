@@ -7,6 +7,7 @@ module DirectBuilderAndSolverM
 
   use NodePtrM
   use ElementPtrM
+  use ConditionPtrM
 
   use ThermalModelM
 
@@ -71,10 +72,43 @@ contains
   subroutine applyBC(model)
     implicit none
     class(ThermalModelDT), intent(inout) :: model
-    !call applyNewmann(model)
-    !Implementar condiciones de newmann por elemento, análogo a como a la rutina anterior..
+    call applyNewmann(model)
     call applyDirichlet(model)
   end subroutine applyBC
+
+  subroutine applyNewmann(model)
+    implicit none
+    class(ThermalModelDT)      , intent(inout) :: model
+    integer(ikind)                             :: i, j, iCond, nCond, nNode, row, col
+    real(rkind), dimension(:,:), allocatable   :: localLHS
+    real(rkind), dimension(:)  , allocatable   :: localRHS
+    type(ConditionPtrDT)                       :: condition
+    nCond = model%getnCondition()
+    do iCond = 1, nCond
+       condition = model%getCondition(iCond)
+       nNode = condition%getnNode()
+       call condition%calculateLocalSystem(localLHS, localRHS)
+       if(condition%getAffectsLHS() == .true.) then
+          do i = 1, nNode
+             row = condition%getNodeID(i)
+             do j = 1, nNode
+                col = condition%getNodeID(j)
+                call model%LHS%appendPostCRS(val = localLHS(i,j)  &
+                     , row = row                                  &
+                     , col = col                                  )
+             end do
+          end do
+       end if
+       if(condition%getAffectsRHS() == .true.) then
+          do i = 1, nNode
+             row = condition%getNodeID(i)
+             model%rhs(row) = model%rhs(row) + localRHS(i)
+          end do
+       end if
+       if(allocated(localLHS)) deallocate(localLHS)
+       if(allocated(localRHS)) deallocate(localRHS)
+    end do
+  end subroutine applyNewmann
 
   subroutine applyDirichlet(model)
     implicit none

@@ -129,22 +129,22 @@ contains
     call this%dof(iDof)%freeDof()
   end subroutine freeDof
 
-  integer(ikind) function getnDof(this)
+  integer(ikind) pure function getnDof(this)
     implicit none
-    class(NodeDT), intent(inout) :: this
+    class(NodeDT), intent(in) :: this
     getnDof = size(this%dof)
   end function getnDof
 
   subroutine setID(this, id)
     implicit none
-    class(NodeDT), intent(inout) :: this
+    class(NodeDT) , intent(inout) :: this
     integer(ikind), intent(in)    :: id
     this%id = id
   end subroutine setID
 
-  integer(ikind) function getID(this)
+  integer(ikind) pure function getID(this)
     implicit none
-    class(NodeDT), intent(inout) :: this
+    class(NodeDT), intent(in) :: this
     getID = this%id
   end function getID
   

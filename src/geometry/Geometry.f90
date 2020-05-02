@@ -3,6 +3,8 @@ module GeometryM
   use DebuggerM
 
   use PointM
+  use NodeM
+  use NodePtrM
 
   use IntegratorM
   
@@ -16,13 +18,19 @@ module GeometryM
      integer(ikind)     :: dim
      type(IntegratorDT) :: integrator
    contains
-     procedure(shapeFuncInterf)              , deferred :: shapeFunc
-     procedure(dShapeFuncInterf)             , deferred :: dShapeFunc
-     procedure(jacobianInterf)               , deferred :: jacobian
-     procedure(jacobianDetFromCoordInterf)   , deferred :: jacobianDetFromCoord
-     procedure(jacobianDetFromJacobianInterf), deferred :: jacobianDetFromJacobian
-     generic                                            :: jacobianDet => jacobianDetFromCoord  &
-                                                                        , jacobianDetFromJacobian
+     procedure(shapeFuncInterf)                    , deferred :: shapeFunc
+     procedure(dShapeFuncInterf)                   , deferred :: dShapeFunc
+     procedure(jacobianAllNodesInterf)             , deferred :: jacobianAllNodes
+     procedure(jacobianSomeNodesInterf)            , deferred :: jacobianSomeNodes
+     procedure(jacobianDetFromCoordAllNodesInterf) , deferred :: jacobianDetFromCoordAllNodes
+     procedure(jacobianDetFromCoordSomeNodesInterf), deferred :: jacobianDetFromCoordSomeNodes
+     procedure(jacobianDetFromJacobianInterf)      , deferred :: jacobianDetFromJacobian
+     generic                                                  :: jacobian    => jacobianAllNodes     &
+                                                                              , jacobianSomeNodes
+     generic                                                  :: jacobianDet =>                      &
+                                                                   jacobianDetFromCoordAllNodes      &
+                                                                 , jacobianDetFromCoordSomeNodes     &
+                                                                 , jacobianDetFromJacobian
   end type GeometryDT
 
   abstract interface
@@ -50,29 +58,61 @@ module GeometryM
   end interface
 
   abstract interface
-     function jacobianInterf(this, pointToValue, nodalPoints)
+     function jacobianAllNodesInterf(this, pointToValue, node)
        use UtilitiesM
        import GeometryDT
        import PointDT
+       import NodePtrDT
        implicit none
        class(GeometryDT)                       , intent(inout) :: this
        class(PointDT)                          , intent(in)    :: pointToValue
-       class(PointDT)   , dimension(this%nNode), intent(in)    :: nodalPoints
-       real(rkind)      , dimension(this%dim, this%dim)        :: jacobianInterf
-     end function jacobianInterf
+       class(NodePtrDT) , dimension(this%nNode), intent(in)    :: node
+       real(rkind)      , dimension(this%dim, this%dim)        :: jacobianAllNodesInterf
+     end function jacobianAllNodesInterf
   end interface
 
   abstract interface
-     function jacobianDetFromCoordInterf(this, pointToValue, nodalPoints)
+     function jacobianSomeNodesInterf(this, indexList, pointToValue, node)
        use UtilitiesM
        import GeometryDT
        import PointDT
+       import NodePtrDT
+       implicit none
+       class(GeometryDT)                       , intent(inout) :: this
+       integer(ikind)   , dimension(:)         , intent(in)    :: indexList
+       class(PointDT)                          , intent(in)    :: pointToValue
+       class(NodePtrDT) , dimension(:)         , intent(in)    :: node
+       real(rkind)      , dimension(this%dim, this%dim)        :: jacobianSomeNodesInterf
+     end function jacobianSomeNodesInterf
+  end interface
+
+  abstract interface
+     function jacobianDetFromCoordAllNodesInterf(this, pointToValue, node)
+       use UtilitiesM
+       import GeometryDT
+       import PointDT
+       import NodePtrDT
        implicit none
        class(GeometryDT)                       , intent(inout) :: this
        class(PointDT)                          , intent(in)    :: pointToValue
-       class(PointDT)   , dimension(this%nNode), intent(in)    :: nodalPoints
-       real(rkind)                                             :: jacobianDetFromCoordInterf
-     end function jacobianDetFromCoordInterf
+       class(NodePtrDT) , dimension(this%nNode), intent(in)    :: node
+       real(rkind)                                             :: jacobianDetFromCoordAllNodesInterf
+     end function jacobianDetFromCoordAllNodesInterf
+  end interface
+
+  abstract interface
+     function jacobianDetFromCoordSomeNodesInterf(this, indexList, pointToValue, node)
+       use UtilitiesM
+       import GeometryDT
+       import PointDT
+       import NodePtrDT
+       implicit none
+       class(GeometryDT)              , intent(inout) :: this
+       integer(ikind)   , dimension(:), intent(in)    :: indexList
+       class(PointDT)                 , intent(in)    :: pointToValue
+       class(NodePtrDT) , dimension(:), intent(in)    :: node
+       real(rkind)                                    :: jacobianDetFromCoordSomeNodesInterf
+     end function jacobianDetFromCoordSomeNodesInterf
   end interface
 
   abstract interface

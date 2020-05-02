@@ -23,6 +23,8 @@ module NodePtrM
      procedure, public :: fixDof
      procedure, public :: freeDof
      procedure, public :: getnDof
+     procedure, public :: setID
+     procedure, public :: getID
      procedure, public :: setX
      procedure, public :: setY
      procedure, public :: setZ
@@ -71,9 +73,9 @@ contains
     call this%ptr%freeDof(iDof)
   end subroutine freeDof
 
-  integer(ikind) function getnDof(this)
+  integer(ikind) pure function getnDof(this)
     implicit none
-    class(NodePtrDT), intent(inout) :: this
+    class(NodePtrDT), intent(in) :: this
     getnDof = this%ptr%getnDof()
   end function getnDof
 
@@ -116,10 +118,23 @@ contains
     getZ = this%ptr%getZ()
   end function getZ
 
-  integer(ikind) function getDimension(this)
+  integer(ikind) pure function getDimension(this)
     implicit none
-    class(NodePtrDT), intent(inout) :: this
+    class(NodePtrDT), intent(in) :: this
     getDimension = this%ptr%getDimension()
   end function getDimension
+
+  subroutine setID(this, id)
+    implicit none
+    class(NodePtrDT), intent(inout) :: this
+    integer(ikind)  , intent(in)    :: id
+    call this%ptr%setID(id)
+  end subroutine setID
+
+  integer(ikind) pure function getID(this)
+    implicit none
+    class(NodePtrDT), intent(in) :: this
+    getID = this%ptr%getID()
+  end function getID
 
 end module NodePtrM

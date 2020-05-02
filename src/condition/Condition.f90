@@ -14,6 +14,8 @@ module ConditionM
 
   type, abstract :: ConditionDT
      integer(ikind)                               :: id
+     logical                                      :: affectsLHS
+     logical                                      :: affectsRHS
      type(NodePtrDT)  , dimension(:), allocatable :: node
      class(GeometryDT)              , pointer     :: geometry
    contains
@@ -23,6 +25,9 @@ module ConditionM
      procedure, public :: getID
      procedure, public :: getnNode
      procedure, public :: getNode
+     procedure, public :: getNodeID
+     procedure, public :: getAffectsLHS
+     procedure, public :: getAffectsRHS
      
      procedure(calculateLocalSystemInterf), deferred :: calculateLocalSystem
      procedure(calculateLHSInterf)        , deferred :: calculateLHS
@@ -97,6 +102,25 @@ contains
     integer(ikind)    , intent(in)    :: iNode
     getNode = this%node(iNode)
   end function getNode
+
+  integer(ikind) function getNodeID(this, iNode)
+    implicit none
+    class(ConditionDT), intent(inout) :: this
+    integer(ikind)  , intent(in)    :: iNode
+    getNodeID = this%node(iNode)%ptr%getID()
+  end function getNodeID
+
+  logical function getAffectsLHS(this)
+    implicit none
+    class(ConditionDT), intent(inout) :: this
+    getAffectsLHS = this%affectsLHS
+  end function getAffectsLHS
+
+  logical function getAffectsRHS(this)
+    implicit none
+    class(ConditionDT), intent(inout) :: this
+    getAffectsRHS = this%affectsRHS
+  end function getAffectsRHS
 
   subroutine calculateResults(this)
     implicit none
