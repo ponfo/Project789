@@ -5,6 +5,7 @@ module Quadrilateral2D4NodeM
   use PointM
   use NodeM
   use NodePtrM
+  use Line2D2NodeM
 
   use IntegratorM
   
@@ -22,9 +23,12 @@ module Quadrilateral2D4NodeM
      procedure, public  :: dShapeFunc
      procedure, public  :: jacobianAllNodes
      procedure, public  :: jacobianSomeNodes
+     procedure, public  :: jacobianAtGPoints
      procedure, public  :: jacobianDetFromCoordAllNodes
      procedure, public  :: jacobianDetFromCoordSomeNodes
      procedure, public  :: jacobianDetFromJacobian
+     procedure, public  :: jacobianDetAtGPointsFromCoord
+     procedure, public  :: jacobianDetAtGPointsFromJacobian
      procedure, private :: valueShapeFuncAtGPoints
   end type Quadrilateral2D4NodeDT
 
@@ -49,6 +53,7 @@ contains
     this%nNode = NNODE
     this%integrator = integrator(gaussOrder, 'quadrilateral')
     call this%valueShapeFuncAtGPoints()
+    this%boundaryGeometry = line2D2Node(gaussOrder)
   end subroutine init
 
   function shapeFunc(this, point)
@@ -85,7 +90,7 @@ contains
     real(rkind)                  , dimension(this%dim, this%dim)     :: jacobianAllNodes
     integer(ikind)                                                   :: i
     real(rkind)                 , dimension(2, NNODE)                :: dsf
-    jacobianAllNodes = 0.d0
+    jacobianAllNodes = 0._rkind
     dsf = this%dShapeFunc(pointToValue)
     do i = 1, this%nNode
        jacobianAllNodes(1,1) = jacobianAllNodes(1,1) + dsf(1,i)*node(i)%getx() !dx/d(xi)
@@ -104,7 +109,7 @@ contains
     real(rkind)                  , dimension(this%dim, this%dim)      :: jacobianSomeNodes
     integer(ikind)                                                   :: i
     real(rkind)                 , dimension(2, NNODE)                :: dsf
-    jacobianSomeNodes = 0.d0
+    jacobianSomeNodes = 0._rkind
     dsf = this%dShapeFunc(pointToValue)
     do i = 1, size(node)
        jacobianSomeNodes(1,1) = jacobianSomeNodes(1,1) + dsf(1,indexList(i))*node(i)%getx() !dx/d(xi)
@@ -113,6 +118,25 @@ contains
        jacobianSomeNodes(2,2) = jacobianSomeNodes(2,2) + dsf(2,indexList(i))*node(i)%gety() !dy/d(eta)
     end do
   end function jacobianSomeNodes
+
+  function jacobianAtGPoints(this, node)
+    implicit none
+    class(Quadrilateral2D4NodeDT)                       , intent(inout) :: this
+    class(NodePtrDT), dimension(this%nNode)             , intent(in)    :: node
+    real(rkind), dimension(this%integrator%integTerms,this%dim,this%dim) :: jacobianAtGPoints
+    integer(ikind)                                                      :: i, j
+    real(rkind), dimension(this%integrator%integTerms,2,NNODE)          :: dsf
+    jacobianAtGPoints = 0._rkind
+    dsf = this%integrator%dShapeFunc
+    do i = 1, this%integrator%integTerms
+       do j = 1, this%nNode
+          jacobianAtGPoints(i,1,1) = jacobianAtGPoints(i,1,1) + dsf(i,1,j)*node(j)%getx()
+          jacobianAtGPoints(i,1,2) = jacobianAtGPoints(i,1,2) + dsf(i,1,j)*node(j)%gety()
+          jacobianAtGPoints(i,2,1) = jacobianAtGPoints(i,2,1) + dsf(i,2,j)*node(j)%getx()
+          jacobianAtGPoints(i,2,2) = jacobianAtGPoints(i,2,2) + dsf(i,2,j)*node(j)%gety()
+       end do
+    end do
+  end function jacobianAtGPoints
 
   real(rkind) function jacobianDetFromCoordAllNodes(this, pointToValue, node)
     implicit none
@@ -141,6 +165,32 @@ contains
     real(rkind)  , dimension(:,:), intent(in)    :: jacobian
     jacobianDetFromJacobian = jacobian(1,1)*jacobian(2,2)-jacobian(1,2)*jacobian(2,1)
   end function jacobianDetFromJacobian
+
+  function jacobianDetAtGPointsFromCoord(this, node)
+    implicit none
+    class(Quadrilateral2D4NodeDT)          , intent(inout)      :: this
+    class(NodePtrDT), dimension(this%nNode), intent(in)         :: node
+    real(rkind)     , dimension(this%integrator%integTerms)     :: jacobianDetAtGPointsFromCoord
+    integer(ikind)                                              :: i
+    real(rkind)     , dimension(this%integrator%integTerms,2,2) :: jacobian
+    jacobian = this%jacobianAtGPoints(node)
+    do i = 1, this%integrator%integTerms
+       jacobianDetAtGPointsFromCoord(i) = &
+            jacobian(i,1,1)*jacobian(i,2,2)-jacobian(i,1,2)*jacobian(i,2,1)
+    end do
+  end function jacobianDetAtGPointsFromCoord
+
+  function jacobianDetAtGPointsFromJacobian(this, jacobian)
+    implicit none
+    class(Quadrilateral2D4NodeDT)        , intent(inout) :: this
+    real(rkind), dimension(:,:,:)        , intent(in) :: jacobian
+    real(rkind), dimension(this%integrator%integTerms) :: jacobianDetAtGPointsFromJacobian
+    integer(ikind)                                     :: i
+    do i = 1, this%integrator%integTerms
+       jacobianDetAtGPointsFromJacobian(i) = &
+            jacobian(i,1,1)*jacobian(i,2,2)-jacobian(i,1,2)*jacobian(i,2,1)
+    end do
+  end function jacobianDetAtGPointsFromJacobian
 
   subroutine valueShapeFuncAtGPoints(this)
     implicit none

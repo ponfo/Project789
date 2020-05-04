@@ -29,6 +29,8 @@ OBJECTS := $(BINDIR)/Debugger.o                 \
 	$(BINDIR)/IntegratorPtr.o               \
 	                                        \
 	$(BINDIR)/Geometry.o                    \
+	$(BINDIR)/Line2D2Node.o                 \
+	$(BINDIR)/Line2D3Node.o                 \
 	$(BINDIR)/Triangle2D3Node.o             \
 	$(BINDIR)/Triangle2D6Node.o             \
 	$(BINDIR)/Quadrilateral2D4Node.o        \
@@ -109,6 +111,10 @@ $(BINDIR)/IntegratorPtr.o : $(VPATH)/integrator/IntegratorPtr.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 
 $(BINDIR)/Geometry.o : $(VPATH)/geometry/Geometry.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/Line2D2Node.o : $(VPATH)/geometry/Line2D2Node.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/Line2D3Node.o : $(VPATH)/geometry/Line2D3Node.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/Triangle2D3Node.o : $(VPATH)/geometry/Triangle2D3Node.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@

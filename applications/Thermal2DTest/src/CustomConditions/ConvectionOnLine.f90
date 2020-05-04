@@ -73,29 +73,24 @@ contains
     real(rkind)                                                           :: int
     real(rkind)              , dimension(:)  , allocatable                :: jacobianDet
     type(IntegratorPtrDT)                                                 :: integrator
-    type(PointDT)                                                         :: gaussPoint
-    type(NodePtrDT)          , dimension(:)   , allocatable               :: nodalPoints
+    type(NodePtrDT)          , dimension(:)  , allocatable                :: nodalPoints
     nNode = this%getnNode()
-    integrator%ptr => this%geometry%integrator
+    integrator%ptr => this%geometry%boundaryGeometry%integrator
     allocate(lhs(nNode,nNode))
     allocate(rhs(nNode))
-    allocate(jacobianDet(integrator%ptr%integTerms))
     allocate(nodalPoints(nNode))
-    gaussPoint = point(0._rkind, 0._rkind)
+    lhs = 0._rkind
+    rhs = 0._rkind
     do i = 1, nNode
        nodalPoints(i) = this%node(i)
     end do
-    do i = 1, integrator%ptr%integTerms
-       call gaussPoint%updatePoint(integrator%ptr%gPoint(i,1),integrator%ptr%gPoint(i,2))
-       jacobianDet(i) = this%geometry%jacobianDet(this%nodeIDList, gaussPoint, nodalPoints)
-    end do
+    jacobianDet = this%geometry%boundaryGeometry%jacobianDetAtGPoints(nodalPoints)
     do i = 1, nNode
        do j = 1, nNode
-          lhs(i,j) = 0._rkind
           int = 0._rkind
           do k = 1, integrator%ptr%integTerms
-             int = int + integrator%ptr%weight(k)*integrator%ptr%shapeFunc(k,this%nodeIDList(i)) &
-                  * integrator%ptr%shapeFunc(k,this%nodeIDList(j))*this%coef
+             int = int + integrator%ptr%weight(k)*integrator%ptr%shapeFunc(k,i) &
+                  * integrator%ptr%shapeFunc(k,j)*this%coef*jacobianDet(k)
           end do
           lhs(i,j) = lhs(i,j) + int
        end do
@@ -103,9 +98,10 @@ contains
     do i = 1, nNode
        int = 0._rkind
        do j = 1, integrator%ptr%integTerms
-          int = int + integrator%ptr%weight(j)*integrator%ptr%shapeFunc(j,this%nodeIDList(i)) &
+          int = int + integrator%ptr%weight(j)*integrator%ptr%shapeFunc(j,i) &
                * this%coef*this%temp*jacobianDet(j)
        end do
+       rhs(i) = rhs(i) + int
     end do
   end subroutine calculateLocalSystem
 
@@ -118,26 +114,22 @@ contains
     real(rkind)                                                           :: int
     real(rkind)              , dimension(:)  , allocatable                :: jacobianDet
     type(IntegratorPtrDT)                                                 :: integrator
-    type(PointDT)                                                         :: gaussPoint
     type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
     nNode = this%getnNode()
-    integrator%ptr => this%geometry%integrator
+    integrator%ptr => this%geometry%boundaryGeometry%integrator
     allocate(lhs(nNode,nNode))
     allocate(nodalPoints(nNode))
+    lhs = 0._rkind
     do i = 1, nNode
        nodalPoints(i) = this%node(i)
     end do
-    do i = 1, integrator%ptr%integTerms
-       call gaussPoint%updatePoint(integrator%ptr%gPoint(i,1),integrator%ptr%gPoint(i,2))
-       jacobianDet(i) = this%geometry%jacobianDet(this%nodeIDList, gaussPoint, nodalPoints)
-    end do
+    jacobianDet = this%geometry%boundaryGeometry%jacobianDetAtGPoints(nodalPoints)
     do i = 1, nNode
        do j = 1, nNode
-          lhs(i,j) = 0._rkind
           int = 0._rkind
           do k = 1, integrator%ptr%integTerms
-             int = int + integrator%ptr%weight(k)*integrator%ptr%shapeFunc(k,nodalPoints(i)%getID()) &
-                  * integrator%ptr%shapeFunc(k,nodalPoints(j)%getID())*this%coef
+             int = int + integrator%ptr%weight(k)*integrator%ptr%shapeFunc(k,i) &
+                  * integrator%ptr%shapeFunc(k,j)*this%coef*jacobianDet(k)
           end do
           lhs(i,j) = lhs(i,j) + int
        end do
@@ -153,27 +145,23 @@ contains
     real(rkind)                                                           :: int
     real(rkind)              , dimension(:)  , allocatable                :: jacobianDet
     type(IntegratorPtrDT)                                                 :: integrator
-    type(PointDT)                                                         :: gaussPoint
-    type(NodePTrDT)          , dimension(:)    , allocatable              :: nodalPoints
+    type(NodePTrDT)          , dimension(:)  , allocatable                :: nodalPoints
     nNode = this%getnNode()
-    integrator%ptr => this%geometry%integrator
+    integrator%ptr => this%geometry%boundaryGeometry%integrator
     allocate(rhs(nNode))
-    allocate(jacobianDet(integrator%ptr%integTerms))
     allocate(nodalPoints(nNode))
-    gaussPoint = point(0._rkind, 0._rkind)
+    rhs = 0._rkind
     do i = 1, nNode
        nodalPoints(i) = this%node(i)
     end do
-    do i = 1, integrator%ptr%integTerms
-       call gaussPoint%updatePoint(integrator%ptr%gPoint(i,1),integrator%ptr%gPoint(i,2))
-       jacobianDet(i) = this%geometry%jacobianDet(this%nodeIDList, gaussPoint, nodalPoints)
-    end do
+    jacobianDet = this%geometry%boundaryGeometry%jacobianDetAtGPoints(nodalPoints)
     do i = 1, nNode
        int = 0._rkind
        do j = 1, integrator%ptr%integTerms
-          int = int + integrator%ptr%weight(j)*integrator%ptr%shapeFunc(j,nodalPoints(i)%getID()) &
+          int = int + integrator%ptr%weight(j)*integrator%ptr%shapeFunc(j,i) &
                * this%coef*this%temp*jacobianDet(j)
        end do
+       rhs(i) = rhs(i) + int
     end do
   end subroutine calculateRHS
 

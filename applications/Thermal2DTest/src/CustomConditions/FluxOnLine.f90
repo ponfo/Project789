@@ -83,28 +83,24 @@ contains
     real(rkind)                                                           :: int
     real(rkind)              , dimension(:)  , allocatable                :: jacobianDet
     type(IntegratorPtrDT)                                                 :: integrator
-    type(PointDT)                                                         :: gaussPoint
     type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
     nNode = this%getnNode()
-    integrator%ptr => this%geometry%integrator
+    integrator%ptr => this%geometry%boundaryGeometry%integrator
     allocate(rhs(nNode))
-    allocate(jacobianDet(integrator%ptr%integTerms))
     allocate(nodalPoints(nNode))
-    gaussPoint = point(0._rkind, 0._rkind)
+    rhs = 0._rkind
     do i = 1, nNode
        nodalPoints(i) = this%node(i)
     end do
-    do i = 1, integrator%ptr%integTerms
-       call gaussPoint%updatePoint(integrator%ptr%gPoint(i,1),integrator%ptr%gPoint(i,2))
-       jacobianDet(i) = this%geometry%jacobianDet(this%nodeIDList, gaussPoint, nodalPoints)
-    end do
+    jacobianDet = this%geometry%boundaryGeometry%jacobianDetAtGPoints(nodalPoints)
     do i = 1, nNode
        int = 0._rkind
        do j = 1, integrator%ptr%integTerms
-          int = int + integrator%ptr%weight(j)*integrator%ptr%shapeFunc(j,this%nodeIDList(i)) &
+          int = int + integrator%ptr%weight(j)*integrator%ptr%shapeFunc(j,i) &
                * this%flux*jacobianDet(j)
        end do
        int = int*(-1._rkind)
+       rhs(i) = rhs(i) + int
     end do
   end subroutine calculateRHS
 

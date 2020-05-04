@@ -1,6 +1,6 @@
 BeginZE /home/ponfo/Documents/Project789/applications/Thermal2DTest/tests/test2.gid/test2.vv
-   x -1.19034 1.79034
-   y 1.54547 -0.545466
+   x -0.543004 1.143
+   y 1.10645 -0.106447
    z -1.81934 1.81934
    e 0.606447
    v 0 0 0
@@ -12,8 +12,8 @@ BeginZE /home/ponfo/Documents/Project789/applications/Thermal2DTest/tests/test2.
    pfo 0
    pf 4
    pv 0
-   NowUse 1
-   DrawingType 0
+   NowUse 2
+   DrawingType 3
    LightVector 90 90 150 0
 EndZE /home/ponfo/Documents/Project789/applications/Thermal2DTest/tests/test2.gid/test2.vv
 
