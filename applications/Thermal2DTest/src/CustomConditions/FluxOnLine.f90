@@ -83,7 +83,7 @@ contains
     real(rkind)                                                           :: int
     real(rkind)              , dimension(:)  , allocatable                :: jacobianDet
     type(IntegratorPtrDT)                                                 :: integrator
-    type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
+    type(NodePtrDT)         , dimension(:)    , allocatable               :: nodalPoints
     nNode = this%getnNode()
     integrator%ptr => this%geometry%boundaryGeometry%integrator
     allocate(rhs(nNode))

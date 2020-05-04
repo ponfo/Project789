@@ -131,6 +131,7 @@ contains
                   - jacobian(k,2,1)*integrator%ptr%dShapeFunc(k,1,i)
              cj = jacobian(k,1,1)*integrator%ptr%dShapeFunc(k,2,j) &
                   - jacobian(k,2,1)*integrator%ptr%dShapeFunc(k,1,j)
+             
              lhs(i,j) = lhs(i,j)                            &
                   + integrator%ptr%weight(k)                 &
                   *(this%material%conductivity(1)*bi*bj  &

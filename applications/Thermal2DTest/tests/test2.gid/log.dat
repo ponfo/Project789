@@ -1,42 +1,43 @@
- 8:57:36  Initiating Program
- 8:57:36    Reading project data
- 8:57:36      Project name: test2
- 8:57:36      Path: /home/ponfo/Documents/Project789/problemtypes/Thermal2D.gid
- 8:57:36    Reading mesh data
- 8:57:36      Number of Elements.............................: 7062
- 8:57:36      Are Elements Quadratic.........................: 0
- 8:57:36      Number of Triangular elements..................: 0
- 8:57:36      Number of Rectangular elements.................: 7062
- 8:57:36      Number of Nodes................................: 7223
- 8:57:36      Number of Dirichlet conditions.................: 62
- 8:57:36      Number of NormalFluxOnLines conditions.........: 0
- 8:57:36      Number of ConvectionOnLines conditions.........: 159
- 8:57:36      Number of Sources on points....................: 0
- 8:57:36      Number of Sources on surfaces..................: 0
- 8:57:36      Number of points with pointSource..............: 0
- 8:57:36      Number of Surfaces with surfaceSource..........: 0
- 8:57:36      Number of Materials............................: 1
- 8:57:36      Gauss cuadrature order.........................: 3
- 8:57:36          Allocated weights: 4
- 8:57:36          Allocated gPoints: 8
- 8:57:36          Allocated weights: 3
- 8:57:36          Allocated gPoints: 3
- 8:57:36          Allocated weights: 4
- 8:57:36          Allocated gPoints: 8
- 8:57:36          Allocated weights: 3
- 8:57:36          Allocated gPoints: 3
- 8:57:36          Allocated weights: 9
- 8:57:36          Allocated gPoints: 18
- 8:57:36          Allocated weights: 3
- 8:57:36          Allocated gPoints: 3
- 8:57:36          Allocated weights: 9
- 8:57:36          Allocated gPoints: 18
- 8:57:36          Allocated weights: 3
- 8:57:36          Allocated gPoints: 3
- 8:57:36    Reading materials properties
- 8:57:36    Reading elements
- 8:57:36    Reading point and line Sources
- 8:57:36    Reading Boundary Conditions
- 8:57:36  End loading data
- 8:57:36    Assembling stiffness matrix and right hand side vector
- 8:57:36  solving linear system
+ 9:25:39  Initiating Program
+ 9:25:39    Reading project data
+ 9:25:39      Project name: test2
+ 9:25:39      Path: /home/ponfo/Documents/Project789/problemtypes/Thermal2D.gid
+ 9:25:39    Reading mesh data
+ 9:25:39      Number of Elements.............................: 7062
+ 9:25:39      Are Elements Quadratic.........................: 1
+ 9:25:39      Number of Triangular elements..................: 0
+ 9:25:39      Number of Rectangular elements.................: 7062
+ 9:25:39      Number of Nodes................................: 21507
+ 9:25:39      Number of Dirichlet conditions.................: 122
+ 9:25:39      Number of NormalFluxOnLines conditions.........: 0
+ 9:25:39      Number of ConvectionOnLines conditions.........: 159
+ 9:25:39      Number of Sources on points....................: 0
+ 9:25:39      Number of Sources on surfaces..................: 0
+ 9:25:39      Number of points with pointSource..............: 0
+ 9:25:39      Number of Surfaces with surfaceSource..........: 0
+ 9:25:39      Number of Materials............................: 1
+ 9:25:39      Gauss cuadrature order.........................: 3
+ 9:25:39          Allocated weights: 4
+ 9:25:39          Allocated gPoints: 8
+ 9:25:39          Allocated weights: 3
+ 9:25:39          Allocated gPoints: 3
+ 9:25:39          Allocated weights: 4
+ 9:25:39          Allocated gPoints: 8
+ 9:25:39          Allocated weights: 3
+ 9:25:39          Allocated gPoints: 3
+ 9:25:39          Allocated weights: 9
+ 9:25:39          Allocated gPoints: 18
+ 9:25:39          Allocated weights: 3
+ 9:25:39          Allocated gPoints: 3
+ 9:25:39          Allocated weights: 9
+ 9:25:39          Allocated gPoints: 18
+ 9:25:39          Allocated weights: 3
+ 9:25:39          Allocated gPoints: 3
+ 9:25:39    Reading materials properties
+ 9:25:39    Reading elements
+ 9:25:39    Reading point and line Sources
+ 9:25:39    Reading Boundary Conditions
+ 9:25:39  End loading data
+ 9:25:39    Assembling stiffness matrix and right hand side vector
+ 9:25:40  solving linear system
+ 9:25:40  done solving

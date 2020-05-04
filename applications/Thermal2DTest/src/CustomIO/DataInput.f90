@@ -43,7 +43,7 @@ module DataInputM
   character(100)               :: projectName
   character(100)               :: path
   character(100)               :: aux
-  logical       , parameter    :: verbose = .true.
+  logical       , parameter    :: verbose = .false.
   logical                      :: isMaterialAsigned = .true.
   
   interface initFEM2D
@@ -55,6 +55,7 @@ contains
   subroutine initFEM2D(thermalAppl)
     implicit none
     type(Thermal2DApplicationDT), intent(inout) :: thermalAppl
+    print'(A)', 'Initializing Thermal2D application'
     call initLog(.true., 'log.dat')
     call debugLog('  Reading project data')
     call readProjectData
@@ -172,7 +173,6 @@ contains
        if(verbose) print'(I5,A15,I18,I14,5X,*(I5,X))', iElem, type, iMat, nNode, (Conectivities(j),j=1,nNode)
        allocate(auxNode(nNode))
        do j = 1, nNode
-          !auxNode(j)%ptr => thermalAppl%node(conectivities(j))
           call auxNode(j)%associate(thermalAppl%node(conectivities(j)))
        end do
        thermalAppl%element(iElem) = thermalElement(iElem, auxNode, thermalAppl%material(iMat))

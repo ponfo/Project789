@@ -51,6 +51,7 @@ contains
     class(Quadrilateral2D4NodeDT), intent(inout) :: this
     integer(ikind)               , intent(in)    :: gaussOrder
     this%nNode = NNODE
+    this%dim = 2
     this%integrator = integrator(gaussOrder, 'quadrilateral')
     call this%valueShapeFuncAtGPoints()
     this%boundaryGeometry = line2D2Node(gaussOrder)

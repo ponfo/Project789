@@ -32,11 +32,19 @@ contains
     implicit none
     class(DirectBuilderAndSolverDT), intent(inout) :: this
     class(ThermalModelDT)          , intent(inout) :: model
+    integer(ikind) :: i
     write(*,*) '*** Direct Builder And Solver ***'
     call debugLog('  Assembling stiffness matrix and right hand side vector')
     print'(A)', 'Assembling stiffness matrix and right hand side vector'
     call assembleSystem(model)
     call applyBC(model)
+!!$    print*, 'SYSTEM'
+!!$    print*, 'LHS'
+!!$    call model%lhs%printNonZeros()
+!!$    print*, 'RHS'
+!!$    do i = 1, size(model%rhs)
+!!$       print'(A,I0,A,E16.8)', 'rhs(', i, ') = ', model%rhs(i)
+!!$    end do
     write(*,*) '*** Init Linear Solver ***'
     call solve(model)
   end subroutine buildAndSolve
