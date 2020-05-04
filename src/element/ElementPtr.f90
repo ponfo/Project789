@@ -8,6 +8,8 @@ module ElementPtrM
   use GeometryM
   use GeometryObjectM
 
+  use IntegratorPtrM
+
   use SourceM
   
   use ElementM
@@ -26,12 +28,14 @@ module ElementPtrM
 
      procedure, public :: getID
      procedure, public :: getnNode
+     procedure, public :: getIntegrator
      procedure, public :: getNode
      procedure, public :: getNodeID
 
      procedure, public :: calculateLocalSystem
      procedure, public :: calculateLHS
      procedure, public :: calculateRHS
+     procedure, public :: calculateResults
   end type ElementPtrDT
 
 contains
@@ -70,6 +74,12 @@ contains
     getnNode = this%ptr%getnNode()
   end function getnNode
 
+  type(IntegratorPtrDT) function getIntegrator(this)
+    implicit none
+    class(ElementPtrDT), intent(inout) :: this
+    getIntegrator = this%ptr%getIntegrator()
+  end function getIntegrator
+
   type(NodePtrDT) function getNode(this, iNode)
     implicit none
     class(ElementPtrDT), intent(inout) :: this
@@ -105,5 +115,12 @@ contains
     real(rkind)        , dimension(:), allocatable, intent(inout) :: rhs
     call this%ptr%calculateRHS(rhs)
   end subroutine calculateRHS
+
+  subroutine calculateResults(this, resultMat)
+    implicit none
+    class(ElementPtrDT)                             , intent(inout) :: this
+    real(rkind)        , dimension(:,:), allocatable, intent(inout) :: resultMat
+    call this%ptr%calculateResults(resultMat)
+  end subroutine calculateResults
     
 end module ElementPtrM

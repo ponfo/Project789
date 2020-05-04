@@ -1,0 +1,43 @@
+19:37:49  Initiating Program
+19:37:49    Reading project data
+19:37:49      Project name: test2
+19:37:49      Path: /home/ponfo/Documents/Project789/problemtypes/Thermal2D.gid
+19:37:49    Reading mesh data
+19:37:49      Number of Elements.............................: 15
+19:37:49      Are Elements Quadratic.........................: 1
+19:37:49      Number of Triangular elements..................: 0
+19:37:49      Number of Rectangular elements.................: 15
+19:37:49      Number of Nodes................................: 62
+19:37:49      Number of Dirichlet conditions.................: 8
+19:37:49      Number of NormalFluxOnLines conditions.........: 0
+19:37:49      Number of ConvectionOnLines conditions.........: 7
+19:37:49      Number of Sources on points....................: 0
+19:37:49      Number of Sources on surfaces..................: 0
+19:37:49      Number of points with pointSource..............: 0
+19:37:49      Number of Surfaces with surfaceSource..........: 0
+19:37:49      Number of Materials............................: 1
+19:37:49      Gauss cuadrature order.........................: 3
+19:37:49          Allocated weights: 4
+19:37:49          Allocated gPoints: 8
+19:37:49          Allocated weights: 3
+19:37:49          Allocated gPoints: 3
+19:37:49          Allocated weights: 4
+19:37:49          Allocated gPoints: 8
+19:37:49          Allocated weights: 3
+19:37:49          Allocated gPoints: 3
+19:37:49          Allocated weights: 9
+19:37:49          Allocated gPoints: 18
+19:37:49          Allocated weights: 3
+19:37:49          Allocated gPoints: 3
+19:37:49          Allocated weights: 9
+19:37:49          Allocated gPoints: 18
+19:37:49          Allocated weights: 3
+19:37:49          Allocated gPoints: 3
+19:37:49    Reading materials properties
+19:37:49    Reading elements
+19:37:49    Reading point and line Sources
+19:37:49    Reading Boundary Conditions
+19:37:49  End loading data
+19:37:49    Assembling stiffness matrix and right hand side vector
+19:37:49  solving linear system
+19:37:49  done solving
