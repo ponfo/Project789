@@ -69,6 +69,10 @@ OBJECTS := $(BINDIR)/Debugger.o                 \
 						\
 	$(BINDIR)/BuilderAndSolver.o		\
 	$(BINDIR)/Scheme.o			\
+	$(BINDIR)/Integrand.o			\
+	$(BINDIR)/BaseModel.o			\
+	$(BINDIR)/RK2.o				\
+	$(BINDIR)/ExplicitEuler.o		\
 	$(BINDIR)/SolvingStrategy.o             \
                                                 \
 	$(BINDIR)/GIDDataOutput.o               
@@ -192,6 +196,14 @@ $(BINDIR)/BuilderAndSolver.o : $(VPATH)/SolvingStrategy/BuilderAndSolver.f90
 $(BINDIR)/Scheme.o : $(VPATH)/SolvingStrategy/Scheme.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/SolvingStrategy.o : $(VPATH)/SolvingStrategy/SolvingStrategy.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/BaseModel.o : $(VPATH)/IntegrationSchemes/BaseModel.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/Integrand.o : $(VPATH)/IntegrationSchemes/Integrand.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/ExplicitEuler.o : $(VPATH)/IntegrationSchemes/ExplicitEuler.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/RK2.o : $(VPATH)/IntegrationSchemes/RK2.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 
 $(BINDIR)/GIDDataOutput.o : $(VPATH)/io/GIDDataOutput.f90

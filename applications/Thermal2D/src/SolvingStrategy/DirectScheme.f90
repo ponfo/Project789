@@ -11,6 +11,8 @@ module DirectSchemeM
   
   use SchemeM
 
+  use ProcessM
+
   implicit none
 
   private
@@ -19,6 +21,7 @@ module DirectSchemeM
   type, extends(NewSchemeDT) :: DirectSchemeDT
    contains
      procedure, public              :: calculateFlux
+     procedure, nopass              :: integrate => integrator
   end type DirectSchemeDT
   
 contains
@@ -100,4 +103,10 @@ contains
     end do
   end subroutine calculateFlux
 
+  subroutine integrator(this, dt)
+    implicit none
+    class(NewProcessDT), intent(inout) :: this
+    real(rkind)        , intent(in)    :: dt
+  end subroutine integrator
+  
 end module DirectSchemeM
