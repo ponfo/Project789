@@ -50,21 +50,19 @@ contains
        element = model%getElement(iElem)
        nNode = element%getnNode()
        integrator = element%getIntegrator()
-       nGauss = integrator%ptr%integTerms
+       nGauss = integrator%getIntegTerms()
        if(nNode == 3 .or. nNode == 6) then
           nPointsTriang = nPointsTriang + nGauss
           nTriang = nTriang + 1
           if(firstTriang) then
-             allocate(model%heatFlux%triangGPoint(nGauss,2))
-             model%heatFlux%triangGPoint = integrator%ptr%gPoint
+             model%heatFlux%triangGPoint = integrator%getGPointFull()
              firstTriang = .false.
           end if
        else if(nNode == 4 .or. nNode == 8) then
           nPointsQuad = nPointsQuad + nGauss
           nQuad = nQuad + 1
           if(firstQuad) then
-             allocate(model%heatFlux%quadGPoint(nGauss,2))
-             model%heatFlux%quadGPoint = integrator%ptr%gPoint
+             model%heatFlux%quadGPoint = integrator%getGPointFull()
              firstQuad = .false.
           end if
        end if

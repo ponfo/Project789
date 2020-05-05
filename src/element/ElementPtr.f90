@@ -62,15 +62,15 @@ contains
     call this%ptr%assignSource(source)
   end subroutine assignSource
 
-  integer(ikind) function getID(this)
+  integer(ikind) pure function getID(this)
     implicit none
-    class(ElementPtrDT), intent(inout) :: this
+    class(ElementPtrDT), intent(in) :: this
     getID = this%ptr%getID()
   end function getID
 
-  integer(ikind) function getnNode(this)
+  integer(ikind) pure function getnNode(this)
     implicit none
-    class(ElementPtrDT), intent(inout) :: this
+    class(ElementPtrDT), intent(in) :: this
     getnNode = this%ptr%getnNode()
   end function getnNode
 
@@ -87,10 +87,10 @@ contains
     getNode = this%ptr%getNode(iNode)
   end function getNode
 
-  integer(ikind) function getNodeID(this, iNode)
+  integer(ikind) pure function getNodeID(this, iNode)
     implicit none
-    class(ElementPtrDT), intent(inout) :: this
-    integer(ikind)     , intent(in)    :: iNode
+    class(ElementPtrDT), intent(in) :: this
+    integer(ikind)     , intent(in) :: iNode
     getNodeID = this%ptr%getNodeID(iNode)
   end function getNodeID
 

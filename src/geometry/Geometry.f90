@@ -19,6 +19,10 @@ module GeometryM
      type(IntegratorDT)             :: integrator
      class(GeometryDT), allocatable :: boundaryGeometry
    contains
+     procedure                                                   :: getnNode
+     procedure                                                   :: getDim
+     procedure                                                   :: getIntegrator
+     
      procedure(shapeFuncInterf)                       , deferred :: shapeFunc
      procedure(dShapeFuncInterf)                      , deferred :: dShapeFunc
      procedure(jacobianAllNodesInterf)                , deferred :: jacobianAllNodes
@@ -166,5 +170,25 @@ module GeometryM
        real(rkind), dimension(this%integrator%integTerms) :: jacobianDetAtGPointsFromJacobianInterf
      end function jacobianDetAtGPointsFromJacobianInterf
   end interface
- 
+
+contains
+
+  integer(ikind) pure function getnNode(this)
+    implicit none
+    class(GeometryDT), intent(in) :: this
+    getnNode = this%nNode
+  end function getnNode
+
+  integer(ikind) pure function getDim(this)
+    implicit none
+    class(GeometryDT), intent(in) :: this
+    getDim = this%dim
+  end function getDim
+
+  type(IntegratorDT) pure function getIntegrator(this)
+    implicit none
+    class(GeometryDT), intent(in) :: this
+    getIntegrator = this%integrator
+  end function getIntegrator
+
 end module GeometryM

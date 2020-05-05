@@ -154,55 +154,55 @@ contains
     call this%mesh(meshID)%addCondition(conditionID, condition)
   end subroutine addConditionMultiMesh
 
-  integer(ikind) function getnNodeOneMesh(this)
+  integer(ikind) pure function getnNodeOneMesh(this)
     implicit none
-    class(ModelDT), intent(inout) :: this
+    class(ModelDT), intent(in) :: this
     getnNodeOneMesh = this%mesh(1)%getnNode()
   end function getnNodeOneMesh
 
-  integer(ikind) function getnNodeMultiMesh(this, meshID)
+  integer(ikind) pure function getnNodeMultiMesh(this, meshID)
     implicit none
-    class(ModelDT), intent(inout) :: this
-    integer(ikind), intent(in)    :: meshID
+    class(ModelDT), intent(in) :: this
+    integer(ikind), intent(in) :: meshID
     getnNodeMultiMesh = this%mesh(meshID)%getnNode()
   end function getnNodeMultiMesh
   
-  integer(ikind) function getnElementOneMesh(this)
+  integer(ikind) pure function getnElementOneMesh(this)
     implicit none
-    class(ModelDT), intent(inout) :: this
+    class(ModelDT), intent(in) :: this
     getnElementOneMesh = this%mesh(1)%getnElement()
   end function getnElementOneMesh
 
-  integer(ikind) function getnElementMultiMesh(this, meshID)
+  integer(ikind) pure function getnElementMultiMesh(this, meshID)
     implicit none
-    class(ModelDT), intent(inout) :: this
-    integer(ikind), intent(in)    :: meshID
+    class(ModelDT), intent(in) :: this
+    integer(ikind), intent(in) :: meshID
     getnElementMultiMesh = this%mesh(meshID)%getnElement()
   end function getnElementMultiMesh
 
-  integer(ikind) function getnConditionOneMesh(this)
+  integer(ikind) pure function getnConditionOneMesh(this)
     implicit none
-    class(ModelDT), intent(inout) :: this
+    class(ModelDT), intent(in) :: this
     getnConditionOneMesh = this%mesh(1)%getnCondition()
   end function getnConditionOneMesh
 
-  integer(ikind) function getnConditionMultiMesh(this, meshID)
+  integer(ikind) pure function getnConditionMultiMesh(this, meshID)
     implicit none
-    class(ModelDT), intent(inout) :: this
-    integer(ikind), intent(in)    :: meshID
+    class(ModelDT), intent(in) :: this
+    integer(ikind), intent(in) :: meshID
     getnConditionMultiMesh = this%mesh(meshID)%getnCondition()
   end function getnConditionMultiMesh
 
-  integer(ikind) function getIDOneMesh(this)
+  integer(ikind) pure function getIDOneMesh(this)
     implicit none
-    class(ModelDT), intent(inout) :: this
+    class(ModelDT), intent(in) :: this
     getIDOneMesh = this%mesh(1)%getID()
   end function getIDOneMesh
 
-  integer(ikind) function getIDMultiMesh(this, meshID)
+  integer(ikind) pure function getIDMultiMesh(this, meshID)
     implicit none
-    class(ModelDT), intent(inout) :: this
-    integer(ikind), intent(in)    :: meshID
+    class(ModelDT), intent(in) :: this
+    integer(ikind), intent(in) :: meshID
     getIDMultiMesh = this%mesh(meshID)%getID()
   end function getIDMultiMesh
 

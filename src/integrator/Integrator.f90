@@ -19,6 +19,19 @@ module IntegratorM
      procedure, private :: getGTriangle
      procedure, private :: getGSquare
      procedure, private :: getGTetrahedron
+
+     procedure, public :: getGaussOrder
+     procedure, public :: getIntegTerms
+     procedure, public :: getWeight
+     procedure, public :: getGPoint
+     procedure, public :: getShapeFunc
+     procedure, public :: getDShapeFunc
+     procedure, public :: getDDShapeFunc
+     procedure, public :: getWeightFull
+     procedure, public :: getGPointFull
+     procedure, public :: getShapeFuncFull
+     procedure, public :: getDShapeFuncFull
+     procedure, public :: getDDShapeFuncFull
   end type IntegratorDT
 
   interface integrator
@@ -360,4 +373,93 @@ contains
     call debugLog('        Allocated gPoints: ', size(this%gPoint))
   end subroutine getGTetrahedron
 
+  integer(ikind) pure function getGaussOrder(this)
+    implicit none
+    class(IntegratorDT), intent(in) :: this
+    getGaussOrder = this%gaussOrder
+  end function getGaussOrder
+
+  integer(ikind) pure function getIntegTerms(this)
+    implicit none
+    class(IntegratorDT), intent(in) :: this
+    getIntegTerms = this%integTerms
+  end function getIntegTerms
+
+  real(rkind) pure function getWeight(this, i)
+    implicit none
+    class(IntegratorDT), intent(in) :: this
+    integer(ikind)     , intent(in) :: i
+    getWeight = this%weight(i)
+  end function getWeight
+
+  real(rkind) pure function getGPoint(this, i, j)
+    implicit none
+    class(IntegratorDT), intent(in) :: this
+    integer(ikind)     , intent(in) :: i
+    integer(ikind)     , intent(in) :: j
+    getGPoint = this%gPoint(i,j)
+  end function getGPoint
+
+  real(rkind) pure function getShapeFunc(this, i, j)
+    implicit none
+    class(IntegratorDT), intent(in) :: this
+    integer(ikind)     , intent(in) :: i
+    integer(ikind)     , intent(in) :: j
+    getShapeFunc = this%shapeFunc(i,j)
+  end function getShapeFunc
+
+  real(rkind) pure function getDShapeFunc(this, i, j, k)
+    implicit none
+    class(IntegratorDT), intent(in) :: this
+    integer(ikind)     , intent(in) :: i
+    integer(ikind)     , intent(in) :: j
+    integer(ikind)     , intent(in) :: k
+    getDShapeFunc = this%dShapeFunc(i,j,k)
+  end function getDShapeFunc
+
+  real(rkind) pure function getDDShapeFunc(this, i, j, k, l)
+    implicit none
+    class(IntegratorDT), intent(in) :: this
+    integer(ikind)     , intent(in) :: i
+    integer(ikind)     , intent(in) :: j
+    integer(ikind)     , intent(in) :: k
+    integer(ikind)     , intent(in) :: l
+    getDDShapeFunc = this%ddShapeFunc(i,j,k,l)
+  end function getDDShapeFunc
+
+  pure function getWeightFull(this)
+    implicit none
+    class(IntegratorDT)              , intent(in)  :: this
+    real(rkind)        , dimension(:), allocatable :: getWeightFull
+    getWeightFull = this%weight
+  end function getWeightFull
+
+  pure function getGPointFull(this)
+    implicit none
+    class(IntegratorDT)                , intent(in)  :: this
+    real(rkind)        , dimension(:,:), allocatable :: getGPointFull
+    getGPointFull = this%gPoint
+  end function getGPointFull
+
+  pure function getShapeFuncFull(this)
+    implicit none
+    class(IntegratorDT)                , intent(in)  :: this
+    real(rkind)        , dimension(:,:), allocatable :: getShapeFuncFull
+    getShapeFuncFull = this%shapeFunc
+  end function getShapeFuncFull
+
+  pure function getDShapeFuncFull(this)
+    implicit none
+    class(IntegratorDT)                  , intent(in)  :: this
+    real(rkind)        , dimension(:,:,:), allocatable :: getDShapeFuncFull
+    getDShapeFuncFull = this%dShapeFunc
+  end function getDShapeFuncFull
+
+  pure function getDDShapeFuncFull(this)
+    implicit none
+    class(IntegratorDT)                    , intent(in)  :: this
+    real(rkind)        , dimension(:,:,:,:), allocatable :: getDDShapeFuncFull
+    getDDShapeFuncFull = this%ddShapeFunc
+  end function getDDShapeFuncFull
+  
 end module IntegratorM

@@ -83,8 +83,9 @@ contains
     real(rkind)                                                           :: int
     real(rkind)              , dimension(:)  , allocatable                :: jacobianDet
     type(IntegratorPtrDT)                                                 :: integrator
-    type(NodePtrDT)         , dimension(:)    , allocatable               :: nodalPoints
+    type(NodePtrDT)          , dimension(:)  , allocatable                :: nodalPoints
     nNode = this%getnNode()
+    integrator = this%getIntegrator()
     integrator%ptr => this%geometry%boundaryGeometry%integrator
     allocate(rhs(nNode))
     allocate(nodalPoints(nNode))
@@ -95,8 +96,8 @@ contains
     jacobianDet = this%geometry%boundaryGeometry%jacobianDetAtGPoints(nodalPoints)
     do i = 1, nNode
        int = 0._rkind
-       do j = 1, integrator%ptr%integTerms
-          int = int + integrator%ptr%weight(j)*integrator%ptr%shapeFunc(j,i) &
+       do j = 1, integrator%getIntegTerms()
+          int = int + integrator%ptr%weight(j)*integrator%getShapeFunc(j,i) &
                * this%flux*jacobianDet(j)
        end do
        int = int*(-1._rkind)
