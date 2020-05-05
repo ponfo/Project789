@@ -105,15 +105,15 @@ contains
     this%source => source
   end subroutine assignSource
 
-  integer(ikind) function getID(this)
+  integer(ikind) pure function getID(this)
     implicit none
-    class(ElementDT), intent(inout) :: this
+    class(ElementDT), intent(in) :: this
     getID = this%id
   end function getID
 
-  integer(ikind) function getnNode(this)
+  integer(ikind) pure function getnNode(this)
     implicit none
-    class(ElementDT), intent(inout) :: this
+    class(ElementDT), intent(in) :: this
     getnNode = size(this%node)
   end function getnNode
 
@@ -130,10 +130,10 @@ contains
     getNode = this%node(iNode)
   end function getNode
 
-  integer(ikind) function getNodeID(this, iNode)
+  integer(ikind) pure function getNodeID(this, iNode)
     implicit none
-    class(ElementDT), intent(inout) :: this
-    integer(ikind)  , intent(in)    :: iNode
+    class(ElementDT), intent(in) :: this
+    integer(ikind)  , intent(in) :: iNode
     getNodeID = this%node(iNode)%ptr%getID()
   end function getNodeID
 

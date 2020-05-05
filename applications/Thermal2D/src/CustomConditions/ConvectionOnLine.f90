@@ -88,17 +88,17 @@ contains
     do i = 1, nNode
        do j = 1, nNode
           int = 0._rkind
-          do k = 1, integrator%ptr%integTerms
-             int = int + integrator%ptr%weight(k)*integrator%ptr%shapeFunc(k,i) &
-                  * integrator%ptr%shapeFunc(k,j)*this%coef*jacobianDet(k)
+          do k = 1, integrator%getIntegTerms()
+             int = int + integrator%getWeight(k)*integrator%getShapeFunc(k,i) &
+                  * integrator%getShapeFunc(k,j)*this%coef*jacobianDet(k)
           end do
           lhs(i,j) = lhs(i,j) + int
        end do
     end do
     do i = 1, nNode
        int = 0._rkind
-       do j = 1, integrator%ptr%integTerms
-          int = int + integrator%ptr%weight(j)*integrator%ptr%shapeFunc(j,i) &
+       do j = 1, integrator%getIntegTerms()
+          int = int + integrator%getWeight(j)*integrator%getShapeFunc(j,i) &
                * this%coef*this%temp*jacobianDet(j)
        end do
        rhs(i) = rhs(i) + int
@@ -127,9 +127,9 @@ contains
     do i = 1, nNode
        do j = 1, nNode
           int = 0._rkind
-          do k = 1, integrator%ptr%integTerms
-             int = int + integrator%ptr%weight(k)*integrator%ptr%shapeFunc(k,i) &
-                  * integrator%ptr%shapeFunc(k,j)*this%coef*jacobianDet(k)
+          do k = 1, integrator%getIntegTerms()
+             int = int + integrator%getWeight(k)*integrator%getShapeFunc(k,i) &
+                  * integrator%getShapeFunc(k,j)*this%coef*jacobianDet(k)
           end do
           lhs(i,j) = lhs(i,j) + int
        end do
@@ -157,8 +157,8 @@ contains
     jacobianDet = this%geometry%boundaryGeometry%jacobianDetAtGPoints(nodalPoints)
     do i = 1, nNode
        int = 0._rkind
-       do j = 1, integrator%ptr%integTerms
-          int = int + integrator%ptr%weight(j)*integrator%ptr%shapeFunc(j,i) &
+       do j = 1, integrator%getIntegTerms()
+          int = int + integrator%getWeight(j)*integrator%getShapeFunc(j,i) &
                * this%coef*this%temp*jacobianDet(j)
        end do
        rhs(i) = rhs(i) + int

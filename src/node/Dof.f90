@@ -14,6 +14,10 @@ module DofM
      procedure, public :: init
      procedure, public :: fixDof
      procedure, public :: freeDof
+
+!!$     procedure, public :: getVal
+!!$     procedure, public :: getFixedVal
+!!$     procedure, public :: getIsFixed
   end type DofDT
 
   interface newDof
@@ -52,5 +56,7 @@ contains
     this%isFixed = .false.
     deallocate(this%fixedVal)
   end subroutine freeDof
+
+  
   
 end module DofM

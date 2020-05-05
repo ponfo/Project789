@@ -6,6 +6,8 @@ module ConditionPtrM
   use NodePtrM
 
   use GeometryM
+
+  use IntegratorPtrM
   
   use ConditionM
 
@@ -22,6 +24,7 @@ module ConditionPtrM
 
      procedure, public :: getID
      procedure, public :: getnNode
+     procedure, public :: getIntegrator
      procedure, public :: getNode
      procedure, public :: getNodeID
      procedure, public :: getAffectsLHS
@@ -49,17 +52,23 @@ contains
     call this%ptr%assignNode(index, node)
   end subroutine assignNode
 
-  integer(ikind) function getID(this)
+  integer(ikind) pure function getID(this)
     implicit none
-    class(ConditionPtrDT), intent(inout) :: this
+    class(ConditionPtrDT), intent(in) :: this
     getID = this%ptr%getID()
   end function getID
 
-  integer(ikind) function getnNode(this)
+  integer(ikind) pure function getnNode(this)
     implicit none
-    class(ConditionPtrDT), intent(inout) :: this
+    class(ConditionPtrDT), intent(in) :: this
     getnNode = this%ptr%getnNode()
   end function getnNode
+
+  type(IntegratorPtrDT) function getIntegrator(this)
+    implicit none
+    class(ConditionPtrDT), intent(in) :: this
+    getIntegrator = this%ptr%getIntegrator()
+  end function getIntegrator
 
   type(NodePtrDT) function getNode(this, iNode)
     implicit none
@@ -68,22 +77,22 @@ contains
     getNode = this%ptr%getNode(iNode)
   end function getNode
 
-  integer(ikind) function getNodeID(this, iNode)
+  integer(ikind) pure function getNodeID(this, iNode)
     implicit none
-    class(ConditionPtrDT), intent(inout) :: this
-    integer(ikind)     , intent(in)    :: iNode
+    class(ConditionPtrDT), intent(in) :: this
+    integer(ikind)       , intent(in) :: iNode
     getNodeID = this%ptr%getNodeID(iNode)
   end function getNodeID
 
-  logical function getAffectsLHS(this)
+  logical pure function getAffectsLHS(this)
     implicit none
-    class(ConditionPtrDT), intent(inout) :: this
+    class(ConditionPtrDT), intent(in) :: this
     getAffectsLHS = this%ptr%getAffectsLHS()
   end function getAffectsLHS
 
-  logical function getAffectsRHS(this)
+  logical pure function getAffectsRHS(this)
     implicit none
-    class(ConditionPtrDT), intent(inout) :: this
+    class(ConditionPtrDT), intent(in) :: this
     getAffectsRHS = this%ptr%getAffectsRHS()
   end function getAffectsRHS
 

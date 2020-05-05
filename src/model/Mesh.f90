@@ -95,27 +95,27 @@ contains
     this%condition(id)%ptr => condition
   end subroutine addCondition
 
-  integer(ikind) function getnNode(this)
+  integer(ikind) pure function getnNode(this)
     implicit none
-    class(MeshDT), intent(inout) :: this
+    class(MeshDT), intent(in) :: this
     getnNode = size(this%node)
   end function getnNode
 
-  integer(ikind) function getnElement(this)
+  integer(ikind) pure function getnElement(this)
     implicit none
-    class(MeshDT), intent(inout) :: this
+    class(MeshDT), intent(in) :: this
     getnElement = size(this%element)
   end function getnElement
 
-  integer(ikind) function getnCondition(this)
+  integer(ikind) pure function getnCondition(this)
     implicit none
-    class(MeshDT), intent(inout) :: this
+    class(MeshDT), intent(in) :: this
     getnCondition = size(this%condition)
   end function getnCondition
 
-  integer(ikind) function getID(this)
+  integer(ikind) pure function getID(this)
     implicit none
-    class(MeshDT), intent(inout) :: this
+    class(MeshDT), intent(in) :: this
     getID = this%id
   end function getID
 
