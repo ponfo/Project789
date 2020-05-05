@@ -1,0 +1,43 @@
+19:32:41  Initiating Program
+19:32:41    Reading project data
+19:32:41      Project name: test2
+19:32:41      Path: /home/ponfo/Documents/Project789/applications/Structural2D/Gid/Structural2D.gid
+19:32:41    Reading mesh data
+19:32:41      Number of Elements.............................: 1685
+19:32:41      Are Elements Quadratic.........................: 1
+19:32:41      Number of Triangular elements..................: 0
+19:32:41      Number of Rectangular elements.................: 1685
+19:32:41      Number of Nodes................................: 5216
+19:32:41      Number of Dirichlet X conditions...............: 81
+19:32:41      Number of Dirichlet Y conditions...............: 81
+19:32:41      Number of Pressure conditions..................: 40
+19:32:41      Number of Loads on points......................: 0
+19:32:41      Number of Loads on surfaces....................: 0
+19:32:41      Number of points with pointSource..............: 0
+19:32:41      Number of Surfaces with surfaceSource..........: 0
+19:32:41      Number of Materials............................: 1
+19:32:41      Gauss cuadrature order.........................: 3
+19:32:41          Allocated weights: 4
+19:32:41          Allocated gPoints: 8
+19:32:41          Allocated weights: 3
+19:32:41          Allocated gPoints: 3
+19:32:41          Allocated weights: 4
+19:32:41          Allocated gPoints: 8
+19:32:41          Allocated weights: 3
+19:32:41          Allocated gPoints: 3
+19:32:41          Allocated weights: 9
+19:32:41          Allocated gPoints: 18
+19:32:41          Allocated weights: 3
+19:32:41          Allocated gPoints: 3
+19:32:41          Allocated weights: 9
+19:32:41          Allocated gPoints: 18
+19:32:41          Allocated weights: 3
+19:32:41          Allocated gPoints: 3
+19:32:41    Reading materials properties
+19:32:41    Reading elements
+19:32:41    Reading point and line Sources
+19:32:41    Reading Boundary Conditions
+19:32:41  End loading data
+19:32:41    Assembling stiffness matrix and right hand side vector
+19:32:42  solving linear system
+19:32:42  done solving

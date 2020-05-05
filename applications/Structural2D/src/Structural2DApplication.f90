@@ -6,6 +6,7 @@ module Structural2DApplicationM
   use NodeM
   
   use StructuralElementM
+  use PressureM
   use StructuralMaterialM
   use StructuralModelM
 
@@ -17,6 +18,7 @@ module Structural2DApplicationM
   type :: Structural2DApplicationDT
      type(NodeDT)              , dimension(:), allocatable :: node
      type(StructuralElementDT) , dimension(:), allocatable :: element
+     type(PressureDT)          , dimension(:), allocatable :: pressure
      type(SourceDT)            , dimension(:), allocatable :: source
      type(StructuralMaterialDT), dimension(:), allocatable :: material
      type(StructuralModelDT)                               :: model
@@ -31,26 +33,29 @@ module Structural2DApplicationM
 contains
 
   type(Structural2DApplicationDT) function  &
-       constructor(nNode, nElement, nSource, nMaterial, nGauss)
+       constructor(nNode, nElement, nPressure, nSource, nMaterial, nGauss)
     implicit none
     integer(ikind), intent(in) :: nNode
     integer(ikind), intent(in) :: nElement
+    integer(ikind), intent(in) :: nPressure
     integer(ikind), intent(in) :: nSource
     integer(ikind), intent(in) :: nMaterial
     integer(ikind), intent(in) :: nGauss
-    call constructor%init(nNode, nElement, nSource, nMaterial, nGauss)
+    call constructor%init(nNode, nElement, nPressure, nSource, nMaterial, nGauss)
   end function constructor
 
-  subroutine init(this, nNode, nElement, nSource, nMaterial, nGauss)
+  subroutine init(this, nNode, nElement, nPressure, nSource, nMaterial, nGauss)
     implicit none
     class(Structural2DApplicationDT), intent(inout) :: this
     integer(ikind)                  , intent(in)    :: nNode
     integer(ikind)                  , intent(in)    :: nElement
+    integer(ikind)                  , intent(in)    :: nPressure
     integer(ikind)                  , intent(in)    :: nSource
     integer(ikind)                  , intent(in)    :: nMaterial
     integer(ikind)                  , intent(in)    :: nGauss
     allocate(this%node(nNode))
     allocate(this%element(nElement))
+    allocate(this%pressure(nPressure))
     allocate(this%source(nSource))
     allocate(this%material(nMaterial))
     call initGeometries(nGauss)
@@ -60,7 +65,7 @@ contains
          , id = 1                                 &
          , nNode = nNode                          &
          , nElement = nElement                    &
-         , nCondition = 0                         )
+         , nCondition = nPressure                 )
   end subroutine init
 
 end module Structural2DApplicationM

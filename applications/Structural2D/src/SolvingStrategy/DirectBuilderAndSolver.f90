@@ -38,13 +38,13 @@ contains
     print'(A)', 'Assembling stiffness matrix and right hand side vector'
     call assembleSystem(model)
     call applyBC(model)
-    print*, 'SYSTEM'
-    print*, 'LHS'
-    call model%lhs%printNonZeros()
-    print*, 'RHS'
-    do i = 1, size(model%rhs)
-       print'(A,I0,A,E16.8)', 'rhs(', i, ') = ', model%rhs(i)
-    end do
+!!$    print*, 'SYSTEM'
+!!$    print*, 'LHS'
+!!$    call model%lhs%printNonZeros()
+!!$    print*, 'RHS'
+!!$    do i = 1, size(model%rhs)
+!!$       print'(A,I0,A,E16.8)', 'rhs(', i, ') = ', model%rhs(i)
+!!$    end do
     write(*,*) '*** Init Linear Solver ***'
     call solve(model)
   end subroutine buildAndSolve
@@ -88,8 +88,29 @@ contains
   subroutine applyBC(model)
     implicit none
     class(StructuralModelDT), intent(inout) :: model
+    call applyNewmann(model)
     call applyDirichlet(model)
   end subroutine applyBC
+
+  subroutine applyNewmann(model)
+    implicit none
+    class(StructuralModelDT)              , intent(inout) :: model
+    integer(ikind)                                        :: iCond, nCond, iNode, nNode, iNodeID
+    real(rkind)             , dimension(:), allocatable   :: localRHS
+    type(ConditionPtrDT)                                  :: condition
+    nCond = model%getnCondition()
+    do iCond = 1, nCond
+       condition = model%getCondition(iCond)
+       nNode = condition%getnNode()
+       call condition%calculateRHS(localRHS)
+       do iNode = 1, nNode
+          iNodeID = condition%getNodeID(iNode)
+          model%rhs(iNodeID*2-1) = model%rhs(iNodeID*2-1) + localRHS(iNode*2-1)
+          model%rhs(iNodeID*2)   = model%rhs(iNodeID*2)   + localRHS(iNode*2)
+       end do
+       deallocate(localRHS)
+    end do
+  end subroutine applyNewmann
 
   subroutine applyDirichlet(model)
     implicit none

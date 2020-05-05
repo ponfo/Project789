@@ -11,6 +11,7 @@ FFLAGSDebug 	:=  -O0 -fpp -check bounds -traceback -warn nounused -module $(OBJE
 
 OBJECTS := $(BINDIR)/StructuralMaterial.o   \
 	$(BINDIR)/StructuralElement.o       \
+	$(BINDIR)/Pressure.o                \
 	$(BINDIR)/NormalStress.o            \
 	$(BINDIR)/ShearStress.o             \
 	$(BINDIR)/Strain.o                  \
@@ -38,6 +39,8 @@ $(BINDIR)/main.o : main.f90
 $(BINDIR)/StructuralMaterial.o : $(VPATH)/StructuralMaterial.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/StructuralElement.o : $(VPATH)/CustomElements/StructuralElement.f90
+	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
+$(BINDIR)/Pressure.o : $(VPATH)/CustomConditions/Pressure.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/NormalStress.o : $(VPATH)/CustomResult/NormalStress.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@

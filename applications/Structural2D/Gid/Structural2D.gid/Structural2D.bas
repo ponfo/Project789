@@ -45,6 +45,9 @@ Fix_Displacement_X_Number..............: *c
 *#---------------------------------------------------------
 Fix_Displacement_Y_Number..............: *c
 *#---------------------------------------------------------
+*set Cond Pressure_On_Lines *elems *canrepeat
+Pressure_On_Lines_Condition_elements...: *condnumentities
+*#---------------------------------------------------------
 Load_Number_On_Points..................: *Gendata(Load_Number_On_Points,int)
 *#---------------------------------------------------------
 Load_Number_On_Surfaces................: *Gendata(Load_Number_On_Surfaces,int)
@@ -176,6 +179,18 @@ Conditions List:
 *loop nodes *OnlyInCond
 *format "%5i%10.4e"
 *NodesNum           *cond(Displacement_Y) 
+*end
+
+##################### Pressure On Lines ####################
+
+Conditions List:
+
+ Element |       Nodes      |   Pressure
+--------------------------------------------
+*Set Cond Pressure_On_Lines *elems *canrepeat
+*loop elems *OnlyInCond
+*format "%5i%7i%7i"
+*elemsnum  *localnodes  *cond(Pressure,real)
 *end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

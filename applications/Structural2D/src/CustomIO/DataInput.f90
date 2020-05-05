@@ -8,6 +8,7 @@ module DataInputM
   use SourceM
   use StructuralMaterialM
   use StructuralElementM
+  use PressureM
   use Structural2DApplicationM
 
   use MeshM
@@ -28,7 +29,7 @@ module DataInputM
   integer(ikind)               :: nRectElem
   integer(ikind)               :: nPoint
   integer(ikind)               :: iPoint
-  integer(ikind)               :: nNormalFlux
+  integer(ikind)               :: nPressure
   integer(ikind)               :: nDirichletX
   integer(ikind)               :: nDirichletY
   integer(ikind)               :: nMaterial
@@ -43,7 +44,7 @@ module DataInputM
   character(100)               :: projectName
   character(100)               :: path
   character(100)               :: aux
-  logical       , parameter    :: verbose = .true.
+  logical       , parameter    :: verbose = .false.
   logical                      :: isMaterialAsigned = .true.
   
   interface initFEM2D
@@ -100,6 +101,7 @@ contains
     read(project,*)  aux, nGauss    
     read(project,*)  aux, nDirichletX
     read(project,*)  aux, nDirichletY
+    read(project,*)  aux, nPressure
     read(project,*)  aux, nSourceOnPoints
     read(project,*)  aux, nSourceOnSurfaces
     read(project,*)  aux, nPointSource
@@ -110,7 +112,8 @@ contains
     call debugLog('    Number of Rectangular elements.................: ', nRectElem)
     call debugLog('    Number of Nodes................................: ', nPoint)
     call debugLog('    Number of Dirichlet X conditions...............: ', nDirichletX)    
-    call debugLog('    Number of Dirichlet Y conditions...............: ', nDirichletY)  
+    call debugLog('    Number of Dirichlet Y conditions...............: ', nDirichletY)     
+    call debugLog('    Number of Pressure conditions..................: ', nPressure) 
     call debugLog('    Number of Loads on points......................: ', nSourceOnPoints) 
     call debugLog('    Number of Loads on surfaces....................: ', nSourceOnSurfaces)
     call debugLog('    Number of points with pointSource..............: ', nPointSource)
@@ -121,6 +124,7 @@ contains
     structuralAppl = structural2DApplication(                  &
            nNode = nPoint                                      &
          , nElement = nTriangElem + nRectElem                  &
+         , nPressure = nPressure                               &
          , nSource = nSourceOnPoints + nSourceOnSurfaces       &
          , nMaterial = nMaterial                               &
          , nGauss = nGauss                                     )
@@ -225,7 +229,7 @@ contains
     integer(ikind), dimension(:), allocatable    :: pointID
     real(rkind)                                  :: value
     real(rkind)                                  :: coef, temp
-    type(StructuralElementDT)                       :: element
+    type(StructuralElementDT)                    :: element
     type(NodePtrDT)  , dimension(:), allocatable :: node
     do i = 1, 7
        read(project,*)
@@ -246,6 +250,31 @@ contains
        read(Project,*) id, value
        if(verbose) print'(I0,5X,E10.3)', id, value
        call structuralAppl%node(id)%fixDof(2, value)
+    end do
+    do i = 1, 7
+       read(project,*)
+    end do
+    if(isQuadratic == 0) then
+       nPointID = 2
+    else if(isQuadratic == 1) then
+       nPointID = 3
+    end if
+    allocate(pointID(nPointID))
+    allocate(node(nPointID))
+    conditionCounter = 0
+    if(verbose) print'(/,A)', 'Pressure On Lines conditions'
+    if(verbose) print'(A)', 'Elem    Nodes     Value'
+    do i = 1, nPressure
+       conditionCounter = conditionCounter + 1
+       read(Project,*) elemID, (pointID(j),j=1,nPointID), value
+       if(verbose) print*, elemID, (pointID(j),j=1,nPointID), value
+       element = structuralAppl%element(elemID)
+       do j = 1, nPointID
+          node(j) = element%node(pointID(j))
+       end do
+       structuralAppl%pressure(i) = &
+            pressure(i, pointID, value, node, element%geometry, element%material)
+       call structuralAppl%model%addCondition(conditionCounter, structuralAppl%pressure(i))
     end do
     close(project)
   end subroutine readBoundaryConditions
