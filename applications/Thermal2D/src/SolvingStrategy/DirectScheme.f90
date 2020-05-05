@@ -25,17 +25,17 @@ contains
 
   subroutine calculateFlux(this, model)
     implicit none
-    class(DirectSchemeDT), intent(inout)               :: this
-    class(ThermalModelDT), intent(inout)               :: model
-    logical                                            :: firstTriang = .true.
-    logical                                            :: firstQuad = .true.
-    integer(ikind)                                     :: iElem, iGauss, nNode, nTriang, nQuad
-    integer(ikind)                                     :: triangCounter, quadCounter
-    integer(ikind)                                     :: triangPointCounter, quadPointCounter
-    integer(ikind)                                     :: nElem, nGauss, nPointsTriang, nPointsQuad
-    real(rkind)          , dimension(:,:), allocatable :: localResultMat
-    type(ElementPtrDT)                                 :: element
-    type(IntegratorPtrDT)                              :: integrator
+    class(DirectSchemeDT), intent(inout)                 :: this
+    class(ThermalModelDT), intent(inout)                 :: model
+    logical                                              :: firstTriang = .true.
+    logical                                              :: firstQuad = .true.
+    integer(ikind)                                       :: iElem, iGauss, nNode, nTriang, nQuad
+    integer(ikind)                                       :: triangCounter, quadCounter
+    integer(ikind)                                       :: triangPointCounter, quadPointCounter
+    integer(ikind)                                       :: nElem, nGauss, nPointsTriang, nPointsQuad
+    real(rkind)          , dimension(:,:,:), allocatable :: localResultMat
+    type(ElementPtrDT)                                   :: element
+    type(IntegratorPtrDT)                                :: integrator
     write(*,*) '***  Direct Scheme ***'
     write(*,*) '*** Calculate Flux ***'
     nElem = model%getnElement()
@@ -76,22 +76,22 @@ contains
        element = model%getElement(iElem)
        nNode = element%getnNode()
        call element%calculateResults(localResultMat)
-       nGauss = size(localResultMat,1)
+       nGauss = size(localResultMat,2)
        if(nNode == 3 .or. nNode == 6) then
           triangCounter = triangCounter + 1
           model%heatFlux%triangElemID(triangCounter) = iElem
           do iGauss = 1, nGauss
              triangPointCounter = triangPointCounter + 1
-             model%heatFlux%triangFlux(triangPointCounter,1) = localResultMat(iGauss,1)
-             model%heatFlux%triangFlux(triangPointCounter,2) = localResultMat(iGauss,2)
+             model%heatFlux%triangFlux(triangPointCounter,1) = localResultMat(1,iGauss,1)
+             model%heatFlux%triangFlux(triangPointCounter,2) = localResultMat(1,iGauss,2)
           end do
        else if(nNode == 4 .or. nNode == 8) then
           quadCounter = quadCounter + 1
           model%heatFlux%quadElemID(quadCounter) = iElem
           do iGauss = 1, nGauss
              quadPointCounter = quadPointCounter + 1
-             model%heatFlux%quadFlux(quadPointCounter,1) = localResultMat(iGauss,1)
-             model%heatFlux%quadFlux(quadPointCounter,2) = localResultMat(iGauss,2)
+             model%heatFlux%quadFlux(quadPointCounter,1) = localResultMat(1,iGauss,1)
+             model%heatFlux%quadFlux(quadPointCounter,2) = localResultMat(1,iGauss,2)
           end do
        end if
        deallocate(localResultMat)

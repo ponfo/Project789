@@ -118,8 +118,8 @@ contains
 
   subroutine calculateResults(this, resultMat)
     implicit none
-    class(ElementPtrDT)                             , intent(inout) :: this
-    real(rkind)        , dimension(:,:), allocatable, intent(inout) :: resultMat
+    class(ElementPtrDT)                               , intent(inout) :: this
+    real(rkind)        , dimension(:,:,:), allocatable, intent(inout) :: resultMat
     call this%ptr%calculateResults(resultMat)
   end subroutine calculateResults
     

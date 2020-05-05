@@ -70,13 +70,17 @@ module ElementM
      end subroutine calculateLHSInterf
   end interface
 
+  !!In ResultMat(i,j,k) ->
+  !!                       i: Number of result
+  !!                       j: Number of point where the result lays
+  !!                       k: Number of dimensions of the result
   abstract interface
      subroutine calculateResultsInterf(this, resultMat)
        use UtilitiesM
        import ElementDT
        implicit none
-       class(ElementDT)                             , intent(inout) :: this
-       real(rkind)     , dimension(:,:), allocatable, intent(inout) :: resultMat
+       class(ElementDT)                               , intent(inout) :: this
+       real(rkind)     , dimension(:,:,:), allocatable, intent(inout) :: resultMat
      end subroutine calculateResultsInterf
   end interface
 

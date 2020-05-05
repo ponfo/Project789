@@ -268,19 +268,19 @@ contains
 
   subroutine calculateResults(this, resultMat)
     implicit none
-    class(ThermalElementDT)                             , intent(inout) :: this
-    real(rkind)            , dimension(:,:), allocatable, intent(inout) :: resultMat
-    integer(ikind)                                                      :: i, iGauss, nNode
-    real(rkind)                                                         :: bi, ci, qx, qy, xi, eta
-    real(rkind)                                                         :: dNidx, dNidy, kx, ky
-    real(rkind)            , dimension(:,:,:), allocatable              :: jacobian
-    real(rkind)            , dimension(:)    , allocatable              :: jacobianDet
-    type(IntegratorPtrDT)                                               :: integrator
-    type(NodePtrDT)        , dimension(:)    , allocatable              :: nodalPoints
+    class(ThermalElementDT)                               , intent(inout) :: this
+    real(rkind)            , dimension(:,:,:), allocatable, intent(inout) :: resultMat
+    integer(ikind)                                                        :: i, iGauss, nNode
+    real(rkind)                                                           :: bi, ci, qx, qy, xi, eta
+    real(rkind)                                                           :: dNidx, dNidy, kx, ky
+    real(rkind)            , dimension(:,:,:), allocatable                :: jacobian
+    real(rkind)            , dimension(:)    , allocatable                :: jacobianDet
+    type(IntegratorPtrDT)                                                 :: integrator
+    type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
     integrator = this%getIntegrator()
     nNode = this%getnNode()
     allocate(nodalPoints(nNode))
-    allocate(resultMat(integrator%getIntegTerms(),2))
+    allocate(resultMat(1,integrator%getIntegTerms(),2))
     do i = 1, nNode
        nodalPoints(i) = this%node(i)
     end do
@@ -303,8 +303,8 @@ contains
        end do
        kx = this%material%conductivity(1)
        ky = this%material%conductivity(2)
-       resultMat(iGauss,1) = -1._rkind*kx*qx
-       resultMat(iGauss,2) = -1._rkind*ky*qy
+       resultMat(1,iGauss,1) = -1._rkind*kx*qx
+       resultMat(1,iGauss,2) = -1._rkind*ky*qy
     end do
   end subroutine calculateResults
 

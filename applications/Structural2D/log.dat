@@ -1,0 +1,41 @@
+11:45:53  Initiating Program
+11:45:53    Reading project data
+11:45:53      Project name: test1
+11:45:53      Path: /home/ponfo/Documents/Project789/problemtypes/Structural2D.gid
+11:45:53    Reading mesh data
+11:45:53      Number of Elements.............................: 442
+11:45:53      Are Elements Quadratic.........................: 0
+11:45:53      Number of Triangular elements..................: 442
+11:45:53      Number of Rectangular elements.................: 0
+11:45:53      Number of Nodes................................: 250
+11:45:53      Number of Dirichlet X conditions...............: 1
+11:45:53      Number of Dirichlet Y conditions...............: 1
+11:45:53      Number of Loads on points......................: 1
+11:45:53      Number of Loads on surfaces....................: 0
+11:45:53      Number of points with pointSource..............: 1
+11:45:53      Number of Surfaces with surfaceSource..........: 0
+11:45:53      Number of Materials............................: 1
+11:45:53      Gauss cuadrature order.........................: 3
+11:45:53          Allocated weights: 4
+11:45:53          Allocated gPoints: 8
+11:45:53          Allocated weights: 3
+11:45:53          Allocated gPoints: 3
+11:45:53          Allocated weights: 4
+11:45:53          Allocated gPoints: 8
+11:45:53          Allocated weights: 3
+11:45:53          Allocated gPoints: 3
+11:45:53          Allocated weights: 9
+11:45:53          Allocated gPoints: 18
+11:45:53          Allocated weights: 3
+11:45:53          Allocated gPoints: 3
+11:45:53          Allocated weights: 9
+11:45:53          Allocated gPoints: 18
+11:45:53          Allocated weights: 3
+11:45:53          Allocated gPoints: 3
+11:45:53    Reading materials properties
+11:45:53    Reading elements
+11:45:53    Reading point and line Sources
+11:45:53    Reading Boundary Conditions
+11:45:53  End loading data
+11:45:53    Assembling stiffness matrix and right hand side vector
+11:45:53  solving linear system

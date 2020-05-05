@@ -1,0 +1,12 @@
+#!/bin/bash
+
+rm $2/projectData.dat
+
+cat <<EOT>> projectData.dat
+$1
+$3
+EOT
+
+cd ..
+cd ..
+./main $2/$1
