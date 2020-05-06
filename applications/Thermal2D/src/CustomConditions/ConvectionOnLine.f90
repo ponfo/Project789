@@ -6,6 +6,8 @@ module ConvectionOnLineM
   use NodePtrM
   use GeometryM
 
+  use LeftHandSideM
+
   use IntegratorPtrM
   
   use ConditionM
@@ -66,7 +68,7 @@ contains
   subroutine calculateLocalSystem(this, lhs, rhs)
     implicit none
     class(ConvectionOnLineDT)                             , intent(inout) :: this
-    real(rkind)              , dimension(:,:), allocatable, intent(inout) :: lhs
+    type(LeftHandSideDT)                                  , intent(inout) :: lhs
     real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
     integer(ikind)                                                        :: i, j, k
     integer(ikind)                                                        :: nNode
@@ -76,10 +78,10 @@ contains
     type(NodePtrDT)          , dimension(:)  , allocatable                :: nodalPoints
     nNode = this%getnNode()
     integrator%ptr => this%geometry%boundaryGeometry%integrator
-    allocate(lhs(nNode,nNode))
+    lhs = leftHandSide(0, 0, nNode)
     allocate(rhs(nNode))
     allocate(nodalPoints(nNode))
-    lhs = 0._rkind
+    lhs%stiffness = 0._rkind
     rhs = 0._rkind
     do i = 1, nNode
        nodalPoints(i) = this%node(i)
@@ -92,7 +94,7 @@ contains
              int = int + integrator%getWeight(k)*integrator%getShapeFunc(k,i) &
                   * integrator%getShapeFunc(k,j)*this%coef*jacobianDet(k)
           end do
-          lhs(i,j) = lhs(i,j) + int
+          lhs%stiffness(i,j) = lhs%stiffness(i,j) + int
        end do
     end do
     do i = 1, nNode
@@ -108,7 +110,7 @@ contains
   subroutine calculateLHS(this, lhs)
     implicit none
     class(ConvectionOnLineDT)                             , intent(inout) :: this
-    real(rkind)              , dimension(:,:), allocatable, intent(inout) :: lhs
+    type(LeftHandSideDT)                                  , intent(inout) :: lhs
     integer(ikind)                                                        :: i, j, k
     integer(ikind)                                                        :: nNode
     real(rkind)                                                           :: int
@@ -117,9 +119,9 @@ contains
     type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
     nNode = this%getnNode()
     integrator%ptr => this%geometry%boundaryGeometry%integrator
-    allocate(lhs(nNode,nNode))
+    lhs = leftHandSide(0, 0, nNode)
     allocate(nodalPoints(nNode))
-    lhs = 0._rkind
+    lhs%stiffness = 0._rkind
     do i = 1, nNode
        nodalPoints(i) = this%node(i)
     end do
@@ -131,7 +133,7 @@ contains
              int = int + integrator%getWeight(k)*integrator%getShapeFunc(k,i) &
                   * integrator%getShapeFunc(k,j)*this%coef*jacobianDet(k)
           end do
-          lhs(i,j) = lhs(i,j) + int
+          lhs%stiffness(i,j) = lhs%stiffness(i,j) + int
        end do
     end do
   end subroutine calculateLHS

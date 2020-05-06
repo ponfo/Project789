@@ -19,6 +19,7 @@ module Quadrilateral2D8NodeM
   type, extends(GeometryDT) :: Quadrilateral2D8NodeDT
    contains
      procedure, public  :: init
+     procedure, public  :: getLenght
      procedure, public  :: shapeFunc
      procedure, public  :: dShapeFunc
      procedure, public  :: jacobianAllNodes
@@ -56,6 +57,20 @@ contains
     call this%valueShapeFuncAtGPoints()
     this%boundaryGeometry = line2D3Node(gaussOrder)
   end subroutine init
+
+  real(rkind) function getLenght(this, node)
+    implicit none
+    class(Quadrilateral2D8NodeDT)                       , intent(inout) :: this
+    class(NodePtrDT)             , dimension(this%nNode), intent(in)    :: node
+    getLenght = node(1)%getx()*node(2)%gety() &
+         - node(1)%gety()*node(2)%getx()      &
+         + node(2)%getx()*node(3)%gety()      &
+         - node(2)%gety()*node(3)%getx()      &
+         + node(3)%getx()*node(4)%gety()      &
+         - node(3)%gety()*node(4)%getx()      &
+         + node(4)%getx()*node(1)%gety()      &
+         - node(4)%gety()*node(1)%getx()
+  end function getLenght
 
   function shapeFunc(this, point)
     implicit none

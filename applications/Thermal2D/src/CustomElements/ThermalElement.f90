@@ -13,6 +13,8 @@ module ThermalElementM
   use NodeM
   use NodePtrM
 
+  use LeftHandSideM
+
   use SourceM
   
   use ElementM
@@ -87,7 +89,7 @@ contains
   subroutine calculateLocalSystem(this, lhs, rhs)
     implicit none
     class(ThermalElementDT)                               , intent(inout) :: this
-    real(rkind)            , dimension(:,:)  , allocatable, intent(inout) :: lhs
+    type(LeftHandSideDT)                                  , intent(inout) :: lhs
     real(rkind)            , dimension(:)    , allocatable, intent(inout) :: rhs
     integer(ikind)                                                        :: i, j, k, nNode
     real(rkind)                                                           :: bi, bj, ci, cj
@@ -99,7 +101,7 @@ contains
     type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
     nNode = this%getnNode()
     integrator = this%getIntegrator()
-    allocate(lhs(nNode, nNode))
+    lhs = leftHandSide(0, 0, nNode)
     allocate(rhs(nNode))
     allocate(nodalPoints(nNode))
     rhs = 0._rkind
@@ -110,7 +112,7 @@ contains
     jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
     do i = 1, nNode
        do j = 1, nNode
-          lhs(i,j) = 0._rkind
+          lhs%stiffness(i,j) = 0._rkind
           do k = 1, integrator%getIntegTerms()
              bi = jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
                   - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i)
@@ -121,8 +123,8 @@ contains
              cj = jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
                   - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j)
              
-             lhs(i,j) = lhs(i,j)                            &
-                  + integrator%getWeight(k)                 &
+             lhs%stiffness(i,j) = lhs%stiffness(i,j)     &
+                  + integrator%getWeight(k)              &
                   *(this%material%conductivity(1)*bi*bj  &
                   + this%material%conductivity(2)*ci*cj) &
                   / jacobianDet(k)
@@ -152,7 +154,7 @@ contains
   subroutine calculateLHS(this, lhs)
     implicit none
     class(ThermalElementDT)                               , intent(inout) :: this
-    real(rkind)            , dimension(:,:)  , allocatable, intent(inout) :: lhs
+    type(LeftHandSideDT)                                  , intent(inout) :: lhs
     integer(ikind)                                                        :: i, j, k, nNode
     real(rkind)                                                           :: bi, bj, ci, cj
     real(rkind)            , dimension(:,:,:), allocatable                :: jacobian
@@ -161,7 +163,7 @@ contains
     type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
     nNode = this%getnNode()
     integrator = this%getIntegrator()
-    allocate(lhs(nNode, nNode))
+    lhs = leftHandSide(0, 0, nNode)
     allocate(nodalPoints(nNode))
     do i = 1, nNode
        nodalPoints(i) = this%node(i)
@@ -170,7 +172,7 @@ contains
     jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
     do i = 1, nNode
        do j = 1, nNode
-          lhs(i,j) = 0._rkind
+          lhs%stiffness(i,j) = 0._rkind
           do k = 1, integrator%getIntegTerms()
              bi = jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
                   - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i)
@@ -181,8 +183,8 @@ contains
              cj = jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
                   - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j)
              
-             lhs(i,j) = lhs(i,j)                            &
-                  + integrator%getWeight(k)                 &
+             lhs%stiffness(i,j) = lhs%stiffness(i,j)     &
+                  + integrator%getWeight(k)              &
                   *(this%material%conductivity(1)*bi*bj  &
                   + this%material%conductivity(2)*ci*cj) &
                   / jacobianDet(k)

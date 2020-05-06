@@ -10,6 +10,8 @@ module ElementPtrM
 
   use IntegratorPtrM
 
+  use LeftHandSideM
+
   use SourceM
   
   use ElementM
@@ -96,16 +98,16 @@ contains
 
   subroutine calculateLocalSystem(this, lhs, rhs)
     implicit none
-    class(ElementPtrDT)                             , intent(inout) :: this
-    real(rkind)        , dimension(:,:), allocatable, intent(inout) :: lhs
-    real(rkind)        , dimension(:)  , allocatable, intent(inout) :: rhs
+    class(ElementPtrDT)                              , intent(inout) :: this
+    type(LeftHandSideDT)                             , intent(inout) :: lhs
+    real(rkind)         , dimension(:)  , allocatable, intent(inout) :: rhs
     call this%ptr%calculateLocalSystem(lhs, rhs)
   end subroutine calculateLocalSystem
 
   subroutine calculateLHS(this, lhs)
     implicit none
-    class(ElementPtrDT)                             , intent(inout) :: this
-    real(rkind)        , dimension(:,:), allocatable, intent(inout) :: lhs
+    class(ElementPtrDT) , intent(inout) :: this
+    type(LeftHandSideDT), intent(inout) :: lhs
     call this%ptr%calculateLHS(lhs)
   end subroutine calculateLHS
 

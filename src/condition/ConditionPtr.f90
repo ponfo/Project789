@@ -11,6 +11,8 @@ module ConditionPtrM
   
   use ConditionM
 
+  use LeftHandSideM
+
   implicit none
 
   private
@@ -98,16 +100,16 @@ contains
 
   subroutine calculateLocalSystem(this, lhs, rhs)
     implicit none
-    class(ConditionPtrDT)                             , intent(inout) :: this
-    real(rkind)          , dimension(:,:), allocatable, intent(inout) :: lhs
-    real(rkind)          , dimension(:)  , allocatable, intent(inout) :: rhs
+    class(ConditionPtrDT)                          , intent(inout) :: this
+    type(LeftHandSideDT)                           , intent(inout) :: lhs
+    real(rkind)         , dimension(:), allocatable, intent(inout) :: rhs
     call this%ptr%calculateLocalSystem(lhs, rhs)
   end subroutine calculateLocalSystem
 
   subroutine calculateLHS(this, lhs)
     implicit none
-    class(ConditionPtrDT)                             , intent(inout) :: this
-    real(rkind)          , dimension(:,:), allocatable, intent(inout) :: lhs
+    class(ConditionPtrDT), intent(inout) :: this
+    type(LeftHandSideDT) , intent(inout) :: lhs
     call this%ptr%calculateLHS(lhs)
   end subroutine calculateLHS
 

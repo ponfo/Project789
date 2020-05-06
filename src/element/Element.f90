@@ -10,6 +10,8 @@ module ElementM
 
   use IntegratorPtrM
 
+  use LeftHandSideM
+  
   use SourceM
 
   implicit none
@@ -43,10 +45,11 @@ module ElementM
      subroutine calculateLocalSystemInterf(this, lhs, rhs)
        use UtilitiesM
        import ElementDT
+       import LeftHandSideDT
        implicit none
-       class(ElementDT)                             , intent(inout) :: this
-       real(rkind)     , dimension(:,:), allocatable, intent(inout) :: lhs
-       real(rkind)     , dimension(:)  , allocatable, intent(inout) :: rhs
+       class(ElementDT)                                 , intent(inout) :: this
+       type(LeftHandSideDT)                             , intent(inout) :: lhs
+       real(rkind)         , dimension(:)  , allocatable, intent(inout) :: rhs
      end subroutine calculateLocalSystemInterf
   end interface
 
@@ -64,9 +67,10 @@ module ElementM
      subroutine calculateLHSInterf(this, lhs)
        use UtilitiesM
        import ElementDT
+       import LeftHandSideDT
        implicit none
-       class(ElementDT)                             , intent(inout) :: this
-       real(rkind)     , dimension(:,:), allocatable, intent(inout) :: lhs
+       class(ElementDT)    , intent(inout) :: this
+       type(LeftHandSideDT), intent(inout) :: lhs
      end subroutine calculateLHSInterf
   end interface
 

@@ -9,6 +9,8 @@ module DirectBuilderAndSolverM
   use ElementPtrM
   use ConditionPtrM
 
+  use LeftHandSideM
+
   use ThermalModelM
 
   use BuilderAndSolverM
@@ -53,7 +55,7 @@ contains
     implicit none
     class(ThermalModelDT)    , intent(inout) :: model
     integer(ikind)                           :: i, j, iElem, nElem, nNode, row, col
-    real(rkind), dimension(:,:), allocatable :: localLHS
+    type(LeftHandSideDT)                     :: localLHS
     real(rkind), dimension(:)  , allocatable :: localRHS
     type(ElementPtrDT)                       :: element
     nElem = model%getnElement()
@@ -65,13 +67,13 @@ contains
           row = element%getNodeID(i)
           do j = 1, nNode
              col = element%getNodeID(j)
-             call model%LHS%append(val = localLHS(i,j)  &
-                  , row = row                           &
-                  , col = col                           )
+             call model%LHS%append(val = localLHS%stiffness(i,j)  &
+                  , row = row                                    &
+                  , col = col                                    )
           end do
           model%rhs(row) = localRHS(i)
        end do
-       deallocate(localLHS)
+       call localLHS%free()
        deallocate(localRHS)
     end do
     call model%lhs%makeCRS()
@@ -88,7 +90,7 @@ contains
     implicit none
     class(ThermalModelDT)      , intent(inout) :: model
     integer(ikind)                             :: i, j, iCond, nCond, nNode, row, col
-    real(rkind), dimension(:,:), allocatable   :: localLHS
+    type(LeftHandSideDT)                       :: localLHS
     real(rkind), dimension(:)  , allocatable   :: localRHS
     type(ConditionPtrDT)                       :: condition
     nCond = model%getnCondition()
@@ -101,20 +103,20 @@ contains
              row = condition%getNodeID(i)
              do j = 1, nNode
                 col = condition%getNodeID(j)
-                call model%LHS%appendPostCRS(val = localLHS(i,j)  &
-                     , row = row                                  &
-                     , col = col                                  )
+                call model%LHS%appendPostCRS(val = localLHS%stiffness(i,j)  &
+                     , row = row                                           &
+                     , col = col                                           )
              end do
           end do
+       call localLHS%free()
        end if
        if(condition%getAffectsRHS() == .true.) then
           do i = 1, nNode
              row = condition%getNodeID(i)
              model%rhs(row) = model%rhs(row) + localRHS(i)
           end do
+          deallocate(localRHS)
        end if
-       if(allocated(localLHS)) deallocate(localLHS)
-       if(allocated(localRHS)) deallocate(localRHS)
     end do
   end subroutine applyNewmann
 

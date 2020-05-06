@@ -6,6 +6,8 @@ module FluxOnLineM
   use NodePtrM
   use GeometryM
 
+  use LeftHandSideM
+
   use IntegratorPtrM
   
   use ConditionM
@@ -62,7 +64,7 @@ contains
   subroutine calculateLocalSystem(this, lhs, rhs)
     implicit none
     class(FluxOnLineDT)                                   , intent(inout) :: this
-    real(rkind)              , dimension(:,:), allocatable, intent(inout) :: lhs
+    type(LeftHandSideDT)                                  , intent(inout) :: lhs
     real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
     call this%calculateRHS(rhs)
   end subroutine calculateLocalSystem
@@ -70,7 +72,7 @@ contains
   subroutine calculateLHS(this, lhs)
     implicit none
     class(FluxOnLineDT)                                   , intent(inout) :: this
-    real(rkind)              , dimension(:,:), allocatable, intent(inout) :: lhs
+    type(LeftHandSideDT)                                  , intent(inout) :: lhs
     print*, 'No LHS component in FluxOnLine condition'
   end subroutine calculateLHS
 

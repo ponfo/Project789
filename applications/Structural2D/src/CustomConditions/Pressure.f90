@@ -6,6 +6,8 @@ module PressureM
   use NodePtrM
   use GeometryM
 
+  use LeftHandSideM
+
   use IntegratorPtrM
   
   use ConditionM
@@ -67,16 +69,16 @@ contains
 
   subroutine calculateLocalSystem(this, lhs, rhs)
     implicit none
-    class(PressureDT)                                     , intent(inout) :: this
-    real(rkind)              , dimension(:,:), allocatable, intent(inout) :: lhs
-    real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
+    class(PressureDT)                                , intent(inout) :: this
+    type(LeftHandSideDT)                             , intent(inout) :: lhs
+    real(rkind)         , dimension(:)  , allocatable, intent(inout) :: rhs
     call this%calculateRHS(rhs)
   end subroutine calculateLocalSystem
 
   subroutine calculateLHS(this, lhs)
     implicit none
-    class(PressureDT)                                     , intent(inout) :: this
-    real(rkind)              , dimension(:,:), allocatable, intent(inout) :: lhs
+    class(PressureDT)   , intent(inout) :: this
+    type(LeftHandSideDT), intent(inout) :: lhs
     print*, 'No LHS component in pressure condition'
   end subroutine calculateLHS
   

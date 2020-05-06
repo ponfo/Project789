@@ -9,6 +9,8 @@ module StructuralElementM
 
   use IntegratorPtrM
 
+  use LeftHandSideM
+
   use PointM
   use NodeM
   use NodePtrM
@@ -87,7 +89,7 @@ contains
   subroutine calculateLocalSystem(this, lhs, rhs)
     implicit none
     class(StructuralElementDT)                            , intent(inout) :: this
-    real(rkind)            , dimension(:,:)  , allocatable, intent(inout) :: lhs
+    type(LeftHandSideDT)                                  , intent(inout) :: lhs
     real(rkind)            , dimension(:)    , allocatable, intent(inout) :: rhs
     integer(ikind)                                                        :: i, j, ii, jj, k
     integer(ikind)                                                        :: nNode, nDof
@@ -102,7 +104,7 @@ contains
     nNode = this%getnNode()
     nDof = this%node(1)%getnDof()
     integrator = this%getIntegrator()
-    allocate(lhs(nNode*nDof, nNode*nDof))
+    lhs = leftHandSide(0, 0, nNode*nDof)
     allocate(rhs(nNode*nDof))
     allocate(nodalPoints(nNode))
     rhs = 0._rkind
@@ -115,10 +117,10 @@ contains
        do j = 1, nNode
           ii = nDof*i-1
           jj = nDof*j-1
-          lhs(ii,jj)     = 0._rkind
-          lhs(ii+1,jj)   = 0._rkind
-          lhs(ii,jj+1)   = 0._rkind
-          lhs(ii+1,jj+1) = 0._rkind
+          lhs%stiffness(ii,jj)     = 0._rkind
+          lhs%stiffness(ii+1,jj)   = 0._rkind
+          lhs%stiffness(ii,jj+1)   = 0._rkind
+          lhs%stiffness(ii+1,jj+1) = 0._rkind
           do k = 1, integrator%getIntegTerms()
              bi = jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
                   - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i)
@@ -134,10 +136,14 @@ contains
              Kij(2,1) = ci*bj*this%material%d21 + bi*cj*this%material%d33
              Kij(2,2) = bi*bj*this%material%d33 + ci*cj*this%material%d22
              
-             lhs(ii,jj)     = lhs(ii,jj)     + integrator%getWeight(k)*Kij(1,1)/jacobianDet(k)
-             lhs(ii,jj+1)   = lhs(ii,jj+1)   + integrator%getWeight(k)*Kij(1,2)/jacobianDet(k)
-             lhs(ii+1,jj)   = lhs(ii+1,jj)   + integrator%getWeight(k)*Kij(2,1)/jacobianDet(k)
-             lhs(ii+1,jj+1) = lhs(ii+1,jj+1) + integrator%getWeight(k)*Kij(2,2)/jacobianDet(k)
+             lhs%stiffness(ii,jj)     = &
+                  lhs%stiffness(ii,jj)     + integrator%getWeight(k)*Kij(1,1)/jacobianDet(k)
+             lhs%stiffness(ii,jj+1)   = &
+                  lhs%stiffness(ii,jj+1)   + integrator%getWeight(k)*Kij(1,2)/jacobianDet(k)
+             lhs%stiffness(ii+1,jj)   = &
+                  lhs%stiffness(ii+1,jj)   + integrator%getWeight(k)*Kij(2,1)/jacobianDet(k)
+             lhs%stiffness(ii+1,jj+1) = &
+                  lhs%stiffness(ii+1,jj+1) + integrator%getWeight(k)*Kij(2,2)/jacobianDet(k)
           end do
        end do
        if(associated(this%node(i)%ptr%source)) then
@@ -147,7 +153,7 @@ contains
           rhs(nDof*i)   = rhs(nDof*i)   + val2
        end if
     end do
-    lhs = lhs * this%material%thickness
+    lhs%stiffness = lhs%stiffness * this%material%thickness
     if(associated(this%source)) then
        allocate(valuedSource(2,integrator%getIntegTerms()))
        allocate(jacobianDet(integrator%getIntegTerms()))
@@ -173,7 +179,7 @@ contains
   subroutine calculateLHS(this, lhs)
     implicit none
     class(StructuralElementDT)                            , intent(inout) :: this
-    real(rkind)            , dimension(:,:)  , allocatable, intent(inout) :: lhs
+    type(LeftHandSideDT)                                  , intent(inout) :: lhs
     integer(ikind)                                                        :: i, j, ii, jj, k
     integer(ikind)                                                        :: nNode, nDof
     real(rkind)                                                           :: bi, bj, ci, cj
@@ -185,7 +191,7 @@ contains
     nNode = this%getnNode()
     nDof = this%node(1)%getnDof()
     integrator = this%getIntegrator()
-    allocate(lhs(nNode*nDof, nNode*nDof))
+    lhs = leftHandSide(0, 0, nNode*nDof)
     allocate(nodalPoints(nNode))
     do i = 1, nNode
        nodalPoints(i) = this%node(i)
@@ -196,10 +202,10 @@ contains
        do j = 1, nNode
           ii = nDof*i-1
           jj = nDof*j-1
-          lhs(ii,jj)     = 0._rkind
-          lhs(ii+1,jj)   = 0._rkind
-          lhs(ii,jj+1)   = 0._rkind
-          lhs(ii+1,jj+1) = 0._rkind
+          lhs%stiffness(ii,jj)     = 0._rkind
+          lhs%stiffness(ii+1,jj)   = 0._rkind
+          lhs%stiffness(ii,jj+1)   = 0._rkind
+          lhs%stiffness(ii+1,jj+1) = 0._rkind
           do k = 1, integrator%getIntegTerms()
              bi = jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
                   - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i)
@@ -215,13 +221,18 @@ contains
              Kij(2,1) = ci*bj*this%material%d21 + bi*cj*this%material%d33
              Kij(2,2) = bi*bj*this%material%d33 + ci*cj*this%material%d22
              
-             lhs(ii,jj)     = lhs(ii,jj)     + integrator%getWeight(k)*Kij(1,1)/jacobianDet(k)
-             lhs(ii,jj+1)   = lhs(ii,jj+1)   + integrator%getWeight(k)*Kij(1,2)/jacobianDet(k)
-             lhs(ii+1,jj)   = lhs(ii+1,jj)   + integrator%getWeight(k)*Kij(2,1)/jacobianDet(k)
-             lhs(ii+1,jj+1) = lhs(ii+1,jj+1) + integrator%getWeight(k)*Kij(2,2)/jacobianDet(k)
+             lhs%stiffness(ii,jj)     = &
+                  lhs%stiffness(ii,jj)     + integrator%getWeight(k)*Kij(1,1)/jacobianDet(k)
+             lhs%stiffness(ii,jj+1)   = &
+                  lhs%stiffness(ii,jj+1)   + integrator%getWeight(k)*Kij(1,2)/jacobianDet(k)
+             lhs%stiffness(ii+1,jj)   = &
+                  lhs%stiffness(ii+1,jj)   + integrator%getWeight(k)*Kij(2,1)/jacobianDet(k)
+             lhs%stiffness(ii+1,jj+1) = &
+                  lhs%stiffness(ii+1,jj+1) + integrator%getWeight(k)*Kij(2,2)/jacobianDet(k)
           end do
        end do
     end do
+    lhs%stiffness = lhs%stiffness * this%material%thickness
   end subroutine calculateLHS
 
   subroutine calculateRHS(this, rhs)

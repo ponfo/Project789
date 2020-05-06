@@ -1,43 +1,43 @@
- 7:53:42  Initiating Program
- 7:53:42    Reading project data
- 7:53:42      Project name: test2
- 7:53:42      Path: /home/ponfo/Documents/Project789/problemtypes/Thermal2D.gid
- 7:53:42    Reading mesh data
- 7:53:42      Number of Elements.............................: 28
- 7:53:42      Are Elements Quadratic.........................: 1
- 7:53:42      Number of Triangular elements..................: 28
- 7:53:42      Number of Rectangular elements.................: 0
- 7:53:42      Number of Nodes................................: 73
- 7:53:42      Number of Dirichlet conditions.................: 8
- 7:53:42      Number of NormalFluxOnLines conditions.........: 0
- 7:53:42      Number of ConvectionOnLines conditions.........: 7
- 7:53:42      Number of Sources on points....................: 0
- 7:53:42      Number of Sources on surfaces..................: 0
- 7:53:42      Number of points with pointSource..............: 0
- 7:53:42      Number of Surfaces with surfaceSource..........: 0
- 7:53:42      Number of Materials............................: 1
- 7:53:42      Gauss cuadrature order.........................: 3
- 7:53:42          Allocated weights: 4
- 7:53:42          Allocated gPoints: 8
- 7:53:42          Allocated weights: 3
- 7:53:42          Allocated gPoints: 3
- 7:53:42          Allocated weights: 4
- 7:53:42          Allocated gPoints: 8
- 7:53:42          Allocated weights: 3
- 7:53:42          Allocated gPoints: 3
- 7:53:42          Allocated weights: 9
- 7:53:42          Allocated gPoints: 18
- 7:53:42          Allocated weights: 3
- 7:53:42          Allocated gPoints: 3
- 7:53:42          Allocated weights: 9
- 7:53:42          Allocated gPoints: 18
- 7:53:42          Allocated weights: 3
- 7:53:42          Allocated gPoints: 3
- 7:53:42    Reading materials properties
- 7:53:42    Reading elements
- 7:53:42    Reading point and line Sources
- 7:53:42    Reading Boundary Conditions
- 7:53:42  End loading data
- 7:53:42    Assembling stiffness matrix and right hand side vector
- 7:53:42  solving linear system
- 7:53:42  done solving
+14:15: 9  Initiating Program
+14:15: 9    Reading project data
+14:15: 9      Project name: test2
+14:15: 9      Path: /home/ponfo/Documents/Project789/applications/Thermal2D/Gid/Thermal2D.gid
+14:15: 9    Reading mesh data
+14:15: 9      Number of Elements.............................: 538
+14:15: 9      Are Elements Quadratic.........................: 1
+14:15: 9      Number of Triangular elements..................: 538
+14:15: 9      Number of Rectangular elements.................: 0
+14:15: 9      Number of Nodes................................: 1141
+14:15: 9      Number of Dirichlet conditions.................: 26
+14:15: 9      Number of NormalFluxOnLines conditions.........: 0
+14:15: 9      Number of ConvectionOnLines conditions.........: 31
+14:15: 9      Number of Sources on points....................: 0
+14:15: 9      Number of Sources on surfaces..................: 0
+14:15: 9      Number of points with pointSource..............: 0
+14:15: 9      Number of Surfaces with surfaceSource..........: 0
+14:15: 9      Number of Materials............................: 1
+14:15: 9      Gauss cuadrature order.........................: 3
+14:15: 9          Allocated weights: 4
+14:15: 9          Allocated gPoints: 8
+14:15: 9          Allocated weights: 3
+14:15: 9          Allocated gPoints: 3
+14:15: 9          Allocated weights: 4
+14:15: 9          Allocated gPoints: 8
+14:15: 9          Allocated weights: 3
+14:15: 9          Allocated gPoints: 3
+14:15: 9          Allocated weights: 9
+14:15: 9          Allocated gPoints: 18
+14:15: 9          Allocated weights: 3
+14:15: 9          Allocated gPoints: 3
+14:15: 9          Allocated weights: 9
+14:15: 9          Allocated gPoints: 18
+14:15: 9          Allocated weights: 3
+14:15: 9          Allocated gPoints: 3
+14:15: 9    Reading materials properties
+14:15: 9    Reading elements
+14:15: 9    Reading point and line Sources
+14:15: 9    Reading Boundary Conditions
+14:15: 9  End loading data
+14:15: 9    Assembling stiffness matrix and right hand side vector
+14:15: 9  solving linear system
+14:15: 9  done solving

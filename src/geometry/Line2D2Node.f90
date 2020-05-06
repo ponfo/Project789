@@ -17,6 +17,7 @@ module Line2D2NodeM
   type, extends(GeometryDT) :: Line2D2NodeDT
    contains
      procedure, public  :: init
+     procedure, public  :: getLenght
      procedure, public  :: shapeFunc
      procedure, public  :: dShapeFunc
      procedure, public  :: jacobianAllNodes
@@ -53,6 +54,13 @@ contains
     this%integrator = integrator(gaussOrder, 'line')
     call this%valueShapeFuncAtGPoints()
   end subroutine init
+
+  real(rkind) function getLenght(this, node)
+    implicit none
+    class(Line2D2NodeDT)                       , intent(inout) :: this
+    class(NodePtrDT)    , dimension(this%nNode), intent(in)    :: node
+    getLenght = sqrt((node(1)%getx()-node(2)%getx())**2 + node(1)%gety()-node(2)%gety())
+  end function getLenght
 
   function shapeFunc(this, point)
     implicit none

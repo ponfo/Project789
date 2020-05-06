@@ -22,7 +22,8 @@ module GeometryM
      procedure                                                   :: getnNode
      procedure                                                   :: getDim
      procedure                                                   :: getIntegrator
-     
+
+     procedure(getLenghtInterf)                       , deferred :: getLenght
      procedure(shapeFuncInterf)                       , deferred :: shapeFunc
      procedure(dShapeFuncInterf)                      , deferred :: dShapeFunc
      procedure(jacobianAllNodesInterf)                , deferred :: jacobianAllNodes
@@ -42,6 +43,17 @@ module GeometryM
      generic :: jacobianDetAtGPoints => jacobianDetAtGPointsFromCoord     &
                                       , jacobianDetAtGPointsFromJacobian
   end type GeometryDT
+
+  abstract interface
+     real(rkind) function getLenghtInterf(this, node)
+       use UtilitiesM
+       import GeometryDT
+       import NodePtrDT
+       implicit none
+       class(GeometryDT)                       , intent(inout) :: this
+       class(NodePtrDT) , dimension(this%nNode), intent(in)    :: node
+     end function getLenghtInterf
+  end interface
 
   abstract interface
      function shapeFuncInterf(this, point)

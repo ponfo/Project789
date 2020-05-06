@@ -9,6 +9,8 @@ module DirectBuilderAndSolverM
   use ElementPtrM
   use ConditionPtrM
 
+  use LeftHandSideM
+
   use StructuralModelM
 
   use BuilderAndSolverM
@@ -54,7 +56,7 @@ contains
     class(StructuralModelDT)    , intent(inout) :: model
     integer(ikind)                              :: iNode, jNode, iDof, jDof, iNodeID, jNodeID
     integer(ikind)                              :: iElem, nElem, nNode, nDof
-    real(rkind), dimension(:,:), allocatable    :: localLHS
+    type(LeftHandSideDT)                        :: localLHS
     real(rkind), dimension(:)  , allocatable    :: localRHS
     type(ElementPtrDT)                          :: element
     nElem = model%getnElement()
@@ -69,17 +71,17 @@ contains
              jNodeID = element%getNodeID(jNode)
              do iDof = 1, nDof
                 do jDof = 1, nDof
-                   call model%LHS%append(                                                &
-                          val = localLHS(iNode*nDof-(nDof-iDof),jNode*nDof-(nDof-jDof))  &
-                        , row = iNodeID*nDof-(nDof-iDof)                                 &
-                        , col = jNodeID*nDof-(nDof-jDof)                                 )
+                   call model%LHS%append(                                                          &
+                          val = localLHS%stiffness(iNode*nDof-(nDof-iDof),jNode*nDof-(nDof-jDof))  &
+                        , row = iNodeID*nDof-(nDof-iDof)                                           &
+                        , col = jNodeID*nDof-(nDof-jDof)                                           )
                 end do
              end do
           end do
           model%rhs(iNodeID*nDof-1) = localRHS(iNode*nDof-1)
           model%rhs(iNodeID*nDof)   = localRHS(iNode*nDof)
        end do
-       deallocate(localLHS)
+       call localLHS%free()
        deallocate(localRHS)
     end do
     call model%lhs%makeCRS()

@@ -9,6 +9,8 @@ module ConditionM
 
   use GeometryM
 
+  use LeftHandSideM
+
   implicit none
 
   private
@@ -42,10 +44,11 @@ module ConditionM
      subroutine calculateLocalSystemInterf(this, lhs, rhs)
        use UtilitiesM
        import ConditionDT
+       import LeftHandSideDT
        implicit none
-       class(ConditionDT)                             , intent(inout) :: this
-       real(rkind)       , dimension(:,:), allocatable, intent(inout) :: lhs
-       real(rkind)       , dimension(:)  , allocatable, intent(inout) :: rhs
+       class(ConditionDT)                               , intent(inout) :: this
+       type(LeftHandSideDT)                             , intent(inout) :: lhs
+       real(rkind)         , dimension(:)  , allocatable, intent(inout) :: rhs
      end subroutine calculateLocalSystemInterf
   end interface
 
@@ -63,9 +66,10 @@ module ConditionM
      subroutine calculateLHSInterf(this, lhs)
        use UtilitiesM
        import ConditionDT
+       import LeftHandSideDT
        implicit none
-       class(ConditionDT)                             , intent(inout) :: this
-       real(rkind)       , dimension(:,:), allocatable, intent(inout) :: lhs
+       class(ConditionDT)  , intent(inout) :: this
+       type(LeftHandSideDT), intent(inout) :: lhs
      end subroutine calculateLHSInterf
   end interface
 
