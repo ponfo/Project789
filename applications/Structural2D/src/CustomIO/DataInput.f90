@@ -39,7 +39,6 @@ module DataInputM
   integer(ikind)               :: nSourceOnPoints
   integer(ikind)               :: nSourceOnSurfaces
   integer(ikind)               :: nPointSource
-  integer(ikind)               :: nLineSource
   integer(ikind)               :: nSurfaceSource
   character(100)               :: projectName
   character(100)               :: path

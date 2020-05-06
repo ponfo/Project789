@@ -93,7 +93,7 @@ Element List:
 *elemsnum         *ElemstypeName  *elemsmat  *ElemsNnode  *elemsconec
 *end elems
 
-################### Loads On Points ######################
+####################### Loads ############################
 
 Conditions List:
 
