@@ -16,6 +16,7 @@ module StructuralElementM
   use NodePtrM
 
   use SourceM
+  use SourcePtrM
   
   use ElementM
 
@@ -27,7 +28,7 @@ module StructuralElementM
   public :: StructuralElementDT, structuralElement, initGeometries
 
   type, extends(ElementDT) :: StructuralElementDT
-     type(StructuralMaterialDT), pointer :: material
+     class(StructuralMaterialDT), pointer :: material
    contains
      procedure, public  :: init
      procedure, public  :: calculateLHS
@@ -75,6 +76,7 @@ contains
     else if(size(node) == 8) then
        this%geometry => myQuadrilateral2D8Node
     end if
+    allocate(this%source(1))
   end subroutine init
 
   subroutine initGeometries(nGauss)
@@ -146,17 +148,16 @@ contains
                   lhs%stiffness(ii+1,jj+1) + integrator%getWeight(k)*Kij(2,2)/jacobianDet(k)
           end do
        end do
-       if(associated(this%node(i)%ptr%source)) then
-          val1 = this%node(i)%ptr%source%func(1)%evaluate((/this%node(i)%getx(), this%node(i)%gety()/))
-          val2 = this%node(i)%ptr%source%func(2)%evaluate((/this%node(i)%getx(), this%node(i)%gety()/))
+       if(this%node(i)%hasSource()) then
+          val1 = this%node(i)%ptr%source(1)%evaluate(1, (/this%node(i)%getx(), this%node(i)%gety()/))
+          val2 = this%node(i)%ptr%source(1)%evaluate(2, (/this%node(i)%getx(), this%node(i)%gety()/))
           rhs(nDof*i-1) = rhs(nDof*i-1) + val1
           rhs(nDof*i)   = rhs(nDof*i)   + val2
        end if
     end do
     lhs%stiffness = lhs%stiffness * this%material%thickness
-    if(associated(this%source)) then
+    if(this%hasSource()) then
        allocate(valuedSource(2,integrator%getIntegTerms()))
-       allocate(jacobianDet(integrator%getIntegTerms()))
        call this%setupIntegration(integrator, valuedSource, jacobianDet)
        do i = 1, nNode
           val1 = 0._rkind
@@ -171,9 +172,9 @@ contains
           rhs(i*nDof)   = rhs(i*nDof)   + val2
        end do
        deallocate(valuedSource)
-       deallocate(jacobianDet)
     end if
-    
+    deallocate(jacobian)
+    deallocate(jacobianDet)
   end subroutine calculateLocalSystem
 
   subroutine calculateLHS(this, lhs)
@@ -249,14 +250,14 @@ contains
     allocate(rhs(nNode*nDof))
     rhs = 0._rkind
     do i = 1, nNode
-       if(associated(this%node(i)%ptr%source)) then
-          val1 = this%node(i)%ptr%source%func(1)%evaluate((/this%node(i)%getx(), this%node(i)%gety()/))
-          val2 = this%node(i)%ptr%source%func(2)%evaluate((/this%node(i)%getx(), this%node(i)%gety()/))
+       if(this%node(i)%hasSource()) then
+          val1 = this%node(i)%ptr%source(1)%evaluate(1, (/this%node(i)%getx(), this%node(i)%gety()/))
+          val2 = this%node(i)%ptr%source(1)%evaluate(2, (/this%node(i)%getx(), this%node(i)%gety()/))
           rhs(nDof*i-1) = rhs(nDof*i-1) + val1
           rhs(nDof*i)   = rhs(nDof*i)   + val2
        end if
     end do
-    if(associated(this%source)) then
+    if(this%hasSource()) then
        integrator = this%getIntegrator()
        allocate(valuedSource(2,integrator%getIntegTerms()))
        allocate(jacobianDet(integrator%getIntegTerms()))
@@ -312,8 +313,8 @@ contains
           x = x + integrator%getShapeFunc(i,j)*node(j)%ptr%getx()
           y = y + integrator%getShapeFunc(i,j)*node(j)%ptr%gety()
        end do
-       getValuedSource(1,i) = this%source%func(1)%evaluate((/x,y/))
-       getValuedSource(2,i) = this%source%func(2)%evaluate((/x,y/))
+       getValuedSource(1,i) = this%source(1)%evaluate(1, (/x,y/))
+       getValuedSource(2,i) = this%source(1)%evaluate(2, (/x,y/))
     end do
   end function getValuedSource
 
@@ -360,7 +361,7 @@ contains
           nsy = nsy + dNidy*this%node(i)%ptr%dof(2)%val
           shs = shs + dNidx*this%node(i)%ptr%dof(2)%val + dNidy*this%node(i)%ptr%dof(1)%val
           epx = epx + dNidx*this%node(i)%ptr%dof(1)%val
-          epx = epx + dNidy*this%node(i)%ptr%dof(2)%val
+          epy = epy + dNidy*this%node(i)%ptr%dof(2)%val
        end do
        d11 = this%material%d11
        d12 = this%material%d12

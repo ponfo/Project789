@@ -12,6 +12,9 @@ module SourceM
      type(EquationParser), dimension(:), allocatable :: func
    contains
      procedure, public :: init
+     procedure, public :: evaluateFirstFunc
+     procedure, public :: evaluateAnyFunc
+     generic           :: evaluate => evaluateFirstFunc, evaluateAnyFunc
   end type SourceDT
 
   interface source
@@ -43,7 +46,20 @@ contains
     end do
   end subroutine init
 
-  !falta apply, si es que iría acá
+  real(rkind) function evaluateFirstFunc(this, val)
+    implicit none
+    class(SourceDT)              , intent(inout) :: this
+    real(rkind)    , dimension(:), intent(in)    :: val
+    evaluateFirstFunc = this%func(1)%evaluate(val)
+  end function evaluateFirstFunc
+
+  real(rkind) function evaluateAnyFunc(this, iFunc, val)
+    implicit none
+    class(SourceDT)              , intent(inout) :: this
+    integer(ikind)               , intent(in)    :: iFunc
+    real(rkind)    , dimension(:), intent(in)    :: val
+    evaluateAnyFunc = this%func(iFunc)%evaluate(val)
+  end function evaluateAnyFunc
 
 end module SourceM
 

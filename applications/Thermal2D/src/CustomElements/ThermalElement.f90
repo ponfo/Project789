@@ -16,6 +16,7 @@ module ThermalElementM
   use LeftHandSideM
 
   use SourceM
+  use SourcePtrM
   
   use ElementM
 
@@ -27,7 +28,7 @@ module ThermalElementM
   public :: ThermalElementDT, thermalElement, initGeometries
 
   type, extends(ElementDT) :: ThermalElementDT
-     type(ThermalMaterialDT), pointer :: material
+     class(ThermalMaterialDT), pointer :: material
    contains
      procedure, public  :: init
      procedure, public  :: calculateLHS
@@ -75,6 +76,7 @@ contains
     else if(size(node) == 8) then
        this%geometry => myQuadrilateral2D8Node
     end if
+    allocate(this%source(1))
   end subroutine init
 
   subroutine initGeometries(nGauss)
@@ -130,13 +132,14 @@ contains
                   / jacobianDet(k)
           end do
        end do
-       if(associated(this%node(i)%ptr%source)) then
-          val = this%node(i)%ptr%source%func(1)%evaluate((/this%node(i)%getx(), this%node(i)%gety()/))
+       if(this%node(i)%hasSource()) then
+          val = this%node(i)%ptr%source(1)%evaluate((/this%node(i)%getx(), this%node(i)%gety()/))
           rhs(i) = rhs(i) + val
        end if
     end do
-    if(associated(this%source)) then
+    if(this%hasSource()) then
        allocate(valuedSource(integrator%getIntegTerms()))
+       valuedSource = this%getValuedSource(integrator)
        do i = 1, nNode
           val = 0._rkind
           do j = 1, integrator%getIntegTerms()
@@ -148,7 +151,6 @@ contains
        deallocate(valuedSource)
        deallocate(jacobianDet)
     end if
-    
   end subroutine calculateLocalSystem
 
   subroutine calculateLHS(this, lhs)
@@ -206,12 +208,12 @@ contains
     allocate(rhs(nNode))
     rhs = 0._rkind
     do i = 1, nNode
-       if(associated(this%node(i)%ptr%source)) then
-          val = this%node(i)%ptr%source%func(1)%evaluate((/this%node(i)%getx(), this%node(i)%gety()/))
+       if(this%node(i)%hasSource()) then
+          val = this%node(i)%ptr%source(1)%evaluate((/this%node(i)%getx(), this%node(i)%gety()/))
           rhs(i) = rhs(i) + val
        end if
     end do
-    if(associated(this%source)) then
+    if(this%hasSource()) then
        integrator = this%getIntegrator()
        allocate(valuedSource(integrator%getIntegTerms()))
        allocate(jacobianDet(integrator%getIntegTerms()))
@@ -264,7 +266,7 @@ contains
           x = x + integrator%getShapeFunc(i,j)*node(j)%ptr%getx()
           y = y + integrator%getShapeFunc(i,j)*node(j)%ptr%gety()
        end do
-       getValuedSource(i) = this%source%func(1)%evaluate((/x,y/))
+       getValuedSource(i) = this%source(1)%evaluate((/x,y/))
     end do
   end function getValuedSource
 

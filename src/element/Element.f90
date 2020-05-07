@@ -13,6 +13,7 @@ module ElementM
   use LeftHandSideM
   
   use SourceM
+  use SourcePtrM
 
   implicit none
 
@@ -23,17 +24,22 @@ module ElementM
      integer(ikind)                               :: id
      type(NodePtrDT)  , dimension(:), allocatable :: node
      class(GeometryDT)              , pointer     :: geometry
-     type(SourceDT)                 , pointer     :: source
+     type(SourcePTrDT), dimension(:), allocatable :: source
    contains
      procedure, public :: assignGeometry
      procedure, public :: assignNode
-     procedure, public :: assignSource
+     procedure, public :: assignSourceOne
+     procedure, public :: assignSourceMulti
+     generic           :: assignSource => assignSourceOne, assignSourceMulti
 
      procedure, public :: getID
      procedure, public :: getnNode
      procedure, public :: getIntegrator
      procedure, public :: getNode
      procedure, public :: getNodeID
+     procedure, public :: hasSourceOneSource
+     procedure, public :: hasSourceMultiSource
+     generic           :: hasSource => hasSourceOneSource, hasSourceMultiSource
 
      procedure(calculateLocalSystemInterf), deferred :: calculateLocalSystem
      procedure(calculateLHSInterf)        , deferred :: calculateLHS
@@ -106,12 +112,20 @@ contains
     this%node(index)%ptr => node
   end subroutine assignNode
 
-  subroutine assignSource(this, source)
+  subroutine assignSourceOne(this, source)
     implicit none
     class(ElementDT)        , intent(inout) :: this
     class(SourceDT) , target, intent(in)    :: source
-    this%source => source
-  end subroutine assignSource
+    call this%source(1)%associate(source)
+  end subroutine assignSourceOne
+
+  subroutine assignSourceMulti(this, iSource, source)
+    implicit none
+    class(ElementDT)        , intent(inout) :: this
+    integer(ikind)          , intent(in)    :: iSource
+    class(SourceDT) , target, intent(in)    :: source
+    call this%source(iSource)%associate(source)
+  end subroutine assignSourceMulti
 
   integer(ikind) pure function getID(this)
     implicit none
@@ -144,6 +158,19 @@ contains
     integer(ikind)  , intent(in) :: iNode
     getNodeID = this%node(iNode)%ptr%getID()
   end function getNodeID
+
+  logical function hasSourceOneSource(this)
+    implicit none
+    class(ElementDT), intent(inout) :: this
+    hasSourceOneSource = associated(this%source(1)%ptr)
+  end function hasSourceOneSource
+
+  logical function hasSourceMultiSource(this, iSource)
+    implicit none
+    class(ElementDT), intent(inout) :: this
+    integer(ikind)  , intent(in)    :: iSource
+    hasSourceMultiSource = associated(this%source(iSource)%ptr)
+  end function hasSourceMultiSource
 
   subroutine calculateLocalSystem(this, lhs, rhs)
     implicit none

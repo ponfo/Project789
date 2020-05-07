@@ -13,6 +13,7 @@ module ElementPtrM
   use LeftHandSideM
 
   use SourceM
+  use SourcePtrM
   
   use ElementM
 
@@ -26,13 +27,18 @@ module ElementPtrM
    contains
      procedure, public :: assignGeometry
      procedure, public :: assignNode
-     procedure, public :: assignSource
+     procedure, public :: assignSourceOne
+     procedure, public :: assignSourceMulti
+     generic           :: assignSource => assignSourceOne, assignSourceMulti
 
      procedure, public :: getID
      procedure, public :: getnNode
      procedure, public :: getIntegrator
      procedure, public :: getNode
      procedure, public :: getNodeID
+     procedure, public :: hasSourceOneSource
+     procedure, public :: hasSourceMultiSource
+     generic           :: hasSource => hasSourceOneSource, hasSourceMultiSource
 
      procedure, public :: calculateLocalSystem
      procedure, public :: calculateLHS
@@ -57,12 +63,20 @@ contains
     call this%ptr%assignNode(index, node)
   end subroutine assignNode
 
-  subroutine assignSource(this, source)
+  subroutine assignSourceOne(this, source)
     implicit none
     class(ElementPtrDT)     , intent(inout) :: this
     class(SourceDT) , target, intent(in)    :: source
-    call this%ptr%assignSource(source)
-  end subroutine assignSource
+    call this%ptr%assignSourceOne(source)
+  end subroutine assignSourceOne
+
+  subroutine assignSourceMulti(this, iSource, source)
+    implicit none
+    class(ElementPtrDT)     , intent(inout) :: this
+    integer(ikind)          , intent(in)    :: iSource
+    class(SourceDT) , target, intent(in)    :: source
+    call this%ptr%assignSourceMulti(iSource, source)
+  end subroutine assignSourceMulti
 
   integer(ikind) pure function getID(this)
     implicit none
@@ -95,6 +109,19 @@ contains
     integer(ikind)     , intent(in) :: iNode
     getNodeID = this%ptr%getNodeID(iNode)
   end function getNodeID
+
+  logical function hasSourceOneSource(this)
+    implicit none
+    class(ElementPtrDT), intent(inout) :: this
+    hasSourceOneSource = this%ptr%hasSourceOneSource()
+  end function hasSourceOneSource
+
+  logical function hasSourceMultiSource(this, iSource)
+    implicit none
+    class(ElementPtrDT), intent(inout) :: this
+    integer(ikind)     , intent(in)    :: iSource
+    hasSourceMultiSource = this%ptr%hasSourceMultiSource(iSource)
+  end function hasSourceMultiSource
 
   subroutine calculateLocalSystem(this, lhs, rhs)
     implicit none

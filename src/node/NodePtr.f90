@@ -32,6 +32,9 @@ module NodePtrM
      procedure, public :: getY
      procedure, public :: getZ
      procedure, public :: getDimension
+     procedure, public :: hasSourceOneSource
+     procedure, public :: hasSourceMultiSource
+     generic           :: hasSource => hasSourceOneSource, hasSourceMultiSource
   end type NodePtrDT
 
 contains
@@ -43,11 +46,12 @@ contains
     this%ptr => node
   end subroutine associate
 
-  subroutine assignSource(this, source)
+  subroutine assignSource(this, iSource, source)
     implicit none
-    class(NodePtrDT)        , intent(inout) :: this
-    class(SourceDT) , target, intent(in)    :: source
-    call this%ptr%assignSource(source)
+    class(NodePtrDT)       , intent(inout) :: this
+    integer(ikind)         , intent(in)    :: iSource
+    class(SourceDT), target, intent(in)    :: source
+    call this%ptr%assignSource(iSource, source)
   end subroutine assignSource
 
   subroutine assignDof(this, iDof, dof)
@@ -136,5 +140,18 @@ contains
     class(NodePtrDT), intent(in) :: this
     getID = this%ptr%getID()
   end function getID
+
+  logical function hasSourceOneSource(this)
+    implicit none
+    class(NodePtrDT), intent(inout) :: this
+    hasSourceOneSource = this%ptr%hasSourceOneSource()
+  end function hasSourceOneSource
+
+  logical function hasSourceMultiSource(this, iSource)
+    implicit none
+    class(NodePtrDT), intent(inout) :: this
+    integer(ikind)  , intent(in)    :: iSource
+    hasSourceMultiSource = this%ptr%hasSourceMultiSource(iSource)
+  end function hasSourceMultiSource
 
 end module NodePtrM

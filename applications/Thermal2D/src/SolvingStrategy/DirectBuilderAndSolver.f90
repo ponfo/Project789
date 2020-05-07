@@ -59,6 +59,7 @@ contains
     real(rkind), dimension(:)  , allocatable :: localRHS
     type(ElementPtrDT)                       :: element
     nElem = model%getnElement()
+    model%rhs = 0._rkind
     do iElem = 1, nElem
        element = model%getElement(iElem)
        nNode = element%getnNode()
@@ -71,7 +72,7 @@ contains
                   , row = row                                    &
                   , col = col                                    )
           end do
-          model%rhs(row) = localRHS(i)
+          model%rhs(row) = model%rhs(row) + localRHS(i)
        end do
        call localLHS%free()
        deallocate(localRHS)

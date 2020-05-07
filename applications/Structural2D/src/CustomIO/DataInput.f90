@@ -43,7 +43,7 @@ module DataInputM
   character(100)               :: projectName
   character(100)               :: path
   character(100)               :: aux
-  logical       , parameter    :: verbose = .false.
+  logical       , parameter    :: verbose = .true.
   logical                      :: isMaterialAsigned = .true.
   
   interface initFEM2D
@@ -105,6 +105,22 @@ contains
     read(project,*)  aux, nSourceOnSurfaces
     read(project,*)  aux, nPointSource
     read(project,*)  aux, nSurfaceSource
+    
+    if(verbose) print'(A,I0)','Number of Elements.............................: ', nElem
+    if(verbose) print'(A,I0)','Are Elements Quadratic.........................: ', isQuadratic
+    if(verbose) print'(A,I0)','Number of Triangular elements..................: ', nTriangElem
+    if(verbose) print'(A,I0)','Number of Rectangular elements.................: ', nRectElem
+    if(verbose) print'(A,I0)','Number of Nodes................................: ', nPoint
+    if(verbose) print'(A,I0)','Number of Dirichlet X conditions...............: ', nDirichletX   
+    if(verbose) print'(A,I0)','Number of Dirichlet Y conditions...............: ', nDirichletY     
+    if(verbose) print'(A,I0)','Number of Pressure conditions..................: ', nPressure 
+    if(verbose) print'(A,I0)','Number of Loads on points......................: ', nSourceOnPoints 
+    if(verbose) print'(A,I0)','Number of Loads on surfaces....................: ', nSourceOnSurfaces
+    if(verbose) print'(A,I0)','Number of points with pointSource..............: ', nPointSource
+    if(verbose) print'(A,I0)','Number of Surfaces with surfaceSource..........: ', nSurfaceSource
+    if(verbose) print'(A,I0)','Number of Materials............................: ', nMaterial
+    if(verbose) print'(A,I0)','Gauss cuadrature order.........................: ', nGauss
+    
     call debugLog('    Number of Elements.............................: ', nElem)
     call debugLog('    Are Elements Quadratic.........................: ', isQuadratic)
     call debugLog('    Number of Triangular elements..................: ', nTriangElem)

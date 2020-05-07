@@ -19,6 +19,7 @@ OBJECTS := $(BINDIR)/Debugger.o                 \
 	$(BINDIR)/Property.o                    \
 	                                        \
 	$(BINDIR)/Source.o                      \
+	$(BINDIR)/SourcePtr.o                   \
                                                 \
 	$(BINDIR)/LeftHandSide.o                \
                                                 \
@@ -151,6 +152,8 @@ $(BINDIR)/ConditionPtr.o : $(VPATH)/condition/ConditionPtr.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 
 $(BINDIR)/Source.o : $(VPATH)/sources/Source.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/SourcePtr.o : $(VPATH)/sources/SourcePtr.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 
 $(BINDIR)/LeftHandSide.o : $(VPATH)/leftHandSide/LeftHandSide.f90

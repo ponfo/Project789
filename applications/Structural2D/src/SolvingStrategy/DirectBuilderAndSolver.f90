@@ -40,13 +40,13 @@ contains
     print'(A)', 'Assembling stiffness matrix and right hand side vector'
     call assembleSystem(model)
     call applyBC(model)
-!!$    print*, 'SYSTEM'
-!!$    print*, 'LHS'
-!!$    call model%lhs%printNonZeros()
-!!$    print*, 'RHS'
-!!$    do i = 1, size(model%rhs)
-!!$       print'(A,I0,A,E16.8)', 'rhs(', i, ') = ', model%rhs(i)
-!!$    end do
+    print*, 'SYSTEM'
+    print*, 'LHS'
+    call model%lhs%printNonZeros()
+    print*, 'RHS'
+    do i = 1, size(model%rhs)
+       print'(A,I0,A,E16.8)', 'rhs(', i, ') = ', model%rhs(i)
+    end do
     write(*,*) '*** Init Linear Solver ***'
     call solve(model)
   end subroutine buildAndSolve
@@ -78,8 +78,8 @@ contains
                 end do
              end do
           end do
-          model%rhs(iNodeID*nDof-1) = localRHS(iNode*nDof-1)
-          model%rhs(iNodeID*nDof)   = localRHS(iNode*nDof)
+          model%rhs(iNodeID*nDof-1) = model%rhs(iNodeID*nDof-1) + localRHS(iNode*nDof-1)
+          model%rhs(iNodeID*nDof)   = model%rhs(iNodeID*nDof)   + localRHS(iNode*nDof)
        end do
        call localLHS%free()
        deallocate(localRHS)
