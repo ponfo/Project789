@@ -98,11 +98,11 @@ Coordinates:
 
 Materials List:
 
-Material | KX | KY | Thermal expansion | Young's modulus | Poisson's ratio |  Area  |  Thickness
+Material | KX | KY | Thermal expansion | Young's modulus | Poisson's ratio |  Area  |  Thickness | Stable Temp
 -----------------------------------------------------------
 *loop materials
-*format "%5i%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e"
-*matnum  *matprop(Thermal_Conductivity_X) *matprop(Thermal_Conductivity_Y) *matprop(Thermal_Expansion)         *matprop(Young_Modulus)       *matprop(Poisson's_Ratio)    *matprop(Area)  *matprop(Thickness)
+*format "%5i%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e"
+*matnum  *matprop(Thermal_Conductivity_X) *matprop(Thermal_Conductivity_Y) *matprop(Thermal_Expansion)         *matprop(Young_Modulus)       *matprop(Poisson's_Ratio)    *matprop(Area)  *matprop(Thickness)  *matprop(Stable_Temperature)
 *end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

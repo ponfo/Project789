@@ -24,6 +24,9 @@ module StructuralModelM
      type(StrainDT)                           :: strain
    contains
      procedure, public :: init
+     procedure, public :: initWithoutSystem
+     procedure, public :: initSystem
+     procedure, public :: freeSystem
   end type StructuralModelDT
 
   interface structuralModel
@@ -58,5 +61,33 @@ contains
     call this%initModel(1) !una sola malla en el modelo
     this%mesh(1) = mesh(id, nNode, nElement, nCondition)
   end subroutine init
+
+  subroutine initWithoutSystem(this, id, nNode, nElement, nCondition)
+    implicit none
+    class(StructuralModelDT), intent(inout) :: this
+    integer(ikind)          , intent(in)    :: id
+    integer(ikind)          , intent(in)    :: nNode
+    integer(ikind)          , intent(in)    :: nElement
+    integer(ikind)          , intent(in)    :: nCondition
+    call this%initModel(1)
+    this%mesh(1) = mesh(id, nNode, nElement, nCondition)
+  end subroutine initWithoutSystem
+
+  subroutine initSystem(this, nDof, nnz)
+    implicit none
+    class(StructuralModelDT), intent(inout) :: this
+    integer(ikind)          , intent(in)    :: nDof
+    integer(ikind)          , intent(in)    :: nnz
+    this%lhs = sparse(nnz, nDof)
+    allocate(this%rhs(nDof))
+    allocate(this%dof(nDof))
+  end subroutine initSystem
+  
+  subroutine freeSystem(this)
+    implicit none
+    class(StructuralModelDT), intent(inout) :: this
+    call this%lhs%free()
+    if(allocated(this%rhs)) deallocate(this%rhs)
+  end subroutine freeSystem
   
 end module StructuralModelM

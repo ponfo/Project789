@@ -9,17 +9,17 @@ COMPILER	:=  ifort
 FFLAGS		:=  -Ofast -qopenmp -free -check bounds -mkl -liomp5 -lpthread -ldl -traceback -module $(OBJECTDIR)
 FFLAGSDebug 	:=  -O0 -fpp -check bounds -traceback -warn nounused -module $(OBJECTDIR)
 
-OBJECTS := $(BINDIR)/ThermalMaterial.o     \
-	$(BINDIR)/ThermalElement.o         \
-	$(BINDIR)/ConvectionOnLine.o       \
-	$(BINDIR)/FluxOnLine.o             \
-	$(BINDIR)/HeatFlux.o               \
-	$(BINDIR)/ThermalModel.o           \
-	$(BINDIR)/DirectBuilderAndSolver.o \
-	$(BINDIR)/DirectScheme.o           \
-	$(BINDIR)/DirectStrategy.o         \
-	$(BINDIR)/Thermal2DApplication.o   \
-	$(BINDIR)/DataInput.o              \
+OBJECTS := $(BINDIR)/ThermalMaterial.o      \
+	$(BINDIR)/ThermalElement.o          \
+	$(BINDIR)/ConvectionOnLine.o        \
+	$(BINDIR)/FluxOnLine.o              \
+	$(BINDIR)/HeatFlux.o                \
+	$(BINDIR)/ThermalModel.o            \
+	$(BINDIR)/ThermalBuilderAndSolver.o \
+	$(BINDIR)/ThermalScheme.o           \
+	$(BINDIR)/ThermalStrategy.o         \
+	$(BINDIR)/Thermal2DApplication.o    \
+	$(BINDIR)/DataInput.o               \
 	$(BINDIR)/main.o
 
 LIBRARIES := $(LIB)/project789.a
@@ -47,11 +47,11 @@ $(BINDIR)/HeatFlux.o : $(VPATH)/CustomResult/HeatFlux.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/ThermalModel.o : $(VPATH)/Model/ThermalModel.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
-$(BINDIR)/DirectBuilderAndSolver.o : $(VPATH)/SolvingStrategy/DirectBuilderAndSolver.f90
+$(BINDIR)/ThermalBuilderAndSolver.o : $(VPATH)/SolvingStrategy/ThermalBuilderAndSolver.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
-$(BINDIR)/DirectScheme.o : $(VPATH)/SolvingStrategy/DirectScheme.f90
+$(BINDIR)/ThermalScheme.o : $(VPATH)/SolvingStrategy/ThermalScheme.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
-$(BINDIR)/DirectStrategy.o : $(VPATH)/SolvingStrategy/DirectStrategy.f90
+$(BINDIR)/ThermalStrategy.o : $(VPATH)/SolvingStrategy/ThermalStrategy.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/Thermal2DApplication.o : $(VPATH)/Thermal2DApplication.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@

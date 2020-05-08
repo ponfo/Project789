@@ -52,18 +52,18 @@ contains
 
   type(ThermalElementDT) function constructor(id, node, material)
     implicit none
-    integer(ikind)                       , intent(in) :: id
-    type(NodePtrDT)        , dimension(:), intent(in) :: node
-    type(ThermalMaterialDT), target      , intent(in) :: material
+    integer(ikind)                        , intent(in) :: id
+    type(NodePtrDT)         , dimension(:), intent(in) :: node
+    class(ThermalMaterialDT), target      , intent(in) :: material
     call constructor%init(id, node, material)
   end function constructor
 
   subroutine init(this, id, node, material)
     implicit none
-    class(ThermalElementDT)              , intent(inout) :: this
-    integer(ikind)                       , intent(in)    :: id
-    type(NodePtrDT)        , dimension(:), intent(in)    :: node
-    type(ThermalMaterialDT), target      , intent(in)    :: material
+    class(ThermalElementDT)               , intent(inout) :: this
+    integer(ikind)                        , intent(in)    :: id
+    type(NodePtrDT)         , dimension(:), intent(in)    :: node
+    class(ThermalMaterialDT), target      , intent(in)    :: material
     this%id = id
     this%node = node
     this%material => material

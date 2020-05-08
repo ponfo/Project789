@@ -9,18 +9,18 @@ COMPILER	:=  ifort
 FFLAGS		:=  -Ofast -qopenmp -free -check bounds -mkl -liomp5 -lpthread -ldl -traceback -module $(OBJECTDIR)
 FFLAGSDebug 	:=  -O0 -fpp -check bounds -traceback -warn nounused -module $(OBJECTDIR)
 
-OBJECTS := $(BINDIR)/StructuralMaterial.o   \
-	$(BINDIR)/StructuralElement.o       \
-	$(BINDIR)/Pressure.o                \
-	$(BINDIR)/NormalStress.o            \
-	$(BINDIR)/ShearStress.o             \
-	$(BINDIR)/Strain.o                  \
-	$(BINDIR)/StructuralModel.o         \
-	$(BINDIR)/DirectBuilderAndSolver.o  \
-	$(BINDIR)/DirectScheme.o            \
-	$(BINDIR)/DirectStrategy.o          \
-	$(BINDIR)/Structural2DApplication.o \
-	$(BINDIR)/DataInput.o               \
+OBJECTS := $(BINDIR)/StructuralMaterial.o      \
+	$(BINDIR)/StructuralElement.o          \
+	$(BINDIR)/Pressure.o                   \
+	$(BINDIR)/NormalStress.o               \
+	$(BINDIR)/ShearStress.o                \
+	$(BINDIR)/Strain.o                     \
+	$(BINDIR)/StructuralModel.o            \
+	$(BINDIR)/StructuralBuilderAndSolver.o \
+	$(BINDIR)/StructuralScheme.o           \
+	$(BINDIR)/StructuralStrategy.o         \
+	$(BINDIR)/Structural2DApplication.o    \
+	$(BINDIR)/DataInput.o                  \
 	$(BINDIR)/main.o
 
 LIBRARIES := $(LIB)/project789.a
@@ -50,11 +50,11 @@ $(BINDIR)/Strain.o : $(VPATH)/CustomResult/Strain.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/StructuralModel.o : $(VPATH)/Model/StructuralModel.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
-$(BINDIR)/DirectBuilderAndSolver.o : $(VPATH)/SolvingStrategy/DirectBuilderAndSolver.f90
+$(BINDIR)/StructuralBuilderAndSolver.o : $(VPATH)/SolvingStrategy/StructuralBuilderAndSolver.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
-$(BINDIR)/DirectScheme.o : $(VPATH)/SolvingStrategy/DirectScheme.f90
+$(BINDIR)/StructuralScheme.o : $(VPATH)/SolvingStrategy/StructuralScheme.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
-$(BINDIR)/DirectStrategy.o : $(VPATH)/SolvingStrategy/DirectStrategy.f90
+$(BINDIR)/StructuralStrategy.o : $(VPATH)/SolvingStrategy/StructuralStrategy.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/Structural2DApplication.o : $(VPATH)/Structural2DApplication.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@

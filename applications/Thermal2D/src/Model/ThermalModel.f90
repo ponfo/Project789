@@ -20,6 +20,7 @@ module ThermalModelM
      type(HeatFluxDT)                         :: heatFlux
    contains
      procedure, public :: init
+     procedure, public :: freeSystem
   end type ThermalModelDT
 
   interface thermalModel
@@ -54,5 +55,12 @@ contains
     call this%initModel(1) !una sola malla en el modelo
     this%mesh(1) = mesh(id, nNode, nElement, nCondition)
   end subroutine init
+
+  subroutine freeSystem(this)
+    implicit none
+    class(ThermalModelDT), intent(inout) :: this
+    call this%lhs%free()
+    if(allocated(this%rhs)) deallocate(this%rhs)
+  end subroutine freeSystem
   
 end module ThermalModelM

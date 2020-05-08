@@ -17,4 +17,6 @@ QUESTION: Poisson's_Ratio
 VALUE: 0.3
 QUESTION: Thermal_Expansion
 VALUE: 0.0000016
+QUESTION: Stable_Temperature
+VALUE: 15
 END MATERIAL

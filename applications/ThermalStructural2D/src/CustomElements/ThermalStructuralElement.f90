@@ -1,4 +1,4 @@
-module StructuralElementM
+module ThermalStructuralElementM
 
   use UtilitiesM
 
@@ -20,15 +20,15 @@ module StructuralElementM
   
   use ElementM
 
-  use ThermalStructuralMaterialM
+  use StructuralMaterialM
 
   implicit none
 
   private
-  public :: StructuralElementDT, structuralElement, initGeometries
+  public :: ThermalStructuralElementDT, thermalStructuralElement, initGeometriesTS
 
-  type, extends(ElementDT) :: StructuralElementDT
-     type(ThermalStructuralMaterialDT), pointer :: material
+  type, extends(ElementDT) :: ThermalStructuralElementDT
+     class(StructuralMaterialDT), pointer :: material
    contains
      procedure, public  :: init
      procedure, public  :: calculateLHS
@@ -37,11 +37,11 @@ module StructuralElementM
      procedure, public  :: calculateResults
      procedure, private :: setupIntegration
      procedure, private :: getValuedSource
-  end type StructuralElementDT
+  end type ThermalStructuralElementDT
 
-  interface structuralElement
+  interface thermalStructuralElement
      procedure :: constructor
-  end interface structuralElement
+  end interface thermalStructuralElement
 
   type(Triangle2D3NodeDT)     , target, save :: myTriangle2D3Node
   type(Triangle2D6NodeDT)     , target, save :: myTriangle2D6Node
@@ -50,7 +50,7 @@ module StructuralElementM
 
 contains
 
-  type(StructuralElementDT) function constructor(id, node, material)
+  type(ThermalStructuralElementDT) function constructor(id, node, material)
     implicit none
     integer(ikind)                          , intent(in) :: id
     type(NodePtrDT)           , dimension(:), intent(in) :: node
@@ -60,7 +60,7 @@ contains
 
   subroutine init(this, id, node, material)
     implicit none
-    class(StructuralElementDT)              , intent(inout) :: this
+    class(ThermalStructuralElementDT)              , intent(inout) :: this
     integer(ikind)                          , intent(in)    :: id
     type(NodePtrDT)           , dimension(:), intent(in)    :: node
     type(StructuralMaterialDT), target      , intent(in)    :: material
@@ -79,32 +79,41 @@ contains
     allocate(this%source(1))
   end subroutine init
 
-  subroutine initGeometries(nGauss)
+  subroutine initGeometriesTS(nGauss)
     implicit none
     integer(ikind), intent(in) :: nGauss
     myTriangle2D3Node = triangle2D3Node(nGauss)
     myTriangle2D6Node = triangle2D6Node(nGauss)
     myQuadrilateral2D4Node = quadrilateral2D4Node(nGauss)
     myQuadrilateral2D8Node = quadrilateral2D8Node(nGauss)
-  end subroutine initGeometries
+  end subroutine initGeometriesTS
 
   subroutine calculateLocalSystem(this, lhs, rhs)
     implicit none
-    class(StructuralElementDT)                            , intent(inout) :: this
+    class(ThermalStructuralElementDT)                            , intent(inout) :: this
     type(LeftHandSideDT)                                  , intent(inout) :: lhs
     real(rkind)            , dimension(:)    , allocatable, intent(inout) :: rhs
     integer(ikind)                                                        :: i, j, ii, jj, k
     integer(ikind)                                                        :: nNode, nDof
     real(rkind)                                                           :: bi, bj, ci, cj
+    real(rkind)                                                           :: d11, d12, d21, d22, d33
+    real(rkind)                                                           :: thickness
+    real(rkind)                                                           :: temp, strain
+    real(rkind)                                                           :: val1, val2
     real(rkind)            , dimension(2,2)                               :: Kij
     real(rkind)            , dimension(:,:,:), allocatable                :: jacobian
     real(rkind)            , dimension(:)    , allocatable                :: jacobianDet
-    real(rkind)                                                           :: val1, val2
     real(rkind)            , dimension(:,:)  , allocatable                :: valuedSource
     type(IntegratorPtrDT)                                                 :: integrator
     type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
     nNode = this%getnNode()
     nDof = this%node(1)%getnDof()
+    d11 = this%material%d11
+    d12 = this%material%d12
+    d21 = this%material%d21
+    d22 = this%material%d22
+    d33 = this%material%d33
+    thickness = this%material%thickness
     integrator = this%getIntegrator()
     lhs = leftHandSide(0, 0, nNode*nDof)
     allocate(rhs(nNode*nDof))
@@ -133,10 +142,10 @@ contains
              cj = jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
                   - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j)
              
-             Kij(1,1) = bi*bj*this%material%d11 + ci*cj*this%material%d33
-             Kij(1,2) = bi*cj*this%material%d12 + bj*ci*this%material%d33
-             Kij(2,1) = ci*bj*this%material%d21 + bi*cj*this%material%d33
-             Kij(2,2) = bi*bj*this%material%d33 + ci*cj*this%material%d22
+             Kij(1,1) = bi*bj*d11 + ci*cj*d33
+             Kij(1,2) = bi*cj*d12 + bj*ci*d33
+             Kij(2,1) = ci*bj*d21 + bi*cj*d33
+             Kij(2,2) = bi*bj*d33 + ci*cj*d22
              
              lhs%stiffness(ii,jj)     = &
                   lhs%stiffness(ii,jj)     + integrator%getWeight(k)*Kij(1,1)/jacobianDet(k)
@@ -149,16 +158,41 @@ contains
           end do
        end do
        if(this%node(i)%hasSource()) then
-          val1 = this%node(i)%ptr%source(1)%evaluate(1, (/this%node(i)%getx(), this%node(i)%gety()/))
+          val1 = this%node(i)%ptr%source(2)%evaluate(1, (/this%node(i)%getx(), this%node(i)%gety()/))
           val2 = this%node(i)%ptr%source(2)%evaluate(2, (/this%node(i)%getx(), this%node(i)%gety()/))
           rhs(nDof*i-1) = rhs(nDof*i-1) + val1
           rhs(nDof*i)   = rhs(nDof*i)   + val2
        end if
+       temp = this%node(i)%ptr%dof(1)%val
+       !Deformación plana
+       strain = (1+this%material%poissonCoef)*this%material%thermalCoef*(temp-this%material%stableTemp)
+       !Tensión plana
+       !strain = this%material%thermalCoef*(temp-this%material%stableTemp)
+       val1 = 0._rkind
+       val2 = 0._rkind
+       do j = 1, integrator%getIntegTerms()
+          bi = jacobian(j,2,2)*integrator%getDShapeFunc(j,1,i) &
+               - jacobian(j,1,2)*integrator%getDShapeFunc(j,2,i)
+          ci = jacobian(j,1,1)*integrator%getDShapeFunc(j,2,i) &
+               - jacobian(j,2,1)*integrator%getDShapeFunc(j,1,i)
+          val1 = val1 + integrator%getWeight(j)*bi*(d11*strain+d12*strain)*thickness
+          val2 = val2 + integrator%getWeight(j)*ci*(d21*strain+d22*strain)*thickness
+       end do
+       print*, 'element ->', this%getID()
+       print*, 'node -> ', i
+       print*, 'temp -> ', temp
+       print*, 'strain -> ', strain
+       print*, 'bi -> ', bi
+       print*, 'ci -> ', ci
+       print*, 'thickness -> ', thickness
+       print*, 'val1 -> ', val1
+       print*, 'val2 -> ', val2
+       rhs(i*nDof-1) = rhs(i*nDof-1) + val1
+       rhs(i*nDof)   = rhs(i*nDof)   + val2
     end do
-    lhs%stiffness = lhs%stiffness * this%material%thickness
+    lhs%stiffness = lhs%stiffness * thickness
     if(this%hasSource()) then
        allocate(valuedSource(2,integrator%getIntegTerms()))
-       allocate(jacobianDet(integrator%getIntegTerms()))
        call this%setupIntegration(integrator, valuedSource, jacobianDet)
        do i = 1, nNode
           val1 = 0._rkind
@@ -173,14 +207,14 @@ contains
           rhs(i*nDof)   = rhs(i*nDof)   + val2
        end do
        deallocate(valuedSource)
-       deallocate(jacobianDet)
     end if
-    
+    deallocate(jacobian)
+    deallocate(jacobianDet)
   end subroutine calculateLocalSystem
 
   subroutine calculateLHS(this, lhs)
     implicit none
-    class(StructuralElementDT)                            , intent(inout) :: this
+    class(ThermalStructuralElementDT)                            , intent(inout) :: this
     type(LeftHandSideDT)                                  , intent(inout) :: lhs
     integer(ikind)                                                        :: i, j, ii, jj, k
     integer(ikind)                                                        :: nNode, nDof
@@ -239,29 +273,65 @@ contains
 
   subroutine calculateRHS(this, rhs)
     implicit none
-    class(StructuralElementDT)                          , intent(inout) :: this
-    real(rkind)            , dimension(:)  , allocatable, intent(inout) :: rhs
-    integer(ikind)                                                      :: i, j, nNode, nDof
-    real(rkind)                                                         :: val1, val2
-    real(rkind)            , dimension(:,:), allocatable                :: valuedSource
-    real(rkind)            , dimension(:)  , allocatable                :: jacobianDet
-    type(IntegratorPtrDT)                                               :: integrator
+    class(ThermalStructuralElementDT)                            , intent(inout) :: this
+    real(rkind)            , dimension(:)    , allocatable, intent(inout) :: rhs
+    integer(ikind)                                                        :: i, j, nNode, nDof
+    real(rkind)                                                           :: val1, val2
+    real(rkind)                                                           :: bi, ci
+    real(rkind)                                                           :: d11, d12, d21, d22, d33
+    real(rkind)                                                           :: thickness
+    real(rkind)                                                           :: temp, strain
+    real(rkind)            , dimension(:,:)  , allocatable                :: valuedSource
+    real(rkind)            , dimension(:,:,:), allocatable                :: jacobian
+    real(rkind)            , dimension(:)    , allocatable                :: jacobianDet
+    type(IntegratorPtrDT)                                                 :: integrator
+    type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
     nNode = this%getnNode()
     nDof = this%node(1)%getnDof()
     allocate(rhs(nNode*nDof))
+    integrator = this%getIntegrator()
+    d11 = this%material%d11
+    d12 = this%material%d12
+    d21 = this%material%d21
+    d22 = this%material%d22
+    d33 = this%material%d33
+    thickness = this%material%thickness
+    allocate(nodalPoints(nNode))
+    do i = 1, nNode
+       nodalPoints(i) = this%node(i)
+    end do
+    jacobian = this%geometry%jacobianAtGPoints(nodalPoints)
+    jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
     rhs = 0._rkind
     do i = 1, nNode
+       temp = this%node(i)%ptr%dof(1)%val
+       !Deformación plana
+       strain = (1+this%material%poissonCoef)*this%material%thermalCoef*(temp-this%material%stableTemp)
+       !Tensión plana
+       !strain = this%material%thermalCoef*(temp-this%material%stableTemp)
+       val1 = 0._rkind
+       val2 = 0._rkind
+       do j = 1, integrator%getIntegTerms()
+          bi = jacobian(j,2,2)*integrator%getDShapeFunc(j,1,i) &
+               - jacobian(j,1,2)*integrator%getDShapeFunc(j,2,i)
+          ci = jacobian(j,1,1)*integrator%getDShapeFunc(j,2,i) &
+               - jacobian(j,2,1)*integrator%getDShapeFunc(j,1,i)
+          val1 = val1 + integrator%getWeight(j)*bi*(d11*strain+d12*strain)*thickness
+          val2 = val2 + integrator%getWeight(j)*ci*(d21*strain+d22*strain)*thickness
+       end do
+       rhs(i*nDof-1) = rhs(i*nDof-1) + val1
+       rhs(i*nDof)   = rhs(i*nDof)   + val2
+    end do 
+    do i = 1, nNode
        if(this%node(i)%hasSource()) then
-          val1 = this%node(i)%ptr%source(1)%evaluate(1, (/this%node(i)%getx(), this%node(i)%gety()/))
+          val1 = this%node(i)%ptr%source(2)%evaluate(1, (/this%node(i)%getx(), this%node(i)%gety()/))
           val2 = this%node(i)%ptr%source(2)%evaluate(2, (/this%node(i)%getx(), this%node(i)%gety()/))
           rhs(nDof*i-1) = rhs(nDof*i-1) + val1
           rhs(nDof*i)   = rhs(nDof*i)   + val2
        end if
     end do
     if(this%hasSource()) then
-       integrator = this%getIntegrator()
        allocate(valuedSource(2,integrator%getIntegTerms()))
-       allocate(jacobianDet(integrator%getIntegTerms()))
        call this%setupIntegration(integrator, valuedSource, jacobianDet)
        do i = 1, nNode
           val1 = 0._rkind
@@ -277,12 +347,12 @@ contains
        end do
        deallocate(valuedSource)
        deallocate(jacobianDet)
-    end if
+    end if   
   end subroutine calculateRHS
 
   subroutine setupIntegration(this, integrator, valuedSource, jacobianDet)
     implicit none
-    class(StructuralElementDT)                          , intent(inout) :: this
+    class(ThermalStructuralElementDT)                          , intent(inout) :: this
     type(IntegratorPtrDT)                               , intent(in)    :: integrator
     real(rkind), dimension(2,integrator%getIntegTerms()), intent(out)   :: valuedSource
     real(rkind), dimension(integrator%getIntegTerms())  , intent(out)   :: jacobianDet
@@ -299,7 +369,7 @@ contains
 
   function getValuedSource(this, integrator)
     implicit none
-    class(StructuralElementDT), intent(inout) :: this
+    class(ThermalStructuralElementDT), intent(inout) :: this
     type(IntegratorPtrDT) , intent(in) :: integrator
     real(rkind), dimension(2,integrator%getIntegTerms()) :: getValuedSource
     integer(ikind) :: i, j, nNode
@@ -315,13 +385,13 @@ contains
           y = y + integrator%getShapeFunc(i,j)*node(j)%ptr%gety()
        end do
        getValuedSource(1,i) = this%source(1)%evaluate(1, (/x,y/))
-       getValuedSource(2,i) = this%source(2)%evaluate(2, (/x,y/))
+       getValuedSource(2,i) = this%source(1)%evaluate(2, (/x,y/))
     end do
   end function getValuedSource
 
   subroutine calculateResults(this, resultMat)
     implicit none
-    class(StructuralElementDT)                            , intent(inout) :: this
+    class(ThermalStructuralElementDT)                     , intent(inout) :: this
     real(rkind)            , dimension(:,:,:), allocatable, intent(inout) :: resultMat
     integer(ikind)                                                        :: i, iGauss, nNode
     real(rkind)                                                           :: nsx, nsy !NormalStress
@@ -358,11 +428,11 @@ contains
                - jacobian(iGauss,2,1)*integrator%getDShapeFunc(iGauss,1,i)
           dNidx = bi/jacobianDet(iGauss)
           dNidy = ci/jacobianDet(iGauss)
-          nsx = nsx + dNidx*this%node(i)%ptr%dof(1)%val
-          nsy = nsy + dNidy*this%node(i)%ptr%dof(2)%val
-          shs = shs + dNidx*this%node(i)%ptr%dof(2)%val + dNidy*this%node(i)%ptr%dof(1)%val
-          epx = epx + dNidx*this%node(i)%ptr%dof(1)%val
-          epx = epx + dNidy*this%node(i)%ptr%dof(2)%val
+          nsx = nsx + dNidx*this%node(i)%ptr%dof(2)%val
+          nsy = nsy + dNidy*this%node(i)%ptr%dof(3)%val
+          shs = shs + dNidx*this%node(i)%ptr%dof(3)%val + dNidy*this%node(i)%ptr%dof(2)%val
+          epx = epx + dNidx*this%node(i)%ptr%dof(2)%val
+          epy = epy + dNidy*this%node(i)%ptr%dof(3)%val
        end do
        d11 = this%material%d11
        d12 = this%material%d12
@@ -377,4 +447,4 @@ contains
     end do
   end subroutine calculateResults
 
-end module StructuralElementM
+end module ThermalStructuralElementM

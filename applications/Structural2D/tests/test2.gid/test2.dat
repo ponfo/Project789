@@ -7,19 +7,19 @@
 Problem Name: Structural 2D
 
 ###################### Mesh Data ##########################
-Elements_Number........................: 200
+Elements_Number........................: 100
 Nodes_Number...........................: 121
 Are_Elements_Quadratic.................: 0
-Triangular_Elements_Number.............: 200
-Rectangular_Elements_Number............: 0
+Triangular_Elements_Number.............: 0
+Rectangular_Elements_Number............: 100
 Materials_Number.......................: 1
 Gauss_Order............................: 3
 Fix_Displacement_X_Number..............: 11
 Fix_Displacement_Y_Number..............: 11
 Pressure_On_Lines_Condition_elements...: 10
-Load_Number_On_Points..................: 0
+Load_Number_On_Points..................: 1
 Load_Number_On_Surfaces................: 0
-Points_With_Point_Load.................: 0
+Points_With_Point_Load.................: 1
 Surfaces_With_Surface_Load.............: 0
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -163,206 +163,106 @@ Element List:
 
       Element  |      Type      |  Material  |   Nodes  |      Conectivities
 -----------------------------------------------------------------------------------
-         1          Triangle           1          3         91 74 88
-         2          Triangle           1          3         74 73 88
-         3          Triangle           1          3         93 77 91
-         4          Triangle           1          3         77 74 91
-         5          Triangle           1          3         97 82 93
-         6          Triangle           1          3         82 77 93
-         7          Triangle           1          3        101 85 97
-         8          Triangle           1          3         85 82 97
-         9          Triangle           1          3        105 96 101
-        10          Triangle           1          3         96 85 101
-        11          Triangle           1          3        110 104 105
-        12          Triangle           1          3        104 96 105
-        13          Triangle           1          3        114 109 110
-        14          Triangle           1          3        109 104 110
-        15          Triangle           1          3        117 112 114
-        16          Triangle           1          3        112 109 114
-        17          Triangle           1          3        119 116 117
-        18          Triangle           1          3        116 112 117
-        19          Triangle           1          3        121 120 119
-        20          Triangle           1          3        120 116 119
-        21          Triangle           1          3         74 60 73
-        22          Triangle           1          3         60 58 73
-        23          Triangle           1          3         77 64 74
-        24          Triangle           1          3         64 60 74
-        25          Triangle           1          3         82 66 77
-        26          Triangle           1          3         66 64 77
-        27          Triangle           1          3         85 71 82
-        28          Triangle           1          3         71 66 82
-        29          Triangle           1          3         96 81 85
-        30          Triangle           1          3         81 71 85
-        31          Triangle           1          3        104 87 96
-        32          Triangle           1          3         87 81 96
-        33          Triangle           1          3        109 99 104
-        34          Triangle           1          3         99 87 104
-        35          Triangle           1          3        112 107 109
-        36          Triangle           1          3        107 99 109
-        37          Triangle           1          3        116 113 112
-        38          Triangle           1          3        113 107 112
-        39          Triangle           1          3        120 118 116
-        40          Triangle           1          3        118 113 116
-        41          Triangle           1          3         60 47 58
-        42          Triangle           1          3         47 45 58
-        43          Triangle           1          3         64 51 60
-        44          Triangle           1          3         51 47 60
-        45          Triangle           1          3         66 53 64
-        46          Triangle           1          3         53 51 64
-        47          Triangle           1          3         71 61 66
-        48          Triangle           1          3         61 53 66
-        49          Triangle           1          3         81 69 71
-        50          Triangle           1          3         69 61 71
-        51          Triangle           1          3         87 76 81
-        52          Triangle           1          3         76 69 81
-        53          Triangle           1          3         99 86 87
-        54          Triangle           1          3         86 76 87
-        55          Triangle           1          3        107 100 99
-        56          Triangle           1          3        100 86 99
-        57          Triangle           1          3        113 108 107
-        58          Triangle           1          3        108 100 107
-        59          Triangle           1          3        118 115 113
-        60          Triangle           1          3        115 108 113
-        61          Triangle           1          3         47 37 45
-        62          Triangle           1          3         37 35 45
-        63          Triangle           1          3         51 39 47
-        64          Triangle           1          3         39 37 47
-        65          Triangle           1          3         53 42 51
-        66          Triangle           1          3         42 39 51
-        67          Triangle           1          3         61 50 53
-        68          Triangle           1          3         50 42 53
-        69          Triangle           1          3         69 56 61
-        70          Triangle           1          3         56 50 61
-        71          Triangle           1          3         76 65 69
-        72          Triangle           1          3         65 56 69
-        73          Triangle           1          3         86 79 76
-        74          Triangle           1          3         79 65 76
-        75          Triangle           1          3        100 90 86
-        76          Triangle           1          3         90 79 86
-        77          Triangle           1          3        108 103 100
-        78          Triangle           1          3        103 90 100
-        79          Triangle           1          3        115 111 108
-        80          Triangle           1          3        111 103 108
-        81          Triangle           1          3         37 28 35
-        82          Triangle           1          3         28 24 35
-        83          Triangle           1          3         39 29 37
-        84          Triangle           1          3         29 28 37
-        85          Triangle           1          3         42 32 39
-        86          Triangle           1          3         32 29 39
-        87          Triangle           1          3         50 40 42
-        88          Triangle           1          3         40 32 42
-        89          Triangle           1          3         56 46 50
-        90          Triangle           1          3         46 40 50
-        91          Triangle           1          3         65 55 56
-        92          Triangle           1          3         55 46 56
-        93          Triangle           1          3         79 68 65
-        94          Triangle           1          3         68 55 65
-        95          Triangle           1          3         90 80 79
-        96          Triangle           1          3         80 68 79
-        97          Triangle           1          3        103 95 90
-        98          Triangle           1          3         95 80 90
-        99          Triangle           1          3        111 106 103
-       100          Triangle           1          3        106 95 103
-       101          Triangle           1          3         28 19 24
-       102          Triangle           1          3         19 17 24
-       103          Triangle           1          3         29 22 28
-       104          Triangle           1          3         22 19 28
-       105          Triangle           1          3         32 25 29
-       106          Triangle           1          3         25 22 29
-       107          Triangle           1          3         40 31 32
-       108          Triangle           1          3         31 25 32
-       109          Triangle           1          3         46 41 40
-       110          Triangle           1          3         41 31 40
-       111          Triangle           1          3         55 49 46
-       112          Triangle           1          3         49 41 46
-       113          Triangle           1          3         68 62 55
-       114          Triangle           1          3         62 49 55
-       115          Triangle           1          3         80 70 68
-       116          Triangle           1          3         70 62 68
-       117          Triangle           1          3         95 84 80
-       118          Triangle           1          3         84 70 80
-       119          Triangle           1          3        106 102 95
-       120          Triangle           1          3        102 84 95
-       121          Triangle           1          3         19 13 17
-       122          Triangle           1          3         13 11 17
-       123          Triangle           1          3         22 15 19
-       124          Triangle           1          3         15 13 19
-       125          Triangle           1          3         25 20 22
-       126          Triangle           1          3         20 15 22
-       127          Triangle           1          3         31 26 25
-       128          Triangle           1          3         26 20 25
-       129          Triangle           1          3         41 33 31
-       130          Triangle           1          3         33 26 31
-       131          Triangle           1          3         49 43 41
-       132          Triangle           1          3         43 33 41
-       133          Triangle           1          3         62 54 49
-       134          Triangle           1          3         54 43 49
-       135          Triangle           1          3         70 67 62
-       136          Triangle           1          3         67 54 62
-       137          Triangle           1          3         84 83 70
-       138          Triangle           1          3         83 67 70
-       139          Triangle           1          3        102 98 84
-       140          Triangle           1          3         98 83 84
-       141          Triangle           1          3         13 8 11
-       142          Triangle           1          3          8 6 11
-       143          Triangle           1          3         15 9 13
-       144          Triangle           1          3          9 8 13
-       145          Triangle           1          3         20 14 15
-       146          Triangle           1          3         14 9 15
-       147          Triangle           1          3         26 21 20
-       148          Triangle           1          3         21 14 20
-       149          Triangle           1          3         33 30 26
-       150          Triangle           1          3         30 21 26
-       151          Triangle           1          3         43 38 33
-       152          Triangle           1          3         38 30 33
-       153          Triangle           1          3         54 52 43
-       154          Triangle           1          3         52 38 43
-       155          Triangle           1          3         67 63 54
-       156          Triangle           1          3         63 52 54
-       157          Triangle           1          3         83 78 67
-       158          Triangle           1          3         78 63 67
-       159          Triangle           1          3         98 94 83
-       160          Triangle           1          3         94 78 83
-       161          Triangle           1          3          8 4 6
-       162          Triangle           1          3          4 3 6
-       163          Triangle           1          3          9 7 8
-       164          Triangle           1          3          7 4 8
-       165          Triangle           1          3         14 12 9
-       166          Triangle           1          3         12 7 9
-       167          Triangle           1          3         21 18 14
-       168          Triangle           1          3         18 12 14
-       169          Triangle           1          3         30 27 21
-       170          Triangle           1          3         27 18 21
-       171          Triangle           1          3         38 36 30
-       172          Triangle           1          3         36 27 30
-       173          Triangle           1          3         52 48 38
-       174          Triangle           1          3         48 36 38
-       175          Triangle           1          3         63 59 52
-       176          Triangle           1          3         59 48 52
-       177          Triangle           1          3         78 75 63
-       178          Triangle           1          3         75 59 63
-       179          Triangle           1          3         94 92 78
-       180          Triangle           1          3         92 75 78
-       181          Triangle           1          3          4 2 3
-       182          Triangle           1          3          2 1 3
-       183          Triangle           1          3          7 5 4
-       184          Triangle           1          3          5 2 4
-       185          Triangle           1          3         12 10 7
-       186          Triangle           1          3         10 5 7
-       187          Triangle           1          3         18 16 12
-       188          Triangle           1          3         16 10 12
-       189          Triangle           1          3         27 23 18
-       190          Triangle           1          3         23 16 18
-       191          Triangle           1          3         36 34 27
-       192          Triangle           1          3         34 23 27
-       193          Triangle           1          3         48 44 36
-       194          Triangle           1          3         44 34 36
-       195          Triangle           1          3         59 57 48
-       196          Triangle           1          3         57 44 48
-       197          Triangle           1          3         75 72 59
-       198          Triangle           1          3         72 57 59
-       199          Triangle           1          3         92 89 75
-       200          Triangle           1          3         89 72 75
+         1          Quadrilateral           1          4         91 74 73 88
+         2          Quadrilateral           1          4         93 77 74 91
+         3          Quadrilateral           1          4         97 82 77 93
+         4          Quadrilateral           1          4        101 85 82 97
+         5          Quadrilateral           1          4        105 96 85 101
+         6          Quadrilateral           1          4        110 104 96 105
+         7          Quadrilateral           1          4        114 109 104 110
+         8          Quadrilateral           1          4        117 112 109 114
+         9          Quadrilateral           1          4        119 116 112 117
+        10          Quadrilateral           1          4        121 120 116 119
+        11          Quadrilateral           1          4         74 60 58 73
+        12          Quadrilateral           1          4         77 64 60 74
+        13          Quadrilateral           1          4         82 66 64 77
+        14          Quadrilateral           1          4         85 71 66 82
+        15          Quadrilateral           1          4         96 81 71 85
+        16          Quadrilateral           1          4        104 87 81 96
+        17          Quadrilateral           1          4        109 99 87 104
+        18          Quadrilateral           1          4        112 107 99 109
+        19          Quadrilateral           1          4        116 113 107 112
+        20          Quadrilateral           1          4        120 118 113 116
+        21          Quadrilateral           1          4         60 47 45 58
+        22          Quadrilateral           1          4         64 51 47 60
+        23          Quadrilateral           1          4         66 53 51 64
+        24          Quadrilateral           1          4         71 61 53 66
+        25          Quadrilateral           1          4         81 69 61 71
+        26          Quadrilateral           1          4         87 76 69 81
+        27          Quadrilateral           1          4         99 86 76 87
+        28          Quadrilateral           1          4        107 100 86 99
+        29          Quadrilateral           1          4        113 108 100 107
+        30          Quadrilateral           1          4        118 115 108 113
+        31          Quadrilateral           1          4         47 37 35 45
+        32          Quadrilateral           1          4         51 39 37 47
+        33          Quadrilateral           1          4         53 42 39 51
+        34          Quadrilateral           1          4         61 50 42 53
+        35          Quadrilateral           1          4         69 56 50 61
+        36          Quadrilateral           1          4         76 65 56 69
+        37          Quadrilateral           1          4         86 79 65 76
+        38          Quadrilateral           1          4        100 90 79 86
+        39          Quadrilateral           1          4        108 103 90 100
+        40          Quadrilateral           1          4        115 111 103 108
+        41          Quadrilateral           1          4         37 28 24 35
+        42          Quadrilateral           1          4         39 29 28 37
+        43          Quadrilateral           1          4         42 32 29 39
+        44          Quadrilateral           1          4         50 40 32 42
+        45          Quadrilateral           1          4         56 46 40 50
+        46          Quadrilateral           1          4         65 55 46 56
+        47          Quadrilateral           1          4         79 68 55 65
+        48          Quadrilateral           1          4         90 80 68 79
+        49          Quadrilateral           1          4        103 95 80 90
+        50          Quadrilateral           1          4        111 106 95 103
+        51          Quadrilateral           1          4         28 19 17 24
+        52          Quadrilateral           1          4         29 22 19 28
+        53          Quadrilateral           1          4         32 25 22 29
+        54          Quadrilateral           1          4         40 31 25 32
+        55          Quadrilateral           1          4         46 41 31 40
+        56          Quadrilateral           1          4         55 49 41 46
+        57          Quadrilateral           1          4         68 62 49 55
+        58          Quadrilateral           1          4         80 70 62 68
+        59          Quadrilateral           1          4         95 84 70 80
+        60          Quadrilateral           1          4        106 102 84 95
+        61          Quadrilateral           1          4         19 13 11 17
+        62          Quadrilateral           1          4         22 15 13 19
+        63          Quadrilateral           1          4         25 20 15 22
+        64          Quadrilateral           1          4         31 26 20 25
+        65          Quadrilateral           1          4         41 33 26 31
+        66          Quadrilateral           1          4         49 43 33 41
+        67          Quadrilateral           1          4         62 54 43 49
+        68          Quadrilateral           1          4         70 67 54 62
+        69          Quadrilateral           1          4         84 83 67 70
+        70          Quadrilateral           1          4        102 98 83 84
+        71          Quadrilateral           1          4         13 8 6 11
+        72          Quadrilateral           1          4         15 9 8 13
+        73          Quadrilateral           1          4         20 14 9 15
+        74          Quadrilateral           1          4         26 21 14 20
+        75          Quadrilateral           1          4         33 30 21 26
+        76          Quadrilateral           1          4         43 38 30 33
+        77          Quadrilateral           1          4         54 52 38 43
+        78          Quadrilateral           1          4         67 63 52 54
+        79          Quadrilateral           1          4         83 78 63 67
+        80          Quadrilateral           1          4         98 94 78 83
+        81          Quadrilateral           1          4          8 4 3 6
+        82          Quadrilateral           1          4          9 7 4 8
+        83          Quadrilateral           1          4         14 12 7 9
+        84          Quadrilateral           1          4         21 18 12 14
+        85          Quadrilateral           1          4         30 27 18 21
+        86          Quadrilateral           1          4         38 36 27 30
+        87          Quadrilateral           1          4         52 48 36 38
+        88          Quadrilateral           1          4         63 59 48 52
+        89          Quadrilateral           1          4         78 75 59 63
+        90          Quadrilateral           1          4         94 92 75 78
+        91          Quadrilateral           1          4          4 2 1 3
+        92          Quadrilateral           1          4          7 5 2 4
+        93          Quadrilateral           1          4         12 10 5 7
+        94          Quadrilateral           1          4         18 16 10 12
+        95          Quadrilateral           1          4         27 23 16 18
+        96          Quadrilateral           1          4         36 34 23 27
+        97          Quadrilateral           1          4         48 44 34 36
+        98          Quadrilateral           1          4         59 57 44 48
+        99          Quadrilateral           1          4         75 72 57 59
+       100          Quadrilateral           1          4         92 89 72 75
 
 ####################### Loads ############################
 
@@ -370,6 +270,7 @@ Conditions List:
 
 Load   |  Function
 ----------------------
+    1        0.0 10000
 
 ###################### Point Loads ######################
 
@@ -377,6 +278,7 @@ Conditions List:
 
   Node   |  Load
 --------------------------
+   89          1 
 
 ###################### Surface Loads #####################
 
@@ -427,15 +329,15 @@ Conditions List:
 
  Element |       Nodes      |   Pressure
 --------------------------------------------
-  182        2      3          1000
-  162        2      3          1000
-  142        2      3          1000
-  122        2      3          1000
-  102        2      3          1000
-   82        2      3          1000
-   62        2      3          1000
-   42        2      3          1000
-   22        2      3          1000
-    2        2      3          1000
+   91        3      4          1000
+   81        3      4          1000
+   71        3      4          1000
+   61        3      4          1000
+   51        3      4          1000
+   41        3      4          1000
+   31        3      4          1000
+   21        3      4          1000
+   11        3      4          1000
+    1        3      4          1000
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

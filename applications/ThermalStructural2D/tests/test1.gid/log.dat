@@ -1,0 +1,69 @@
+ 7:40:21  Initiating Program
+ 7:40:21    Reading project data
+ 7:40:21      Project name: test1
+ 7:40:21      Path: /home/ponfo/Documents/Project789/applications/ThermalStructural2D/Gid/ThermalStructural2D.gid
+ 7:40:21    Reading mesh data
+ 7:40:21      Number of Elements.............................: 1060
+ 7:40:21      Are Elements Quadratic.........................: 0
+ 7:40:21      Number of Triangular elements..................: 0
+ 7:40:21      Number of Rectangular elements.................: 1060
+ 7:40:21      Number of Nodes................................: 1171
+ 7:40:21      Number of Fix Temperature conditions...........: 22
+ 7:40:21      Number of Fix Displacement X conditions........: 11
+ 7:40:21      Number of Fix Displacement Y conditions........: 11
+ 7:40:21      Number of NormalFluxOnLines conditions.........: 0
+ 7:40:21      Number of ConvectionOnLines conditions.........: 0
+ 7:40:21      Number of Pressure conditions..................: 0
+ 7:40:21      Number of Sources on points....................: 0
+ 7:40:21      Number of Sources on surfaces..................: 0
+ 7:40:21      Number of points with pointSource..............: 0
+ 7:40:21      Number of Surfaces with surfaceSource..........: 0
+ 7:40:21      Number of Loads on points......................: 1
+ 7:40:21      Number of Loads on surfaces....................: 0
+ 7:40:21      Number of points with pointLoad................: 1
+ 7:40:21      Number of Surfaces with surfaceLoad............: 0
+ 7:40:21      Number of Materials............................: 1
+ 7:40:21      Gauss cuadrature order.........................: 3
+ 7:40:21          Allocated weights: 4
+ 7:40:21          Allocated gPoints: 8
+ 7:40:21          Allocated weights: 3
+ 7:40:21          Allocated gPoints: 3
+ 7:40:21          Allocated weights: 4
+ 7:40:21          Allocated gPoints: 8
+ 7:40:21          Allocated weights: 3
+ 7:40:21          Allocated gPoints: 3
+ 7:40:21          Allocated weights: 9
+ 7:40:21          Allocated gPoints: 18
+ 7:40:21          Allocated weights: 3
+ 7:40:21          Allocated gPoints: 3
+ 7:40:21          Allocated weights: 9
+ 7:40:21          Allocated gPoints: 18
+ 7:40:21          Allocated weights: 3
+ 7:40:21          Allocated gPoints: 3
+ 7:40:21          Allocated weights: 4
+ 7:40:21          Allocated gPoints: 8
+ 7:40:21          Allocated weights: 3
+ 7:40:21          Allocated gPoints: 3
+ 7:40:21          Allocated weights: 4
+ 7:40:21          Allocated gPoints: 8
+ 7:40:21          Allocated weights: 3
+ 7:40:21          Allocated gPoints: 3
+ 7:40:21          Allocated weights: 9
+ 7:40:21          Allocated gPoints: 18
+ 7:40:21          Allocated weights: 3
+ 7:40:21          Allocated gPoints: 3
+ 7:40:21          Allocated weights: 9
+ 7:40:21          Allocated gPoints: 18
+ 7:40:21          Allocated weights: 3
+ 7:40:21          Allocated gPoints: 3
+ 7:40:21    Reading materials properties
+ 7:40:21    Reading elements
+ 7:40:21    Reading point and line Sources
+ 7:40:21    Reading Boundary Conditions
+ 7:40:21  End loading data
+ 7:40:21    Assembling stiffness matrix and right hand side vector
+ 7:40:21  solving linear system
+ 7:40:21  done solving
+ 7:40:21    Assembling stiffness matrix and right hand side vector
+ 7:40:21  solving linear system
+ 7:40:21  done solving

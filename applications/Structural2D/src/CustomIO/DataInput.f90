@@ -171,7 +171,7 @@ contains
     do i = 1, nMaterial
        read(project,*) iMat, alpha, E, nu, A, t
        structuralAppl%material(iMat) = structuralMaterial(E, nu, alpha, A, t)
-       if(verbose) print'(4X,I0,7X,2(E10.3,3X))', iMat, alpha, E, nu, A, t 
+       if(verbose) print'(4X,I0,7X,5(E10.3,3X))', iMat, alpha, E, nu, A, t 
     end do
   end subroutine initMaterials
   
@@ -212,7 +212,7 @@ contains
     do i = 1, nSourceOnPoints+nSourceOnSurfaces
        read(project,*) iSource, func(1), func(2)
        structuralAppl%source(iSource) = source(2, 2, (/'x', 'y'/), func)
-       if(verbose) print'(I0,5X,A,A)', iSource, func(1), func(2)
+       if(verbose) print'(I0,5X,30A,30A)', iSource, func(1), func(2)
     end do
     do i = 1, 7
        read(project,*)

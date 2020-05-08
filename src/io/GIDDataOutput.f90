@@ -2,16 +2,16 @@ module GIDDataOutputM
   use UtilitiesM
   implicit none
   private
-  public :: printResults, printForCoupling, finishProgram
+  public :: printResults, initDataOutput, finishProgram
   interface printResults
      procedure :: printResultsVec1
      procedure :: printResults1DVec2
      procedure :: printResults2DVec2
      procedure :: printResults2DVec1
   end interface printResults
-  interface printForCoupling
-     procedure :: printForCoupling
-  end interface printForCoupling
+  interface initDataOutput
+     procedure :: initDataOutput
+  end interface initDataOutput
   interface finishProgram
      procedure :: finishProgram
   end interface finishProgram
@@ -20,13 +20,15 @@ module GIDDataOutputM
   integer(ikind), dimension(8) :: date_time
   character(100)               :: projectName, path
 contains
-  subroutine init()
+  subroutine initDataOutput()
     implicit none
     open(projectData, file = 'projectData.dat')
     read(projectData, '(A)') projectName
     read(projectData, '(A)') path
     close(projectData)
-  end subroutine init
+    open(results, file = trim(projectName)//'.flavia.res')
+    write(results,'(A)')      'GiD Post Result File 1.0'
+  end subroutine initDataOutput
   subroutine printResultsVec1(resultName, step, graphType, locationName, resultNumber&
        , component1)
     implicit none
@@ -34,9 +36,6 @@ contains
     integer(ikind), intent(in)     :: step, resultNumber
     real(rkind), intent(in), dimension(resultNumber*2) :: component1
     character(*), intent(in) :: resultName, graphType, locationName
-    call init()
-    open(results, file = trim(projectName)//'.flavia.res')
-    write(results,'(A)')      'GiD Post Result File 1.0'
     write(results,*)   'Result "',trim(resultName),'" "',trim(projectName)&
          ,'" ',step,' ',trim(graphType),' ',trim(locationName)
     write(results,*)   'Values'
@@ -67,7 +66,6 @@ contains
     real(rkind) :: prom(2)
     integer(ikind) :: i, j, k, count, numberGP
     if(resultNumber == 0) return
-    call init()
     write(results,'(/,3A)') 'GaussPoints "Points'//trim(resultName), '" ElemType ', trim(type)
     write(results,'(A,I0)') 'Number of GaussPoints: ', size(gaussPoints)
     write(results,'(A)') 'Nodes not included'
@@ -82,10 +80,10 @@ contains
     count = 0
     do i = 1, resultNumber
        count = count + 1
-       write(results,'(I0,2X,F26.16,2X,F26.16)') elemID(i), component1(count), 0.0
+       write(results,'(I0,2X,E26.16,2X,E26.16)') elemID(i), component1(count), 0.0
        do j = 2, size(gaussPoints)
           count = count + 1
-          write(results,'(6X,F26.16,2X,F26.16)') component1(count), 0.0
+          write(results,'(6X,E26.16,2X,E26.16)') component1(count), 0.0
        end do
     end do
     write(results,'(A)') 'End Values'
@@ -106,12 +104,11 @@ contains
     real(rkind) :: prom(2)
     integer(ikind) :: i, j, k, count, numberGP
     if(resultNumber == 0) return
-    call init()
     write(results,'(/,3A)') 'GaussPoints "Points'//trim(resultName), '" ElemType ', trim(type)
     write(results,'(A,I0)') 'Number of GaussPoints: ', size(gaussPoints,1)
     write(results,'(A)') 'Natural Coordinates: Given'
     do i = 1, size(gaussPoints,1)
-       write(results,'(F26.16,2X,F26.16)') gaussPoints(i,1), gaussPoints(i,2)
+       write(results,'(E26.16,2X,E26.16)') gaussPoints(i,1), gaussPoints(i,2)
     end do
     write(results,'(A)') 'End gausspoints'
     write(results,'(5A,I0,6A)') 'Result "', trim(resultName), '" "', trim(projectName), '" ', step &
@@ -120,10 +117,10 @@ contains
     count = 0
     do i = 1, resultNumber
        count = count + 1
-       write(results,'(I0,2X,F26.16,2X,F26.16)') elemID(i), component1(count), component2(count)
+       write(results,'(I0,2X,E26.16,2X,E26.16)') elemID(i), component1(count), component2(count)
        do j = 2, size(gaussPoints,1)
           count = count + 1
-          write(results,'(6X,F26.16,2X,F26.16)') component1(count), component2(count)
+          write(results,'(6X,E26.16,2X,E26.16)') component1(count), component2(count)
        end do
     end do
     write(results,'(A)') 'End Values'
@@ -143,12 +140,11 @@ contains
     real(rkind) :: prom(2)
     integer(ikind) :: i, j, k, count, numberGP
     if(resultNumber == 0) return
-    call init()
     write(results,'(/,3A)') 'GaussPoints "Points'//trim(resultName), '" ElemType ', trim(type)
     write(results,'(A,I0)') 'Number of GaussPoints: ', size(gaussPoints,1)
     write(results,'(A)') 'Natural Coordinates: Given'
     do i = 1, size(gaussPoints,1)
-       write(results,'(F26.16,2X,F26.16)') gaussPoints(i,1), gaussPoints(i,2)
+       write(results,'(E26.16,2X,E26.16)') gaussPoints(i,1), gaussPoints(i,2)
     end do
     write(results,'(A)') 'End gausspoints'
     write(results,'(5A,I0,6A)') 'Result "', trim(resultName), '" "', trim(projectName), '" ', step &
@@ -166,27 +162,12 @@ contains
     write(results,'(A)') 'End Values'
   end subroutine printResults2DVec1
 
-  subroutine printForCoupling(nPoint, temperature)
-    implicit none
-    integer(ikind), intent(in) :: nPoint
-    real(rkind), dimension(:), intent(in) :: temperature
-    integer(ikind) :: i
-    open(8, file = 'Temperatures.dat')
-    write(8,'(A)') 'Temperatures for thermal-structural coupling'
-    write(8,'(A)') 'Number of nodes'
-    write(8,'(I0)') nPoint
-    write(8,'(A)')'Node    Temperature'
-    do i = 1, nPoint
-       write(8,'(I7,E16.8)') i, temperature(i)
-    end do
-  end subroutine printForCoupling
-
   subroutine finishProgram()
     implicit none
     close(results)
     !call free()
     call date_and_time(VALUES=date_time)
-    print'(A)','::::::::::::::: Finish FEM2D :::::::::::::::'
+    print'(A)','::::::::::::::: Finish FEM :::::::::::::::'
     print'(A,I0,A,I0,A,I0)', 'Date: ', date_time(3), "/", date_time(2), "/", date_time(1)
     print'(A,I0,A,I0,A,I0)', 'Hour: ', date_time(5), ":", date_time(6), ":", date_time(7)
   end subroutine finishProgram

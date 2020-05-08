@@ -6,12 +6,13 @@ module DataInputM
   use NodePtrM
   use GeometryM
   use SourceM
-  use ThermalMaterialM
+  use StructuralMaterialM
   use ThermalElementM
-  use Thermal2DApplicationM
+  use ThermalStructuralElementM
+  use ThermalStruct2DApplicationM
   use ConvectionOnLineM
   use FluxOnLineM
-  use PressumeM
+  use PressureM
 
   use MeshM
   use ModelM
@@ -50,7 +51,7 @@ module DataInputM
   character(100)               :: projectName
   character(100)               :: path
   character(100)               :: aux
-  logical       , parameter    :: verbose = .false.
+  logical       , parameter    :: verbose = .true.
   logical                      :: isMaterialAsigned = .true.
   
   interface initFEM2D
@@ -141,15 +142,15 @@ contains
     call debugLog('    Number of Materials............................: ', nMaterial)
     call debugLog('    Gauss cuadrature order.........................: ', nGauss)
     
-    thermalStructAppl = thermalStruct2DApplication(            &
-           nNode = nPoint                                      &
-         , nElement = nTriangElem + nRectElem                  &
-         , nNormalFlux = nNormalFlux                           &
-         , nConvection = nConvection                           &
-         , nPressure = nPressure                               &
-         , nSource = nSourceOnPoints + nSourceOnSurfaces       &
-         , nMaterial = nMaterial                               &
-         , nGauss = nGauss                                     )
+    thermalStructAppl = thermalStruct2DApplication(                                  &
+           nNode = nPoint                                                            &
+         , nElement = nTriangElem + nRectElem                                        &
+         , nNormalFlux = nNormalFlux                                                 &
+         , nConvection = nConvection                                                 &
+         , nPressure = nPressure                                                     &
+         , nSource = nSourceOnPoints+nSourceOnSurfaces+nLoadOnPoints+nLoadOnSurfaces &
+         , nMaterial = nMaterial                                                     &
+         , nGauss = nGauss                                                           )
     
     do i = 1, 6
        read(project,*)
@@ -159,9 +160,10 @@ contains
     do i = 1, nPoint
        read(project,*) iPoint, x, y
        if(verbose) print'(3X,I0,3X,E10.3,3X,E10.3,3X,E10.3)', iPoint, x, y
-       thermalStructAppl%node(iPoint) = node(iPoint, 1, x, y)
-       call thermalStructAppl%node(iPoint)%assignDof(1, thermalStructAppl%model%dof(iPoint))
-       call thermalStructAppl%model%addNode(iPoint, thermalStructAppl%node(iPoint))
+       thermalStructAppl%node(iPoint) = node(iPoint, 3, 2, x, y)
+       call thermalStructAppl%node(iPoint)%assignDof(1, thermalStructAppl%thermalModel%dof(iPoint))
+       call thermalStructAppl%thermalModel%addNode(iPoint, thermalStructAppl%node(iPoint))
+       call thermalStructAppl%structuralModel%addNode(iPoint, thermalStructAppl%node(iPoint))
     end do
   end subroutine initMesh
   
@@ -170,14 +172,15 @@ contains
     type(ThermalStruct2DApplicationDT), intent(inout) :: thermalStructAppl
     integer(ikind) :: i, iMat
     real(rkind) :: kx, ky
+    real(rkind) :: alpha, E, nu, A, t, temp0
     do i = 1, 7
        read(project,*)
     end do
-    if(verbose) print'(A)', 'Material         Kx            Ky    '
+    if(verbose) print'(A)', 'Material     Kx    Ky   alpha        E        nu       A       t   temp0'
     do i = 1, nMaterial
-       read(project,*) iMat, kx, ky
-       thermalStructAppl%material(iMat) = thermalStructMaterial(kx, ky)
-       if(verbose) print'(4X,I0,7X,2(E10.3,3X))', iMat, kx, ky 
+       read(project,*) iMat, kx, ky, alpha, E, nu, A, t, temp0
+       thermalStructAppl%material(iMat) = thermalStructuralMaterial(kx, ky, E, nu, alpha, A, t, temp0)
+       if(verbose) print'(4X,I0,7X,8(E10.3,3X))', iMat, kx, ky, alpha, E, nu, A, t, temp0
     end do
   end subroutine initMaterials
   
@@ -198,8 +201,12 @@ contains
        do j = 1, nNode
           call auxNode(j)%associate(thermalStructAppl%node(conectivities(j)))
        end do
-       thermalStructAppl%element(iElem) = thermalStructElement(iElem, auxNode, thermalStructAppl%material(iMat))
-       call thermalStructAppl%model%addElement(i, thermalStructAppl%element(iElem))
+       thermalStructAppl%thermalElement(iElem) = &
+            thermalElement(iElem, auxNode, thermalStructAppl%material(iMat))
+       call thermalStructAppl%thermalModel%addElement(i, thermalStructAppl%thermalElement(iElem))
+       thermalStructAppl%structuralElement(iElem) = &
+            thermalStructuralElement(iElem, auxNode, thermalStructAppl%material(iMat))
+       call thermalStructAppl%structuralModel%addElement(i, thermalStructAppl%structuralElement(iElem))
        deallocate(auxNode)
     end do
   end subroutine initElements
@@ -208,8 +215,8 @@ contains
     implicit none
     type(ThermalStruct2DApplicationDT), intent(inout) :: thermalStructAppl
     integer(ikind)                              :: i, countSource, auxInt
-    integer(ikind)                              :: iNode, iElem, iSource
-    character(150), dimension(1)                :: func
+    integer(ikind)                              :: iNode, iElem, iSource, iLoad
+    character(150), dimension(2)                :: func
     do i = 1, 7
        read(project,*)
     end do
@@ -228,7 +235,7 @@ contains
     do i = 1, nPointSource
        read(project,*) iNode, iSource
        if(verbose) print'(I0,5X,I0)', iNode, iSource
-       call thermalStructAppl%node(iNode)%assignSource(thermalStructAppl%source(iSource))
+       call thermalStructAppl%node(iNode)%assignSource(1, thermalStructAppl%source(iSource))
     end do
     do i = 1, 7
        read(project,*)
@@ -238,7 +245,41 @@ contains
     do i = 1, nSurfaceSource
        read(project,*) iElem, iSource
        if(verbose) print'(I0,5X,I0)', iElem, iSource
-       call thermalStructAppl%element(iElem)%assignSource(thermalStructAppl%source(iSource))
+       call thermalStructAppl%thermalElement(iElem)%assignSource(thermalStructAppl%source(iSource))
+    end do
+    
+    do i = 1, 7
+       read(project,*)
+    end do
+    if(verbose) print'(/,A)', 'nLoad'
+    if(verbose) print'(A)', 'Load    Function'
+    do i = 1, nLoadOnPoints+nLoadOnSurfaces
+       read(project,*) iLoad, func(1), func(2)
+       thermalStructAppl%source(iLoad+nSourceOnPoints+nSourceOnSurfaces) = &
+            source(2, 2, (/'x', 'y'/), func)
+       if(verbose) print'(I0,5X,30A,30A)', iLoad+nSourceOnPoints+nSourceOnSurfaces, func(1), func(2)
+    end do
+    do i = 1, 7
+       read(project,*)
+    end do
+    if(verbose) print'(/,A)', 'pointLoads'
+    if(verbose) print'(A)', 'Node    Load'
+    do i = 1, nPointLoad
+       read(project,*) iNode, iLoad
+       if(verbose) print'(I0,5X,I0)', iNode, iLoad+nSourceOnPoints+nSourceOnSurfaces
+       call thermalStructAppl%node(iNode) &
+            %assignSource(2, thermalStructAppl%source(iLoad+nSourceOnPoints+nSourceOnSurfaces))
+    end do
+    do i = 1, 7
+       read(project,*)
+    end do
+    if(verbose) print'(/,A)', 'surfaceLoads'
+    if(verbose) print'(A)', 'Element   Load'
+    do i = 1, nSurfaceLoad
+       read(project,*) iElem, iLoad
+       if(verbose) print'(I0,5X,I0)', iElem, iLoad+nSourceOnPoints+nSourceOnSurfaces
+       call thermalStructAppl%structuralElement(iElem) &
+            %assignSource(thermalStructAppl%source(iLoad+nSourceOnPoints+nSourceOnSurfaces))
     end do
   end subroutine readPointLineSurfaceSources
 
@@ -250,21 +291,9 @@ contains
     integer(ikind), dimension(:), allocatable    :: pointID
     real(rkind)                                  :: value
     real(rkind)                                  :: coef, temp
-    type(ThermalStructElementDT)                       :: element
+    type(ThermalElementDT)                       :: tElement
+    type(ThermalStructuralElementDT)             :: tsElement
     type(NodePtrDT)  , dimension(:), allocatable :: node
-    do i = 1, 7
-       read(project,*)
-    end do
-    if(verbose) print'(/,A)', 'Dirichlet conditions'
-    if(verbose) print'(A)', 'Node    Value'
-    do i = 1, nDirichlet
-       read(Project,*) id, value
-       if(verbose) print'(I0,5X,E10.3)', id, value
-       call thermalStructAppl%node(id)%fixDof(1, value)
-    end do
-    do i = 1, 7
-       read(project,*)
-    end do
     if(isQuadratic == 0) then
        nPointID = 2
     else
@@ -272,6 +301,40 @@ contains
     end if
     allocate(pointID(nPointID))
     allocate(node(nPointID))
+    do i = 1, 7
+       read(project,*)
+    end do
+    if(verbose) print'(/,A)', 'Fix temperature conditions'
+    if(verbose) print'(A)', 'Node    Value'
+    do i = 1, nFixTemp
+       read(Project,*) id, value
+       if(verbose) print'(I0,5X,E10.3)', id, value
+       call thermalStructAppl%node(id)%fixDof(1, value)
+    end do
+    do i = 1, 7
+       read(project,*)
+    end do
+    if(verbose) print'(/,A)', 'Dirichlet X conditions'
+    if(verbose) print'(A)', 'Node    Value'
+    do i = 1, nFixDisplX
+       read(Project,*) id, value
+       if(verbose) print'(I0,5X,E10.3)', id, value
+       call thermalStructAppl%node(id)%fixDof(2, value)
+    end do
+    do i = 1, 7
+       read(project,*)
+    end do
+    if(verbose) print'(/,A)', 'Dirichlet Y conditions'
+    if(verbose) print'(A)', 'Node    Value'
+    do i = 1, nFixDisplY
+       read(Project,*) id, value
+       if(verbose) print'(I0,5X,E10.3)', id, value
+       call thermalStructAppl%node(id)%fixDof(3, value)
+    end do
+    
+    do i = 1, 7
+       read(project,*)
+    end do
     conditionCounter = 0
     if(verbose) print'(/,A)', 'Normal Flux On Lines conditions'
     if(verbose) print'(A)', 'Elem    Nodes     Value'
@@ -279,12 +342,13 @@ contains
        conditionCounter = conditionCounter + 1
        read(Project,*) elemID, (pointID(j),j=1,nPointID), value
        if(verbose) print*, elemID, (pointID(j),j=1,nPointID), value
-       element = thermalStructAppl%element(elemID)
+       tElement = thermalStructAppl%thermalElement(elemID)
        do j = 1, nPointID
-          node(j) = element%node(pointID(j))
+          node(j) = tElement%node(pointID(j))
        end do
-       thermalStructAppl%normalFluxOL(i) = fluxOnLine(i, pointID, value, node, element%geometry)
-       call thermalStructAppl%model%addCondition(conditionCounter, thermalStructAppl%normalFluxOL(i))
+       thermalStructAppl%normalFluxOL(i) = fluxOnLine(i, pointID, value, node, tElement%geometry)
+       call thermalStructAppl%thermalModel &
+            %addCondition(conditionCounter, thermalStructAppl%normalFluxOL(i))
     end do
     do i = 1, 7
        read(project,*)
@@ -295,12 +359,34 @@ contains
        conditionCounter = conditionCounter + 1
        read(Project,*) elemID, (pointID(j),j=1,nPointID), coef, temp
        if(verbose) print*, elemID, (pointID(j),j=1,nPointID), coef, temp
-       element = thermalStructAppl%element(elemID)
+       tElement = thermalStructAppl%thermalElement(elemID)
        do j = 1, nPointID
-          node(j) = element%node(pointID(j))
+          node(j) = tElement%node(pointID(j))
        end do
-       thermalStructAppl%convectionOL(i) = convectionOnLine(i, pointID, coef, temp, node, element%geometry)
-       call thermalStructAppl%model%addCondition(conditionCounter, thermalStructAppl%convectionOL(i))
+       thermalStructAppl%convectionOL(i) = &
+            convectionOnLine(i, pointID, coef, temp, node, tElement%geometry)
+       call thermalStructAppl%thermalModel &
+            %addCondition(conditionCounter, thermalStructAppl%convectionOL(i))
+    end do
+
+    do i = 1, 7
+       read(project,*)
+    end do
+    conditionCounter = 0
+    if(verbose) print'(/,A)', 'Pressure On Lines conditions'
+    if(verbose) print'(A)', 'Elem    Nodes     Value'
+    do i = 1, nPressure
+       conditionCounter = conditionCounter + 1
+       read(Project,*) elemID, (pointID(j),j=1,nPointID), value
+       if(verbose) print*, elemID, (pointID(j),j=1,nPointID), value
+       tsElement = thermalStructAppl%structuralElement(elemID)
+       do j = 1, nPointID
+          node(j) = tsElement%node(pointID(j))
+       end do
+       thermalStructAppl%pressure(i) = &
+            pressure(i, pointID, value, node, tsElement%geometry, tsElement%material)
+       call thermalStructAppl%structuralModel &
+            %addCondition(conditionCounter, thermalStructAppl%pressure(i))
     end do
     close(project)
   end subroutine readBoundaryConditions

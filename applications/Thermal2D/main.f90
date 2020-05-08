@@ -12,6 +12,7 @@ program main
 
   call initFEM2D(application)
   call thermalStrategy%buildStrategyAndSolve(application%model)
+  call initDataOutput()
   call printResults(resultName = 'Temperature'       &
        , step         = 1                            &
        , graphType    = 'Scalar'                     &

@@ -12,7 +12,7 @@ program main
 
   call initFEM2D(application)
   call structuralStrategy%buildStrategyAndSolve(application%model)
-  
+  call initDataOutput()
   call printResults(resultName = 'Displacement'      &
        , step         = 1                            &
        , graphType    = 'Vector'                     &

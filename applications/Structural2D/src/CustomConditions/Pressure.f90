@@ -22,7 +22,7 @@ module PressureM
   type, extends(ConditionDT) :: PressureDT
      integer(ikind), dimension(:), allocatable :: nodeIDList
      real(rkind)                               :: pressure
-     type(StructuralMaterialDT)  , pointer     :: material
+     class(StructuralMaterialDT) , pointer     :: material
    contains
      procedure, public :: init
 
@@ -39,24 +39,24 @@ contains
 
   type(PressureDT) function constructor(id, nodeIDList, pressure, node, geometry, material)
     implicit none
-    integer(ikind)                          , intent(in) :: id
-    integer(ikind)            , dimension(:), intent(in) :: nodeIDList
-    real(rkind)                             , intent(in) :: pressure
-    type(NodePtrDT)           , dimension(:), intent(in) :: node
-    class(GeometryDT)         , pointer     , intent(in) :: geometry
-    type(StructuralMaterialDT), target      , intent(in) :: material
+    integer(ikind)                           , intent(in) :: id
+    integer(ikind)             , dimension(:), intent(in) :: nodeIDList
+    real(rkind)                              , intent(in) :: pressure
+    type(NodePtrDT)            , dimension(:), intent(in) :: node
+    class(GeometryDT)          , pointer     , intent(in) :: geometry
+    class(StructuralMaterialDT), target      , intent(in) :: material
     call constructor%init(id, nodeIDList, pressure, node, geometry, material)
   end function constructor
 
   subroutine init(this, id, nodeIDList, pressure, node, geometry, material)
     implicit none
-    class(PressureDT)                       , intent(inout) :: this
-    integer(ikind)                          , intent(in)    :: id
-    integer(ikind)            , dimension(:), intent(in)    :: nodeIDList
-    real(rkind)                             , intent(in)    :: pressure
-    type(NodePtrDT)           , dimension(:), intent(in)    :: node
-    class(GeometryDT)         , pointer     , intent(in)    :: geometry
-    type(StructuralMaterialDT), pointer     , intent(in)    :: material
+    class(PressureDT)                        , intent(inout) :: this
+    integer(ikind)                           , intent(in)    :: id
+    integer(ikind)             , dimension(:), intent(in)    :: nodeIDList
+    real(rkind)                              , intent(in)    :: pressure
+    type(NodePtrDT)            , dimension(:), intent(in)    :: node
+    class(GeometryDT)          , pointer     , intent(in)    :: geometry
+    class(StructuralMaterialDT), pointer     , intent(in)    :: material
     this%id = id
     this%affectsLHS = .false.
     this%affectsRHS = .true.
