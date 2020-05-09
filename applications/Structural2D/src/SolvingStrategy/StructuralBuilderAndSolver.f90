@@ -123,15 +123,15 @@ contains
     nDof = 2
     do i = 1, nNode
        node = model%getNode(i)
-       if(node%ptr%dof(1)%isFixed) then
-          nodeID = node%ptr%getID()
-          call model%lhs%setDirichlet(nodeID*nDof-1)
-          model%rhs(nodeID*nDof-1) = node%ptr%dof(1)%fixedVal
-       end if
        if(node%ptr%dof(2)%isFixed) then
           nodeID = node%ptr%getID()
+          call model%lhs%setDirichlet(nodeID*nDof-1)
+          model%rhs(nodeID*nDof-1) = node%ptr%dof(2)%fixedVal
+       end if
+       if(node%ptr%dof(3)%isFixed) then
+          nodeID = node%ptr%getID()
           call model%lhs%setDirichlet(nodeID*nDof)
-          model%rhs(nodeID*nDof) = node%ptr%dof(2)%fixedVal
+          model%rhs(nodeID*nDof) = node%ptr%dof(3)%fixedVal
        end if
     end do
   end subroutine applyDirichlet

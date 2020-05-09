@@ -107,7 +107,7 @@ contains
     type(IntegratorPtrDT)                                                 :: integrator
     type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
     nNode = this%getnNode()
-    nDof = this%node(1)%getnDof()
+    nDof = 2
     d11 = this%material%d11
     d12 = this%material%d12
     d21 = this%material%d21
@@ -178,15 +178,6 @@ contains
           val1 = val1 + integrator%getWeight(j)*bi*(d11*strain+d12*strain)*thickness
           val2 = val2 + integrator%getWeight(j)*ci*(d21*strain+d22*strain)*thickness
        end do
-       print*, 'element ->', this%getID()
-       print*, 'node -> ', i
-       print*, 'temp -> ', temp
-       print*, 'strain -> ', strain
-       print*, 'bi -> ', bi
-       print*, 'ci -> ', ci
-       print*, 'thickness -> ', thickness
-       print*, 'val1 -> ', val1
-       print*, 'val2 -> ', val2
        rhs(i*nDof-1) = rhs(i*nDof-1) + val1
        rhs(i*nDof)   = rhs(i*nDof)   + val2
     end do
@@ -225,7 +216,7 @@ contains
     type(IntegratorPtrDT)                                                 :: integrator
     type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
     nNode = this%getnNode()
-    nDof = this%node(1)%getnDof()
+    nDof = 2
     integrator = this%getIntegrator()
     lhs = leftHandSide(0, 0, nNode*nDof)
     allocate(nodalPoints(nNode))
@@ -287,7 +278,7 @@ contains
     type(IntegratorPtrDT)                                                 :: integrator
     type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
     nNode = this%getnNode()
-    nDof = this%node(1)%getnDof()
+    nDof = 2
     allocate(rhs(nNode*nDof))
     integrator = this%getIntegrator()
     d11 = this%material%d11

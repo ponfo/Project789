@@ -175,10 +175,14 @@ contains
     real(rkind)   , intent(in)    :: x
     real(rkind)   , intent(in)    :: y
     real(rkind)   , intent(in)    :: z
+    integer(ikind)                :: i
     call this%initPoint3D(x, y, z)
     call this%setID(id)
     allocate(this%dof(nDof))
     allocate(this%source(nSource))
+    do i = 1, nDof
+       this%dof(i)%isFixed = .false.
+    end do
   end subroutine initNode3DMultiSource
 
   subroutine assignSourceOne(this, source)
@@ -203,7 +207,7 @@ contains
     class(NodeDT) , intent(inout) :: this
     integer(ikind), intent(in)    :: iDof
     real(rkind)   , intent(in)    :: dof
-    this%dof(iDof) = newDof(dof, .false.)
+    call this%dof(iDof)%assignVal(dof)
   end subroutine assignDof
 
   subroutine fixDof(this, iDof, fixedVal)

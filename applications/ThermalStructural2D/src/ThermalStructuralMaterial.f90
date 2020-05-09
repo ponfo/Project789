@@ -54,7 +54,7 @@ contains
     real(rkind)                , intent(in)    :: area
     real(rkind)                , intent(in)    :: thickness
     real(rkind)                , intent(in)    :: stableTemp
-    real(rkind)                                       :: factor
+    real(rkind)                                :: factor
     this%conductivity = (/kx, ky/)
     this%young        = young
     this%poissonCoef  = poissonCoef

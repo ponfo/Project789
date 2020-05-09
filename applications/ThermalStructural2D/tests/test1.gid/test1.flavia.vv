@@ -1,12 +1,12 @@
 BeginZE /home/ponfo/Documents/Project789/applications/ThermalStructural2D/tests/test1.gid/test1.flavia.vv
-   x -3.67244 13.6724
-   y 6.73885 -5.73885
-   z -16.5831 16.5831
-   e 5.52771
+   x -2.9533 13.9571
+   y 6.58259 -5.58252
+   z -18.2477 18.2477
+   e 6.08255
    v 0 0 0
    r 1
    m 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1
-   c 5 0.5 0
+   c 5.50188 0.500032 0
    pd 0
    pno 0
    pfo 0

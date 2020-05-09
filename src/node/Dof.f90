@@ -14,10 +14,7 @@ module DofM
      procedure, public :: init
      procedure, public :: fixDof
      procedure, public :: freeDof
-
-!!$     procedure, public :: getVal
-!!$     procedure, public :: getFixedVal
-!!$     procedure, public :: getIsFixed
+     procedure, public :: assignVal
   end type DofDT
 
   interface newDof
@@ -42,6 +39,13 @@ contains
     this%isFixed = isFixed
   end subroutine init
 
+  subroutine assignVal(this, dof)
+    implicit none
+    class(DofDT)        , intent(inout) ::this
+    real(rkind) , target, intent(in)    :: dof
+    this%val => dof
+  end subroutine assignVal
+
   subroutine fixDof(this, fixedVal)
     implicit none
     class(DofDT), intent(inout) :: this
@@ -54,9 +58,7 @@ contains
     implicit none
     class(DofDT), intent(inout) :: this
     this%isFixed = .false.
-    deallocate(this%fixedVal)
+    if(allocated(this%fixedVal)) deallocate(this%fixedVal)
   end subroutine freeDof
-
-  
   
 end module DofM
