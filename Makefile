@@ -38,7 +38,9 @@ OBJECTS := $(BINDIR)/Debugger.o                 \
 	$(BINDIR)/Triangle2D6Node.o             \
 	$(BINDIR)/Quadrilateral2D4Node.o        \
 	$(BINDIR)/Quadrilateral2D8Node.o        \
-	$(BINDIR)/GeometryObject.o              \
+	$(BINDIR)/Line3D2Node.o                 \
+	$(BINDIR)/Triangle3D3Node.o             \
+	$(BINDIR)/Tetrahedron3D4Node.o          \
                                                 \
 	$(BINDIR)/Element.o                     \
 	$(BINDIR)/ElementPtr.o                  \
@@ -131,7 +133,11 @@ $(BINDIR)/Quadrilateral2D4Node.o : $(VPATH)/geometry/Quadrilateral2D4Node.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/Quadrilateral2D8Node.o : $(VPATH)/geometry/Quadrilateral2D8Node.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
-$(BINDIR)/GeometryObject.o : $(VPATH)/geometry/GeometryObject.f90
+$(BINDIR)/Line3D2Node.o : $(VPATH)/geometry/Line3D2Node.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/Triangle3D3Node.o : $(VPATH)/geometry/Triangle3D3Node.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/Tetrahedron3D4Node.o : $(VPATH)/geometry/Tetrahedron3D4Node.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 
 $(BINDIR)/FortranParser.o : $(VPATH)/property/FortranParser.f90

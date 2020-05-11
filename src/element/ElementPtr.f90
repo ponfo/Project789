@@ -6,7 +6,6 @@ module ElementPtrM
   use NodePtrM
 
   use GeometryM
-  use GeometryObjectM
 
   use IntegratorPtrM
 

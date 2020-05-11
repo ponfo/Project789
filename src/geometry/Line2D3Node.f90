@@ -59,7 +59,7 @@ contains
     implicit none
     class(Line2D3NodeDT)                       , intent(inout) :: this
     class(NodePtrDT)    , dimension(this%nNode), intent(in)    :: node
-    getLenght = sqrt((node(1)%getx()-node(2)%getx())**2 + node(1)%gety()-node(2)%gety())
+    getLenght = sqrt((node(1)%getx()-node(2)%getx())**2 + (node(1)%gety()-node(2)%gety())**2)
   end function getLenght
 
   function shapeFunc(this, point)
