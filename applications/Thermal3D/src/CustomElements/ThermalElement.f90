@@ -32,6 +32,7 @@ module ThermalElementM
      procedure, public  :: calculateRHS
      procedure, public  :: calculateLocalSystem
      procedure, public  :: calculateResults
+     procedure, public  :: calculateDT
      procedure, private :: setupIntegration
      procedure, private :: getValuedSource
   end type ThermalElementDT
@@ -347,5 +348,11 @@ contains
        resultMat(1,iGauss,3) = -3._rkind*kz*qz
     end do
   end subroutine calculateResults
+
+  subroutine calculateDT(this, dt)
+    implicit none
+    class(ThermalElementDT), intent(inout) :: this
+    real(rkind)            , intent(inout) :: dt
+  end subroutine calculateDT
 
 end module ThermalElementM

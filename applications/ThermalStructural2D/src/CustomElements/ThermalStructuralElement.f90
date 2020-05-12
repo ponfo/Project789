@@ -35,6 +35,7 @@ module ThermalStructuralElementM
      procedure, public  :: calculateRHS
      procedure, public  :: calculateLocalSystem
      procedure, public  :: calculateResults
+     procedure, public  :: calculateDT
      procedure, private :: setupIntegration
      procedure, private :: getValuedSource
   end type ThermalStructuralElementDT
@@ -437,5 +438,11 @@ contains
        resultMat(3,iGauss,2) = epy
     end do
   end subroutine calculateResults
+
+  subroutine calculateDT(this, dt)
+    implicit none
+    class(ThermalStructuralElementDT), intent(inout) :: this
+    real(rkind)                      , intent(inout) :: dt
+  end subroutine calculateDT
 
 end module ThermalStructuralElementM
