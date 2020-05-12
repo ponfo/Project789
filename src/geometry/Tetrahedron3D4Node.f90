@@ -167,15 +167,15 @@ contains
     dsf = this%integrator%dShapeFunc
     do i = 1, this%integrator%integTerms
        do j = 1, this%nNode
-          jacobianAtGPoints(i,1,1) = jacobianAtGPoints(i,1,1) + dsf(i,1,j)*node(i)%getx() !dx/d(xi)
-          jacobianAtGPoints(i,1,2) = jacobianAtGPoints(i,1,2) + dsf(i,1,j)*node(i)%gety() !dy/d(xi)
-          jacobianAtGPoints(i,1,3) = jacobianAtGPoints(i,1,3) + dsf(i,1,j)*node(i)%getz() !dz/d(xi)
-          jacobianAtGPoints(i,2,1) = jacobianAtGPoints(i,2,1) + dsf(i,2,j)*node(i)%getx() !dx/d(eta)
-          jacobianAtGPoints(i,2,2) = jacobianAtGPoints(i,2,2) + dsf(i,2,j)*node(i)%gety() !dy/d(eta)
-          jacobianAtGPoints(i,2,3) = jacobianAtGPoints(i,2,3) + dsf(i,2,j)*node(i)%getz() !dz/d(eta)
-          jacobianAtGPoints(i,3,1) = jacobianAtGPoints(i,3,1) + dsf(i,3,j)*node(i)%getx() !dx/d(zeta)
-          jacobianAtGPoints(i,3,2) = jacobianAtGPoints(i,3,2) + dsf(i,3,j)*node(i)%gety() !dy/d(zeta)
-          jacobianAtGPoints(i,3,3) = jacobianAtGPoints(i,3,3) + dsf(i,3,j)*node(i)%getz() !dz/d(zeta)
+          jacobianAtGPoints(i,1,1) = jacobianAtGPoints(i,1,1) + dsf(i,1,j)*node(j)%getx() !dx/d(xi)
+          jacobianAtGPoints(i,1,2) = jacobianAtGPoints(i,1,2) + dsf(i,1,j)*node(j)%gety() !dy/d(xi)
+          jacobianAtGPoints(i,1,3) = jacobianAtGPoints(i,1,3) + dsf(i,1,j)*node(j)%getz() !dz/d(xi)
+          jacobianAtGPoints(i,2,1) = jacobianAtGPoints(i,2,1) + dsf(i,2,j)*node(j)%getx() !dx/d(eta)
+          jacobianAtGPoints(i,2,2) = jacobianAtGPoints(i,2,2) + dsf(i,2,j)*node(j)%gety() !dy/d(eta)
+          jacobianAtGPoints(i,2,3) = jacobianAtGPoints(i,2,3) + dsf(i,2,j)*node(j)%getz() !dz/d(eta)
+          jacobianAtGPoints(i,3,1) = jacobianAtGPoints(i,3,1) + dsf(i,3,j)*node(j)%getx() !dx/d(zeta)
+          jacobianAtGPoints(i,3,2) = jacobianAtGPoints(i,3,2) + dsf(i,3,j)*node(j)%gety() !dy/d(zeta)
+          jacobianAtGPoints(i,3,3) = jacobianAtGPoints(i,3,3) + dsf(i,3,j)*node(j)%getz() !dz/d(zeta)
        end do
     end do
   end function jacobianAtGPoints

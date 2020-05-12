@@ -1,16 +1,16 @@
 program main
   
   use DataInputM
-  use Thermal2DApplicationM
+  use Thermal3DApplicationM
   use ThermalStrategyM
   use GIDDataOutputM
 
   implicit none
 
-  type(Thermal2DApplicationDT)   :: application
+  type(Thermal3DApplicationDT)   :: application
   type(ThermalStrategyDT)        :: thermalStrategy
 
-  call initFEM2D(application)
+  call initFEM3D(application)
   call thermalStrategy%buildStrategyAndSolve(application%model)
   call initDataOutput()
   call printResults(resultName = 'Temperature'       &
@@ -19,25 +19,16 @@ program main
        , locationName = 'onNodes'                    &
        , resultNumber = application%model%getnNode()  &
        , component1   = application%model%dof         )
-  call printResults(resultName = 'FluxOnTriangs'                     &
-       , type         = 'Triangle'                                   &
-       , step         = 1                                            &
-       , graphType    = 'Vector'                                     &
-       , locationName = 'onGaussPoints'                              &
-       , gaussPoints  = application%model%heatFlux%triangGPoint       &
-       , resultNumber = size(application%model%heatFlux%triangElemID) &
-       , elemID       = application%model%heatFlux%triangElemID       &
-       , component1   = application%model%heatFlux%triangFlux(:,1)    &
-       , component2   = application%model%heatFlux%triangFlux(:,2)    )
-  call printResults(resultName = 'FluxOnQuads'                      &
-       , type         = 'Quadrilateral'                             &
+  call printResults(resultName = 'FluxOnTetras'                     &
+       , type         = 'Tetrahedron'                               &
        , step         = 1                                           &
        , graphType    = 'Vector'                                    &
        , locationName = 'onGaussPoints'                             &
-       , gaussPoints  = application%model%heatFlux%quadGPoint        &
-       , resultNumber = size(application%model%heatFlux%quadElemID)  &
-       , elemID       = application%model%heatFlux%quadElemID        &
-       , component1   = application%model%heatFlux%quadFlux(:,1)     &
-       , component2   = application%model%heatFlux%quadFlux(:,2)    )
+       , gaussPoints  = application%model%heatFlux%tetraGPoint       &
+       , resultNumber = size(application%model%heatFlux%tetraElemID) &
+       , elemID       = application%model%heatFlux%tetraElemID       &
+       , component1   = application%model%heatFlux%tetraFlux(:,1)    &
+       , component2   = application%model%heatFlux%tetraFlux(:,2)    &
+       , component3   = application%model%heatFlux%tetraFlux(:,3)    )
  
 end program main

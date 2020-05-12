@@ -5,11 +5,8 @@ module HeatFluxM
   public :: HeatFluxDT
 
   type :: HeatFluxDT
-     integer(ikind), dimension(:)  , allocatable :: triangElemID
-     real(rkind)   , dimension(:,:), allocatable :: triangGPoint
-     real(rkind)   , dimension(:,:), allocatable :: triangFlux
-     integer(ikind), dimension(:)  , allocatable :: quadElemID
-     real(rkind)   , dimension(:,:), allocatable :: quadGPoint
-     real(rkind)   , dimension(:,:), allocatable :: quadFlux
+     integer(ikind), dimension(:)  , allocatable :: tetraElemID
+     real(rkind)   , dimension(:,:), allocatable :: tetraGPoint
+     real(rkind)   , dimension(:,:), allocatable :: tetraFlux
   end type HeatFluxDT
 end module HeatFluxM

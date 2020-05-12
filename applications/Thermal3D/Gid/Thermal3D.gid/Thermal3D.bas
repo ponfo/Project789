@@ -48,7 +48,7 @@ Coordinates:
 ---------------------------------------------------------
 *set elems(all)
 *loop nodes
-*format "%5i%10.4e%10.4e10.4e"
+*format "%5i%10.4e%10.4e%10.4e"
 *NodesNum       *NodesCoord(1,real)     *NodesCoord(2,real)    *NodesCoord(3,real)
 *end nodes
 
@@ -59,7 +59,7 @@ Materials List:
 Material | Thermal conductivity X | Thermal conductivity Y | Thermal conductivity Z
 -----------------------------------------------------------
 *loop materials
-*format "%5i%10.4e%10.4e10.4e"
+*format "%5i%10.4e%10.4e%10.4e"
 *matnum            *matprop(Thermal_Conductivity_X)               *matprop(Thermal_Conductivity_Y)               *matprop(Thermal_Conductivity_Z)
 *end
 

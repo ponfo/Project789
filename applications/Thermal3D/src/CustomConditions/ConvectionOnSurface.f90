@@ -1,4 +1,4 @@
-module ConvectionOnLineM
+module ConvectionOnSurfaceM
   use UtilitiesM
 
   use PointM
@@ -15,9 +15,9 @@ module ConvectionOnLineM
   implicit none
 
   private
-  public :: ConvectionOnLineDT, convectionOnLine
+  public :: ConvectionOnSurfaceDT, convectionOnSurface
 
-  type, extends(ConditionDT) :: ConvectionOnLineDT
+  type, extends(ConditionDT) :: ConvectionOnSurfaceDT
      integer(ikind), dimension(:), allocatable :: nodeIDList
      real(rkind)                               :: coef
      real(rkind)                               :: temp
@@ -27,15 +27,15 @@ module ConvectionOnLineM
      procedure, public :: calculateLocalSystem
      procedure, public :: calculateLHS
      procedure, public :: calculateRHS
-  end type ConvectionOnLineDT
+  end type ConvectionOnSurfaceDT
 
-  interface convectionOnLine
+  interface convectionOnSurface
      procedure :: constructor
-  end interface convectionOnLine
+  end interface convectionOnSurface
 
 contains
 
-  type(ConvectionOnLineDT) function constructor(id, nodeIDList, coef, temp, node, geometry)
+  type(ConvectionOnSurfaceDT) function constructor(id, nodeIDList, coef, temp, node, geometry)
     implicit none
     integer(ikind)                 , intent(in) :: id
     integer(ikind)   , dimension(:), intent(in) :: nodeIDList
@@ -48,7 +48,7 @@ contains
 
   subroutine init(this, id, nodeIDList, coef, temp, node, geometry)
     implicit none
-    class(ConvectionOnLineDT)      , intent(inout) :: this
+    class(ConvectionOnSurfaceDT)      , intent(inout) :: this
     integer(ikind)                 , intent(in)    :: id
     integer(ikind)   , dimension(:), intent(in)    :: nodeIDList
     real(rkind)                    , intent(in)    :: coef
@@ -67,7 +67,7 @@ contains
 
   subroutine calculateLocalSystem(this, lhs, rhs)
     implicit none
-    class(ConvectionOnLineDT)                             , intent(inout) :: this
+    class(ConvectionOnSurfaceDT)                             , intent(inout) :: this
     type(LeftHandSideDT)                                  , intent(inout) :: lhs
     real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
     integer(ikind)                                                        :: i, j, k
@@ -109,7 +109,7 @@ contains
 
   subroutine calculateLHS(this, lhs)
     implicit none
-    class(ConvectionOnLineDT)                             , intent(inout) :: this
+    class(ConvectionOnSurfaceDT)                             , intent(inout) :: this
     type(LeftHandSideDT)                                  , intent(inout) :: lhs
     integer(ikind)                                                        :: i, j, k
     integer(ikind)                                                        :: nNode
@@ -140,7 +140,7 @@ contains
 
   subroutine calculateRHS(this, rhs)
     implicit none
-    class(ConvectionOnLineDT)                             , intent(inout) :: this
+    class(ConvectionOnSurfaceDT)                             , intent(inout) :: this
     real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
     integer(ikind)                                                        :: i, j
     integer(ikind)                                                        :: nNode
@@ -167,4 +167,4 @@ contains
     end do
   end subroutine calculateRHS
 
-end module ConvectionOnLineM
+end module ConvectionOnSurfaceM

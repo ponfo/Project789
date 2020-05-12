@@ -1,4 +1,4 @@
-module FluxOnLineM
+module FluxOnSurfaceM
   use UtilitiesM
 
   use PointM
@@ -15,9 +15,9 @@ module FluxOnLineM
   implicit none
 
   private
-  public :: FluxOnLineDT, fluxOnLine
+  public :: FluxOnSurfaceDT, fluxOnSurface
 
-  type, extends(ConditionDT) :: FluxOnLineDT
+  type, extends(ConditionDT) :: FluxOnSurfaceDT
      integer(ikind), dimension(:), allocatable :: nodeIDList
      real(rkind)                               :: flux
    contains
@@ -26,15 +26,15 @@ module FluxOnLineM
      procedure, public :: calculateLocalSystem
      procedure, public :: calculateLHS
      procedure, public :: calculateRHS
-  end type FluxOnLineDT
+  end type FluxOnSurfaceDT
 
-  interface fluxOnLine
+  interface fluxOnSurface
      procedure :: constructor
-  end interface fluxOnLine
+  end interface fluxOnSurface
 
 contains
 
-  type(FluxOnLineDT) function constructor(id, nodeIDList, flux, node, geometry)
+  type(FluxOnSurfaceDT) function constructor(id, nodeIDList, flux, node, geometry)
     implicit none
     integer(ikind)                 , intent(in) :: id
     integer(ikind)   , dimension(:), intent(in) :: nodeIDList
@@ -46,7 +46,7 @@ contains
 
   subroutine init(this, id, nodeIDList, flux, node, geometry)
     implicit none
-    class(FluxOnLineDT)            , intent(inout) :: this
+    class(FluxOnSurfaceDT)            , intent(inout) :: this
     integer(ikind)                 , intent(in)    :: id
     integer(ikind)   , dimension(:), intent(in)    :: nodeIDList
     real(rkind)                    , intent(in)    :: flux
@@ -63,7 +63,7 @@ contains
 
   subroutine calculateLocalSystem(this, lhs, rhs)
     implicit none
-    class(FluxOnLineDT)                                   , intent(inout) :: this
+    class(FluxOnSurfaceDT)                                   , intent(inout) :: this
     type(LeftHandSideDT)                                  , intent(inout) :: lhs
     real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
     call this%calculateRHS(rhs)
@@ -71,14 +71,14 @@ contains
 
   subroutine calculateLHS(this, lhs)
     implicit none
-    class(FluxOnLineDT)                                   , intent(inout) :: this
+    class(FluxOnSurfaceDT)                                   , intent(inout) :: this
     type(LeftHandSideDT)                                  , intent(inout) :: lhs
-    print*, 'No LHS component in FluxOnLine condition'
+    print*, 'No LHS component in FluxOnSurface condition'
   end subroutine calculateLHS
 
   subroutine calculateRHS(this, rhs)
     implicit none
-    class(FluxOnLineDT)                                   , intent(inout) :: this
+    class(FluxOnSurfaceDT)                                   , intent(inout) :: this
     real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
     integer(ikind)                                                        :: i, j
     integer(ikind)                                                        :: nNode
@@ -107,5 +107,5 @@ contains
     end do
   end subroutine calculateRHS
 
-end module FluxOnLineM
+end module FluxOnSurfaceM
     

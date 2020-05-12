@@ -2,10 +2,7 @@ module ThermalElementM
 
   use UtilitiesM
 
-  use Triangle2D3NodeM
-  use Triangle2D6NodeM
-  use Quadrilateral2D4NodeM
-  use Quadrilateral2D8NodeM
+  use Tetrahedron3D4NodeM
 
   use IntegratorPtrM
 
@@ -43,10 +40,7 @@ module ThermalElementM
      procedure :: constructor
   end interface thermalElement
 
-  type(Triangle2D3NodeDT)     , target, save :: myTriangle2D3Node
-  type(Triangle2D6NodeDT)     , target, save :: myTriangle2D6Node
-  type(Quadrilateral2D4NodeDT), target, save :: myQuadrilateral2D4Node
-  type(Quadrilateral2D8NodeDT), target, save :: myQuadrilateral2D8Node
+  type(Tetrahedron3D4NodeDT), target, save :: myTetrahedron3D4Node
 
 contains
 
@@ -67,14 +61,8 @@ contains
     this%id = id
     this%node = node
     this%material => material
-    if(size(node) == 3) then
-       this%geometry => myTriangle2D3Node
-    else if(size(node) == 4) then
-       this%geometry => myQuadrilateral2D4Node
-    else if(size(node) == 6) then
-       this%geometry => myTriangle2D6Node
-    else if(size(node) == 8) then
-       this%geometry => myQuadrilateral2D8Node
+    if(size(node) == 4) then
+       this%geometry => myTetrahedron3D4Node
     end if
     allocate(this%source(1))
   end subroutine init
@@ -82,10 +70,7 @@ contains
   subroutine initGeometries(nGauss)
     implicit none
     integer(ikind), intent(in) :: nGauss
-    myTriangle2D3Node = triangle2D3Node(nGauss)
-    myTriangle2D6Node = triangle2D6Node(nGauss)
-    myQuadrilateral2D4Node = quadrilateral2D4Node(nGauss)
-    myQuadrilateral2D8Node = quadrilateral2D8Node(nGauss)
+    myTetrahedron3D4Node = tetrahedron3D4Node(nGauss)
   end subroutine initGeometries
 
   subroutine calculateLocalSystem(this, lhs, rhs)
@@ -94,8 +79,10 @@ contains
     type(LeftHandSideDT)                                  , intent(inout) :: lhs
     real(rkind)            , dimension(:)    , allocatable, intent(inout) :: rhs
     integer(ikind)                                                        :: i, j, k, nNode
-    real(rkind)                                                           :: bi, bj, ci, cj
+    real(rkind)                                                           :: dNidx, dNidy, dNidz
+    real(rkind)                                                           :: dNjdx, dNjdy, dNjdz
     real(rkind)            , dimension(:,:,:), allocatable                :: jacobian
+    real(rkind)            , dimension(:,:,:), allocatable                :: jacobianInv
     real(rkind)            , dimension(:)    , allocatable                :: jacobianDet
     real(rkind)                                                           :: val
     real(rkind)            , dimension(:)    , allocatable                :: valuedSource
@@ -112,24 +99,39 @@ contains
     end do
     jacobian = this%geometry%jacobianAtGPoints(nodalPoints)
     jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
+    allocate(jacobianInv(integrator%getIntegTerms(),3,3))
+    do i = 1, integrator%getIntegTerms()
+       jacobianInv(i,1:3,1:3) = matinv3(jacobian(i,1:3,1:3))
+    end do
     do i = 1, nNode
        do j = 1, nNode
           lhs%stiffness(i,j) = 0._rkind
           do k = 1, integrator%getIntegTerms()
-             bi = jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i)
-             bj = jacobian(k,2,2)*integrator%getDShapeFunc(k,1,j) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,j)
-             ci = jacobian(k,1,1)*integrator%getDShapeFunc(k,2,i) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,i)
-             cj = jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j)
+             dNidx = jacobianInv(k,1,1)*integrator%getDShapeFunc(k,1,i) &
+                  + jacobianInv(k,1,2)*integrator%getDShapeFunc(k,2,i)  &
+                  + jacobianInv(k,1,3)*integrator%getDShapeFunc(k,3,i)
+             dNidy = jacobianInv(k,2,1)*integrator%getDShapeFunc(k,1,i) &
+                  + jacobianInv(k,2,2)*integrator%getDShapeFunc(k,2,i)  &
+                  + jacobianInv(k,2,3)*integrator%getDShapeFunc(k,3,i)
+             dNidz = jacobianInv(k,3,1)*integrator%getDShapeFunc(k,1,i) &
+                  + jacobianInv(k,3,2)*integrator%getDShapeFunc(k,2,i)  &
+                  + jacobianInv(k,3,3)*integrator%getDShapeFunc(k,3,i)
+             dNjdx = jacobianInv(k,1,1)*integrator%getDShapeFunc(k,1,j) &
+                  + jacobianInv(k,1,2)*integrator%getDShapeFunc(k,2,j)  &
+                  + jacobianInv(k,1,3)*integrator%getDShapeFunc(k,3,j)
+             dNjdy = jacobianInv(k,2,1)*integrator%getDShapeFunc(k,1,j) &
+                  + jacobianInv(k,2,2)*integrator%getDShapeFunc(k,2,j)  &
+                  + jacobianInv(k,2,3)*integrator%getDShapeFunc(k,3,j)
+             dNjdz = jacobianInv(k,3,1)*integrator%getDShapeFunc(k,1,j) &
+                  + jacobianInv(k,3,2)*integrator%getDShapeFunc(k,2,j)  &
+                  + jacobianInv(k,3,3)*integrator%getDShapeFunc(k,3,j)
              
-             lhs%stiffness(i,j) = lhs%stiffness(i,j)     &
-                  + integrator%getWeight(k)              &
-                  *(this%material%conductivity(1)*bi*bj  &
-                  + this%material%conductivity(2)*ci*cj) &
-                  / jacobianDet(k)
+             lhs%stiffness(i,j) = lhs%stiffness(i,j)                &
+                  + integrator%getWeight(k)                         &
+                  *(this%material%conductivity(1)*dNidx*dNjdx       &
+                  + this%material%conductivity(2)*dNidy*dNjdy       &
+                  + this%material%conductivity(3)*dNidz*dNjdz)      &
+                  * jacobianDet(k)
           end do
        end do
        if(this%node(i)%hasSource()) then
@@ -151,6 +153,7 @@ contains
        deallocate(valuedSource)
        deallocate(jacobianDet)
     end if
+    deallocate(jacobianInv)
   end subroutine calculateLocalSystem
 
   subroutine calculateLHS(this, lhs)
@@ -158,8 +161,10 @@ contains
     class(ThermalElementDT)                               , intent(inout) :: this
     type(LeftHandSideDT)                                  , intent(inout) :: lhs
     integer(ikind)                                                        :: i, j, k, nNode
-    real(rkind)                                                           :: bi, bj, ci, cj
+    real(rkind)                                                           :: dNidx, dNidy, dNidz
+    real(rkind)                                                           :: dNjdx, dNjdy, dNjdz
     real(rkind)            , dimension(:,:,:), allocatable                :: jacobian
+    real(rkind)            , dimension(:,:,:), allocatable                :: jacobianInv
     real(rkind)            , dimension(:)    , allocatable                :: jacobianDet
     type(IntegratorPtrDT)                                                 :: integrator
     type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
@@ -172,24 +177,39 @@ contains
     end do
     jacobian = this%geometry%jacobianAtGPoints(nodalPoints)
     jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
+    allocate(jacobianInv(integrator%getIntegTerms(),3,3))
+    do i = 1, integrator%getIntegTerms()
+       jacobianInv(i,1:3,1:3) = matinv3(jacobian(i,1:3,1:3))
+    end do
     do i = 1, nNode
        do j = 1, nNode
           lhs%stiffness(i,j) = 0._rkind
           do k = 1, integrator%getIntegTerms()
-             bi = jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i)
-             bj = jacobian(k,2,2)*integrator%getDShapeFunc(k,1,j) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,j)
-             ci = jacobian(k,1,1)*integrator%getDShapeFunc(k,2,i) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,i)
-             cj = jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j)
+             dNidx = jacobianInv(k,1,1)*integrator%getDShapeFunc(k,1,i) &
+                  + jacobianInv(k,1,2)*integrator%getDShapeFunc(k,2,i)  &
+                  + jacobianInv(k,1,3)*integrator%getDShapeFunc(k,3,i)
+             dNidy = jacobianInv(k,2,1)*integrator%getDShapeFunc(k,1,i) &
+                  + jacobianInv(k,2,2)*integrator%getDShapeFunc(k,2,i)  &
+                  + jacobianInv(k,2,3)*integrator%getDShapeFunc(k,3,i)
+             dNidz = jacobianInv(k,3,1)*integrator%getDShapeFunc(k,1,i) &
+                  + jacobianInv(k,3,2)*integrator%getDShapeFunc(k,2,i)  &
+                  + jacobianInv(k,3,3)*integrator%getDShapeFunc(k,3,i)
+             dNjdx = jacobianInv(k,1,1)*integrator%getDShapeFunc(k,1,j) &
+                  + jacobianInv(k,1,2)*integrator%getDShapeFunc(k,2,j)  &
+                  + jacobianInv(k,1,3)*integrator%getDShapeFunc(k,3,j)
+             dNjdy = jacobianInv(k,2,1)*integrator%getDShapeFunc(k,1,j) &
+                  + jacobianInv(k,2,2)*integrator%getDShapeFunc(k,2,j)  &
+                  + jacobianInv(k,2,3)*integrator%getDShapeFunc(k,3,j)
+             dNjdz = jacobianInv(k,3,1)*integrator%getDShapeFunc(k,1,j) &
+                  + jacobianInv(k,3,2)*integrator%getDShapeFunc(k,2,j)  &
+                  + jacobianInv(k,3,3)*integrator%getDShapeFunc(k,3,j)
              
-             lhs%stiffness(i,j) = lhs%stiffness(i,j)     &
-                  + integrator%getWeight(k)              &
-                  *(this%material%conductivity(1)*bi*bj  &
-                  + this%material%conductivity(2)*ci*cj) &
-                  / jacobianDet(k)
+             lhs%stiffness(i,j) = lhs%stiffness(i,j)                &
+                  + integrator%getWeight(k)                         &
+                  *(this%material%conductivity(1)*dNidx*dNjdx       &
+                  + this%material%conductivity(2)*dNidy*dNjdy       &
+                  + this%material%conductivity(3)*dNidz*dNjdz)      &
+                  * jacobianDet(k)
           end do
        end do
     end do
@@ -255,18 +275,20 @@ contains
     type(IntegratorPtrDT) , intent(in) :: integrator
     real(rkind), dimension(integrator%getIntegTerms()) :: getValuedSource
     integer(ikind) :: i, j, nNode
-    real(rkind) :: x, y
+    real(rkind) :: x, y, z
     type(NodePtrDT), dimension(:), allocatable :: node
     nNode = this%getnNode()
     do i = 1, integrator%getIntegTerms()
        node = this%node
        x = 0
        y = 0
+       z = 0
        do j = 1, nNode
           x = x + integrator%getShapeFunc(i,j)*node(j)%ptr%getx()
           y = y + integrator%getShapeFunc(i,j)*node(j)%ptr%gety()
+          z = z + integrator%getShapeFunc(i,j)*node(j)%ptr%getz()
        end do
-       getValuedSource(i) = this%source(1)%evaluate((/x,y/))
+       getValuedSource(i) = this%source(1)%evaluate((/x,y,z/))
     end do
   end function getValuedSource
 
@@ -275,40 +297,54 @@ contains
     class(ThermalElementDT)                               , intent(inout) :: this
     real(rkind)            , dimension(:,:,:), allocatable, intent(inout) :: resultMat
     integer(ikind)                                                        :: i, iGauss, nNode
-    real(rkind)                                                           :: bi, ci, qx, qy, xi, eta
-    real(rkind)                                                           :: dNidx, dNidy, kx, ky
+    real(rkind)                                                           :: qx, qy, qz, xi, eta, zeta
+    real(rkind)                                                           :: kx, ky, kz
+    real(rkind)                                                           :: dNidx, dNidy, dNidz
     real(rkind)            , dimension(:,:,:), allocatable                :: jacobian
+    real(rkind)            , dimension(:,:,:), allocatable                :: jacobianInv
     real(rkind)            , dimension(:)    , allocatable                :: jacobianDet
     type(IntegratorPtrDT)                                                 :: integrator
     type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
     integrator = this%getIntegrator()
     nNode = this%getnNode()
     allocate(nodalPoints(nNode))
-    allocate(resultMat(1,integrator%getIntegTerms(),2))
+    allocate(resultMat(1,integrator%getIntegTerms(),3))
     do i = 1, nNode
        nodalPoints(i) = this%node(i)
     end do
     jacobian = this%geometry%jacobianAtGPoints(nodalPoints)
     jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
+    allocate(jacobianInv(integrator%getIntegTerms(),3,3))
+    do i = 1, integrator%getIntegTerms()
+       jacobianInv(i,1:3,1:3) = matinv3(jacobian(i,1:3,1:3))
+    end do
     do iGauss = 1, integrator%getIntegTerms()
        xi = integrator%getGPoint(iGauss,1)
        eta = integrator%getGPoint(iGauss,2)
+       zeta = integrator%getGPoint(iGauss,3)
        qx = 0._rkind
        qy = 0._rkind
+       qz = 0._rkind
        do i = 1, nNode
-          bi = jacobian(iGauss,2,2)*integrator%getDShapeFunc(iGauss,1,i) &
-               - jacobian(iGauss,1,2)*integrator%getDShapeFunc(iGauss,2,i)
-          ci = jacobian(iGauss,1,1)*integrator%getDShapeFunc(iGauss,2,i) &
-               - jacobian(iGauss,2,1)*integrator%getDShapeFunc(iGauss,1,i)
-          dNidx = bi/jacobianDet(iGauss)
-          dNidy = ci/jacobianDet(iGauss)
+          dNidx = jacobianInv(iGauss,1,1)*integrator%getDShapeFunc(iGauss,1,i) &
+               + jacobianInv(iGauss,1,2)*integrator%getDShapeFunc(iGauss,2,i)  &
+               + jacobianInv(iGauss,1,3)*integrator%getDShapeFunc(iGauss,3,i)
+          dNidy = jacobianInv(iGauss,2,1)*integrator%getDShapeFunc(iGauss,1,i) &
+               + jacobianInv(iGauss,2,2)*integrator%getDShapeFunc(iGauss,2,i)  &
+               + jacobianInv(iGauss,2,3)*integrator%getDShapeFunc(iGauss,3,i)
+          dNidz = jacobianInv(iGauss,3,1)*integrator%getDShapeFunc(iGauss,1,i) &
+               + jacobianInv(iGauss,3,2)*integrator%getDShapeFunc(iGauss,2,i)  &
+               + jacobianInv(iGauss,3,3)*integrator%getDShapeFunc(iGauss,3,i)
           qx = qx + dNidx*this%node(i)%ptr%dof(1)%val
           qy = qy + dNidy*this%node(i)%ptr%dof(1)%val
+          qz = qz + dNidz*this%node(i)%ptr%dof(1)%val
        end do
        kx = this%material%conductivity(1)
        ky = this%material%conductivity(2)
+       kz = this%material%conductivity(3)
        resultMat(1,iGauss,1) = -1._rkind*kx*qx
        resultMat(1,iGauss,2) = -1._rkind*ky*qy
+       resultMat(1,iGauss,3) = -3._rkind*kz*qz
     end do
   end subroutine calculateResults
 

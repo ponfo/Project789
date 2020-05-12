@@ -30,71 +30,51 @@ contains
     implicit none
     class(ThermalSchemeDT), intent(inout)          :: this
     class(ThermalModelDT), intent(inout)                 :: model
-    logical                                              :: firstTriang = .true.
+    logical                                              :: firstTetra = .true.
     logical                                              :: firstQuad = .true.
-    integer(ikind)                                       :: iElem, iGauss, nNode, nTriang, nQuad
-    integer(ikind)                                       :: triangCounter, quadCounter
-    integer(ikind)                                       :: triangPointCounter, quadPointCounter
-    integer(ikind)                                       :: nElem, nGauss, nPointsTriang, nPointsQuad
+    integer(ikind)                                       :: iElem, iGauss, nNode, nTetra
+    integer(ikind)                                       :: tetraCounter
+    integer(ikind)                                       :: tetraPointCounter
+    integer(ikind)                                       :: nElem, nGauss, nPointsTetra
     real(rkind)          , dimension(:,:,:), allocatable :: localResultMat
     type(ElementPtrDT)                                   :: element
     type(IntegratorPtrDT)                                :: integrator
     write(*,*) '***  Direct Scheme ***'
     write(*,*) '*** Calculate Flux ***'
     nElem = model%getnElement()
-    nPointsTriang = 0
-    nTriang = 0
-    nPointsQuad = 0
-    nQuad = 0
+    nPointsTetra = 0
+    nTetra = 0
     do iElem = 1, nElem
        element = model%getElement(iElem)
        nNode = element%getnNode()
        integrator = element%getIntegrator()
        nGauss = integrator%getIntegTerms()
        if(nNode == 3 .or. nNode == 6) then
-          nPointsTriang = nPointsTriang + nGauss
-          nTriang = nTriang + 1
-          if(firstTriang) then
-             model%heatFlux%triangGPoint = integrator%getGPointFull()
-             firstTriang = .false.
-          end if
-       else if(nNode == 4 .or. nNode == 8) then
-          nPointsQuad = nPointsQuad + nGauss
-          nQuad = nQuad + 1
-          if(firstQuad) then
-             model%heatFlux%quadGPoint = integrator%getGPointFull()
-             firstQuad = .false.
+          nPointsTetra = nPointsTetra + nGauss
+          nTetra = nTetra + 1
+          if(firstTetra) then
+             model%heatFlux%tetraGPoint = integrator%getGPointFull()
+             firstTetra = .false.
           end if
        end if
     end do
-    allocate(model%heatFlux%triangElemID(nTriang))
-    allocate(model%heatFlux%triangFlux(nPointsTriang,2))
-    allocate(model%heatFlux%quadElemID(nQuad))
-    allocate(model%heatFlux%quadFlux(nPointsQuad,2))
-    triangCounter = 0
-    triangPointCounter = 0
-    quadCounter = 0
-    quadPointCounter = 0
+    allocate(model%heatFlux%tetraElemID(nTetra))
+    allocate(model%heatFlux%tetraFlux(nPointsTetra,3))
+    tetraCounter = 0
+    tetraPointCounter = 0
     do iElem = 1, nElem
        element = model%getElement(iElem)
        nNode = element%getnNode()
        call element%calculateResults(localResultMat)
        nGauss = size(localResultMat,2)
        if(nNode == 3 .or. nNode == 6) then
-          triangCounter = triangCounter + 1
-          model%heatFlux%triangElemID(triangCounter) = iElem
+          tetraCounter = tetraCounter + 1
+          model%heatFlux%tetraElemID(tetraCounter) = iElem
           do iGauss = 1, nGauss
-             triangPointCounter = triangPointCounter + 1
-             model%heatFlux%triangFlux(triangPointCounter,1) = localResultMat(1,iGauss,1)
-             model%heatFlux%triangFlux(triangPointCounter,2) = localResultMat(1,iGauss,2)
-          end do
-       else if(nNode == 4 .or. nNode == 8) then
-          quadCounter = quadCounter + 1
-          model%heatFlux%quadElemID(quadCounter) = iElem
-          do iGauss = 1, nGauss
-             quadPointCounter = quadPointCounter + 1
-             model%heatFlux%quadFlux(quadPointCounter,1) = localResultMat(1,iGauss,1)
-             model%heatFlux%quadFlux(quadPointCounter,2) = localResultMat(1,iGauss,2)
+             tetraPointCounter = tetraPointCounter + 1
+             model%heatFlux%tetraFlux(tetraPointCounter,1) = localResultMat(1,iGauss,1)
+             model%heatFlux%tetraFlux(tetraPointCounter,2) = localResultMat(1,iGauss,2)
+             model%heatFlux%tetraFlux(tetraPointCounter,3) = localResultMat(1,iGauss,3)
           end do
        end if
        deallocate(localResultMat)

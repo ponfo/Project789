@@ -8,9 +8,9 @@ module DataInputM
   use SourceM
   use ThermalMaterialM
   use ThermalElementM
-  use Thermal2DApplicationM
-  use ConvectionOnLineM
-  use FluxOnLineM
+  use Thermal3DApplicationM
+  use ConvectionOnSurfaceM
+  use FluxOnSurfaceM
 
   use MeshM
   use ModelM
@@ -18,15 +18,14 @@ module DataInputM
   implicit none
   
   private
-  public :: initFEM2D
+  public :: initFEM3D
   
   integer(ikind), parameter    :: projectData = 1
   integer(ikind), parameter    :: project = 2
   integer(ikind), parameter    :: functions = 4
   integer(ikind), dimension(8) :: date_time
   integer(ikind)               :: nElem
-  integer(ikind)               :: nTriangElem
-  integer(ikind)               :: nRectElem
+  integer(ikind)               :: nTetraElem
   integer(ikind)               :: nPoint
   integer(ikind)               :: iPoint
   integer(ikind)               :: nNormalFlux
@@ -36,26 +35,25 @@ module DataInputM
   integer(ikind)               :: nConvection
   integer(ikind)               :: isQuadratic
   integer(ikind)               :: nSourceOnPoints
-  integer(ikind)               :: nSourceOnSurfaces
+  integer(ikind)               :: nSourceOnVolumes
   integer(ikind)               :: nPointSource
-  integer(ikind)               :: nLineSource
-  integer(ikind)               :: nSurfaceSource
+  integer(ikind)               :: nVolumeSource
   character(100)               :: projectName
   character(100)               :: path
   character(100)               :: aux
   logical       , parameter    :: verbose = .false.
   logical                      :: isMaterialAsigned = .true.
   
-  interface initFEM2D
-     procedure :: initFEM2D
-  end interface initFEM2D
+  interface initFEM3D
+     procedure :: initFEM3D
+  end interface initFEM3D
   
 contains
   
-  subroutine initFEM2D(thermalAppl)
+  subroutine initFEM3D(thermalAppl)
     implicit none
-    type(Thermal2DApplicationDT), intent(inout) :: thermalAppl
-    print'(A)', 'Initializing Thermal2D application'
+    type(Thermal3DApplicationDT), intent(inout) :: thermalAppl
+    print'(A)', 'Initializing Thermal3D application'
     call initLog(.true., 'log.dat')
     call debugLog('  Reading project data')
     call readProjectData
@@ -66,11 +64,11 @@ contains
     call debugLog('  Reading elements')
     call initElements(thermalAppl)
     call debugLog('  Reading point and line Sources')
-    call readPointLineSurfaceSources(thermalAppl)
+    call readSources(thermalAppl)
     call debugLog('  Reading Boundary Conditions')
     call readBoundaryConditions(thermalAppl)
     call debugLog('End loading data')
-  end subroutine initFEM2D
+  end subroutine initFEM3D
   
   subroutine readProjectData
     implicit none
@@ -84,7 +82,7 @@ contains
   
   subroutine initMesh(thermalAppl)
     implicit none
-    type(Thermal2DApplicationDT), intent(inout) :: thermalAppl
+    type(Thermal3DApplicationDT), intent(inout) :: thermalAppl
     integer(ikind) :: i
     real(rkind)    :: x, y, z
     open(project, file = trim(projectName)//'.dat')
@@ -94,38 +92,34 @@ contains
     read(project,*)  aux, nElem
     read(project,*)  aux, nPoint
     read(project,*)  aux, isQuadratic
-    read(project,*)  aux, nTriangElem
-    read(project,*)  aux, nRectElem
     read(project,*)  aux, nMaterial
     read(project,*)  aux, nGauss    
     read(project,*)  aux, nDirichlet
     read(project,*)  aux, nNormalFlux
     read(project,*)  aux, nConvection
     read(project,*)  aux, nSourceOnPoints
-    read(project,*)  aux, nSourceOnSurfaces
+    read(project,*)  aux, nSourceOnVolumes
     read(project,*)  aux, nPointSource
-    read(project,*)  aux, nSurfaceSource
+    read(project,*)  aux, nVolumeSource
     call debugLog('    Number of Elements.............................: ', nElem)
     call debugLog('    Are Elements Quadratic.........................: ', isQuadratic)
-    call debugLog('    Number of Triangular elements..................: ', nTriangElem)
-    call debugLog('    Number of Rectangular elements.................: ', nRectElem)
     call debugLog('    Number of Nodes................................: ', nPoint)
     call debugLog('    Number of Dirichlet conditions.................: ', nDirichlet)
-    call debugLog('    Number of NormalFluxOnLines conditions.........: ', nNormalFlux)   
-    call debugLog('    Number of ConvectionOnLines conditions.........: ', nConvection)    
+    call debugLog('    Number of NormalFluxOnSurfaces conditions......: ', nNormalFlux)   
+    call debugLog('    Number of ConvectionOnSurfaces conditions......: ', nConvection)    
     call debugLog('    Number of Sources on points....................: ', nSourceOnPoints) 
-    call debugLog('    Number of Sources on surfaces..................: ', nSourceOnSurfaces)
+    call debugLog('    Number of Sources on surfaces..................: ', nSourceOnVolumes)
     call debugLog('    Number of points with pointSource..............: ', nPointSource)
-    call debugLog('    Number of Surfaces with surfaceSource..........: ', nSurfaceSource)
+    call debugLog('    Number of Volumes with volumeSource............: ', nVolumeSource)
     call debugLog('    Number of Materials............................: ', nMaterial)
     call debugLog('    Gauss cuadrature order.........................: ', nGauss)
     
-    thermalAppl = thermal2DApplication(                        &
+    thermalAppl = thermal3DApplication(                        &
            nNode = nPoint                                      &
-         , nElement = nTriangElem + nRectElem                  &
+         , nElement = nElem                                    &
          , nNormalFlux = nNormalFlux                           &
          , nConvection = nConvection                           &
-         , nSource = nSourceOnPoints + nSourceOnSurfaces       &
+         , nSource = nSourceOnPoints + nSourceOnVolumes        &
          , nMaterial = nMaterial                               &
          , nGauss = nGauss                                     )
     
@@ -133,11 +127,11 @@ contains
        read(project,*)
     end do
     if(verbose) print'(A)', 'Coordinates:'
-    if(verbose) print'(1X,A)', 'NODES      X          Y'
+    if(verbose) print'(1X,A)', 'NODES      X          Y          Z'
     do i = 1, nPoint
-       read(project,*) iPoint, x, y
-       if(verbose) print'(3X,I0,3X,E10.3,3X,E10.3,3X,E10.3)', iPoint, x, y
-       thermalAppl%node(iPoint) = node(iPoint, 1, x, y)
+       read(project,*) iPoint, x, y, z
+       if(verbose) print'(3X,I0,3X,E10.3,3X,E10.3,3X,E10.3,3X,E10.3)', iPoint, x, y, z
+       thermalAppl%node(iPoint) = node(iPoint, 1, x, y, z)
        call thermalAppl%node(iPoint)%assignDof(1, thermalAppl%model%dof(iPoint))
        call thermalAppl%model%addNode(iPoint, thermalAppl%node(iPoint))
     end do
@@ -145,22 +139,22 @@ contains
   
   subroutine initMaterials(thermalAppl)
     implicit none
-    type(Thermal2DApplicationDT), intent(inout) :: thermalAppl
+    type(Thermal3DApplicationDT), intent(inout) :: thermalAppl
     integer(ikind) :: i, iMat
-    real(rkind) :: kx, ky
+    real(rkind) :: kx, ky, kz
     do i = 1, 7
        read(project,*)
     end do
-    if(verbose) print'(A)', 'Material         Kx            Ky    '
+    if(verbose) print'(A)', 'Material         Kx            Ky            Kz'
     do i = 1, nMaterial
-       read(project,*) iMat, kx, ky
-       thermalAppl%material(iMat) = thermalMaterial(kx, ky)
-       if(verbose) print'(4X,I0,7X,2(E10.3,3X))', iMat, kx, ky 
+       read(project,*) iMat, kx, ky, kz
+       thermalAppl%material(iMat) = thermalMaterial(kx, ky, kz)
+       if(verbose) print'(4X,I0,7X,3(E10.3,3X))', iMat, kx, ky, kz
     end do
   end subroutine initMaterials
   
   subroutine initElements(thermalAppl)
-    type(Thermal2DApplicationDT), intent(inout) :: thermalAppl
+    type(Thermal3DApplicationDT), intent(inout) :: thermalAppl
     type(NodePtrDT), dimension(:), allocatable :: auxNode
     integer(ikind) :: i, j, iElem, iMat, nNode, Conectivities(8)
     character(len=13) :: type
@@ -182,9 +176,9 @@ contains
     end do
   end subroutine initElements
   
-  subroutine readPointLineSurfaceSources(thermalAppl)
+  subroutine readSources(thermalAppl)
     implicit none
-    type(Thermal2DApplicationDT), intent(inout) :: thermalAppl
+    type(Thermal3DApplicationDT), intent(inout) :: thermalAppl
     integer(ikind)                              :: i, countSource, auxInt
     integer(ikind)                              :: iNode, iElem, iSource
     character(150), dimension(1)                :: func
@@ -193,9 +187,9 @@ contains
     end do
     if(verbose) print'(/,A)', 'nSource'
     if(verbose) print'(A)', 'Source    Function'
-    do i = 1, nSourceOnPoints+nSourceOnSurfaces
+    do i = 1, nSourceOnPoints+nSourceOnVolumes
        read(project,*) iSource, func(1)
-       thermalAppl%source(iSource) = source(2, 1, (/'x', 'y'/), func)
+       thermalAppl%source(iSource) = source(3, 1, (/'x', 'y', 'z'/), func)
        if(verbose) print'(I0,5X,A)', iSource, func(1)
     end do
     do i = 1, 7
@@ -213,16 +207,16 @@ contains
     end do
     if(verbose) print'(/,A)', 'surfaceSources'
     if(verbose) print'(A)', 'Element   Source'
-    do i = 1, nSurfaceSource
+    do i = 1, nVolumeSource
        read(project,*) iElem, iSource
        if(verbose) print'(I0,5X,I0)', iElem, iSource
        call thermalAppl%element(iElem)%assignSource(thermalAppl%source(iSource))
     end do
-  end subroutine readPointLineSurfaceSources
+  end subroutine readSources
 
   subroutine readBoundaryConditions(thermalAppl)
     implicit none
-    type(Thermal2DApplicationDT), intent(inout)  :: thermalAppl
+    type(Thermal3DApplicationDT), intent(inout)  :: thermalAppl
     integer(ikind)                               :: i, j, id, elemID, nPointID
     integer(ikind)                               :: iPoint, conditionCounter
     integer(ikind), dimension(:), allocatable    :: pointID
@@ -251,7 +245,7 @@ contains
     allocate(pointID(nPointID))
     allocate(node(nPointID))
     conditionCounter = 0
-    if(verbose) print'(/,A)', 'Normal Flux On Lines conditions'
+    if(verbose) print'(/,A)', 'Normal Flux On Surfaces conditions'
     if(verbose) print'(A)', 'Elem    Nodes     Value'
     do i = 1, nNormalFlux
        conditionCounter = conditionCounter + 1
@@ -261,13 +255,13 @@ contains
        do j = 1, nPointID
           node(j) = element%node(pointID(j))
        end do
-       thermalAppl%normalFluxOL(i) = fluxOnLine(i, pointID, value, node, element%geometry)
-       call thermalAppl%model%addCondition(conditionCounter, thermalAppl%normalFluxOL(i))
+       thermalAppl%normalFluxOS(i) = fluxOnSurface(i, pointID, value, node, element%geometry)
+       call thermalAppl%model%addCondition(conditionCounter, thermalAppl%normalFluxOS(i))
     end do
     do i = 1, 7
        read(project,*)
     end do
-    if(verbose) print'(/,A)', 'Convection On Lines conditions'
+    if(verbose) print'(/,A)', 'Convection On Surfaces conditions'
     if(verbose) print'(A)', 'Elem    Nodes     Coef     Temp'
     do i = 1, nConvection
        conditionCounter = conditionCounter + 1
@@ -277,8 +271,8 @@ contains
        do j = 1, nPointID
           node(j) = element%node(pointID(j))
        end do
-       thermalAppl%convectionOL(i) = convectionOnLine(i, pointID, coef, temp, node, element%geometry)
-       call thermalAppl%model%addCondition(conditionCounter, thermalAppl%convectionOL(i))
+       thermalAppl%convectionOS(i) = convectionOnSurface(i, pointID, coef, temp, node, element%geometry)
+       call thermalAppl%model%addCondition(conditionCounter, thermalAppl%convectionOS(i))
     end do
     close(project)
   end subroutine readBoundaryConditions

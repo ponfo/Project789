@@ -11,14 +11,14 @@ FFLAGSDebug 	:=  -O0 -fpp -check bounds -traceback -warn nounused -module $(OBJE
 
 OBJECTS := $(BINDIR)/ThermalMaterial.o      \
 	$(BINDIR)/ThermalElement.o          \
-	$(BINDIR)/ConvectionOnLine.o        \
-	$(BINDIR)/FluxOnLine.o              \
+	$(BINDIR)/ConvectionOnSurface.o     \
+	$(BINDIR)/FluxOnSurface.o           \
 	$(BINDIR)/HeatFlux.o                \
 	$(BINDIR)/ThermalModel.o            \
 	$(BINDIR)/ThermalBuilderAndSolver.o \
 	$(BINDIR)/ThermalScheme.o           \
 	$(BINDIR)/ThermalStrategy.o         \
-	$(BINDIR)/Thermal2DApplication.o    \
+	$(BINDIR)/Thermal3DApplication.o    \
 	$(BINDIR)/DataInput.o               \
 	$(BINDIR)/main.o
 
@@ -39,9 +39,9 @@ $(BINDIR)/ThermalMaterial.o : $(VPATH)/ThermalMaterial.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/ThermalElement.o : $(VPATH)/CustomElements/ThermalElement.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
-$(BINDIR)/ConvectionOnLine.o : $(VPATH)/CustomConditions/ConvectionOnLine.f90
+$(BINDIR)/ConvectionOnSurface.o : $(VPATH)/CustomConditions/ConvectionOnSurface.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
-$(BINDIR)/FluxOnLine.o : $(VPATH)/CustomConditions/FluxOnLine.f90
+$(BINDIR)/FluxOnSurface.o : $(VPATH)/CustomConditions/FluxOnSurface.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/HeatFlux.o : $(VPATH)/CustomResult/HeatFlux.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
@@ -53,7 +53,7 @@ $(BINDIR)/ThermalScheme.o : $(VPATH)/SolvingStrategy/ThermalScheme.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/ThermalStrategy.o : $(VPATH)/SolvingStrategy/ThermalStrategy.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
-$(BINDIR)/Thermal2DApplication.o : $(VPATH)/Thermal2DApplication.f90
+$(BINDIR)/Thermal3DApplication.o : $(VPATH)/Thermal3DApplication.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/DataInput.o : $(VPATH)/CustomIO/DataInput.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@

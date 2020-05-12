@@ -6,8 +6,9 @@ module GIDDataOutputM
   interface printResults
      procedure :: printResultsVec1
      procedure :: printResults1DVec2
-     procedure :: printResults2DVec2
      procedure :: printResults2DVec1
+     procedure :: printResults2DVec2
+     procedure :: printResults3DVec3
   end interface printResults
   interface initDataOutput
      procedure :: initDataOutput
@@ -161,6 +162,44 @@ contains
     end do
     write(results,'(A)') 'End Values'
   end subroutine printResults2DVec1
+  subroutine printResults3DVec3(resultName, type, step, graphType, locationName, gaussPoints &
+       , resultNumber, elemID, component1, component2, component3)
+    implicit none
+    character(*), intent(in) :: resultName
+    character(*), intent(in) :: type
+    integer(ikind), intent(in) :: step
+    character(*), intent(in) :: graphType
+    character(*), intent(in) :: locationName
+    real(rkind), dimension(:,:), intent(in) :: gaussPoints
+    integer(ikind), intent(in) :: resultNumber
+    integer(ikind), dimension(resultNumber), intent(in) :: elemID
+    real(rkind), dimension(:), intent(in) :: component1
+    real(rkind), dimension(:), intent(in) :: component2
+    real(rkind), dimension(:), intent(in) :: component3
+    real(rkind) :: prom(2)
+    integer(ikind) :: i, j, k, count, numberGP
+    if(resultNumber == 0) return
+    write(results,'(/,3A)') 'GaussPoints "Points'//trim(resultName), '" ElemType ', trim(type)
+    write(results,'(A,I0)') 'Number of GaussPoints: ', size(gaussPoints,1)
+    write(results,'(A)') 'Natural Coordinates: Given'
+    do i = 1, size(gaussPoints,1)
+       write(results,'(E26.16,2(2X,E26.16))') gaussPoints(i,1), gaussPoints(i,2), gaussPoints(i,3)
+    end do
+    write(results,'(A)') 'End gausspoints'
+    write(results,'(5A,I0,6A)') 'Result "', trim(resultName), '" "', trim(projectName), '" ', step &
+         , ' ', trim(graphType), ' ', trim(locationName), ' "Points'//trim(resultName) , '"'
+    write(results,'(A)') 'Values'
+    count = 0
+    do i = 1, resultNumber
+       count = count + 1
+       write(results,'(I0,3(2X,E26.16))') elemID(i), component1(count), component2(count), component3(count)
+       do j = 2, size(gaussPoints,1)
+          count = count + 1
+          write(results,'(6X,E26.16,2X,E26.16,2X,E26.16)') component1(count), component2(count), component3(count)
+       end do
+    end do
+    write(results,'(A)') 'End Values'
+  end subroutine printResults3DVec3
 
   subroutine finishProgram()
     implicit none

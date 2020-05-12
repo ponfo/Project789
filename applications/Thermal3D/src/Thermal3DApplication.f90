@@ -1,4 +1,4 @@
-module Thermal2DApplicationM
+module Thermal3DApplicationM
   use UtilitiesM
   use DebuggerM
 
@@ -6,35 +6,35 @@ module Thermal2DApplicationM
   use NodeM
   
   use ThermalElementM
-  use ConvectionOnLineM
-  use FluxOnLineM
+  use ConvectionOnSurfaceM
+  use FluxOnSurfaceM
   use ThermalMaterialM
   use ThermalModelM
 
   implicit none
 
   private
-  public :: Thermal2DApplicationDT, thermal2DApplication
+  public :: Thermal3DApplicationDT, thermal3DApplication
 
-  type :: Thermal2DApplicationDT
-     type(NodeDT)            , dimension(:), allocatable :: node
-     type(ThermalElementDT)  , dimension(:), allocatable :: element
-     type(ConvectionOnLineDT), dimension(:), allocatable :: convectionOL
-     type(FluxOnLineDT)      , dimension(:), allocatable :: normalFluxOL
-     type(SourceDT)          , dimension(:), allocatable :: source
-     type(ThermalMaterialDT) , dimension(:), allocatable :: material
-     type(ThermalModelDT)                                :: model
+  type :: Thermal3DApplicationDT
+     type(NodeDT)               , dimension(:), allocatable :: node
+     type(ThermalElementDT)     , dimension(:), allocatable :: element
+     type(ConvectionOnSurfaceDT), dimension(:), allocatable :: convectionOS
+     type(FluxOnSurfaceDT)      , dimension(:), allocatable :: normalFluxOS
+     type(SourceDT)             , dimension(:), allocatable :: source
+     type(ThermalMaterialDT)    , dimension(:), allocatable :: material
+     type(ThermalModelDT)                                   :: model
    contains
      procedure, public :: init
-  end type Thermal2DApplicationDT
+  end type Thermal3DApplicationDT
 
-  interface thermal2DApplication
+  interface thermal3DApplication
      procedure :: constructor
-  end interface thermal2DApplication
+  end interface thermal3DApplication
 
 contains
 
-  type(Thermal2DApplicationDT) function  &
+  type(Thermal3DApplicationDT) function  &
        constructor(nNode, nElement, nConvection, nNormalFlux, nSource, nMaterial, nGauss)
     implicit none
     integer(ikind), intent(in) :: nNode
@@ -49,7 +49,7 @@ contains
 
   subroutine init(this, nNode, nElement, nConvection, nNormalFlux, nSource, nMaterial, nGauss)
     implicit none
-    class(Thermal2DApplicationDT), intent(inout) :: this
+    class(Thermal3DApplicationDT), intent(inout) :: this
     integer(ikind)               , intent(in)    :: nNode
     integer(ikind)               , intent(in)    :: nElement
     integer(ikind)               , intent(in)    :: nConvection
@@ -59,8 +59,8 @@ contains
     integer(ikind)               , intent(in)    :: nGauss
     allocate(this%node(nNode))
     allocate(this%element(nElement))
-    allocate(this%convectionOL(nConvection))
-    allocate(this%normalFluxOL(nNormalFlux))
+    allocate(this%convectionOS(nConvection))
+    allocate(this%normalFluxOS(nNormalFlux))
     allocate(this%source(nSource))
     allocate(this%material(nMaterial))
     call initGeometries(nGauss)
@@ -73,4 +73,4 @@ contains
          , nCondition = nConvection + nNormalFlux )
   end subroutine init
 
-end module Thermal2DApplicationM
+end module Thermal3DApplicationM
