@@ -51,7 +51,7 @@
   !                   Subroutine sparse_sparse_sub  ->  Operator:
   !                                                        (-)
   !*************************************************************
-  
+include 'mkl_pardiso.f90'  
 module SparseKit
 
   !***********************************************
@@ -59,12 +59,13 @@ module SparseKit
   !***********************************************
   use UtilitiesM
   use quickSortM
+  use mkl_pardiso
   
   implicit none
   
   private
   public :: Sparse, operator(*), operator(+), operator(-), transpose&
-       , norm, trace, id
+       , norm, trace, id, inverse
   
   type Triplet
      real(rkind)   , dimension(:), allocatable :: A
@@ -146,6 +147,10 @@ module SparseKit
   interface id
      module procedure id
   end interface id
+
+  interface inverse
+     module procedure inverse
+  end interface inverse
   
   !***********************************************
   !*          LOCAL PRIVATE VARIABLES            *
@@ -1006,6 +1011,73 @@ contains
        call a%append(1.0_rkind, i, i)
     end do
     call a%makeCRS
-  end function id  
+  end function id
+
+  type(Sparse) function inverse(A)
+    implicit none
+    class(Sparse)                          , intent(inout) :: A
+    real(rkind)             , dimension(:) , allocatable   :: vector
+    real(rkind)             , dimension(:) , allocatable   :: solution
+    type(mkl_pardiso_handle), dimension(64)                :: pt
+    real(rkind)             , dimension(1)                 :: ddum
+    integer(ikind)                                         :: maxfct
+    integer(ikind)                                         :: mnum
+    integer(ikind)                                         :: mtype
+    integer(ikind)                                         :: phase
+    integer(ikind)                                         :: nrhs
+    integer(ikind)          , dimension(64)                :: iparm(64)
+    integer(ikind)                                         :: msglvl
+    integer(ikind)                                         :: error
+    integer(ikind)          , dimension(1)                 :: idum
+    integer(ikind)                                         :: i, j
+    logical                                    :: sortRows = .false.
+    allocate(vector(A%getn()), solution(A%getn()))
+    inverse = Sparse(A%getn()**2, A%getn())
+    pt(1:64)%DUMMY = 0.d0
+    maxfct        = 1
+    mnum          = 1
+    mtype         = 1      ! real and structurally symmetric 
+    phase         = 13     ! analisys, numerical factorization, solve,
+                           ! iterative refinement
+    idum          = 0
+    nrhs          = 1
+    iparm         = 0
+    iparm(1)      = 1      ! user defined iparms
+    iparm(2)      = 2      ! 3 The parallel (OpenMP) version of the
+                           !nested dissection algorithm.
+                           ! 2 The nested dissection algorithm from
+                           !the METIS package.
+                           ! 0 The minimum degree algorithm.
+    iparm(4)      = 61     ! LU-preconditioned CGS iteration with a
+                           ! stopping criterion of
+                           ! 1.0E-6 for nonsymmetric matrices.
+    iparm(24)     = 1      ! two-level factorization algorithm.
+    iparm(60)     = 1      ! in-core mode or out-core mode
+    msglvl        = 0      ! non-print statistical information.
+    error         = 0
+    do i = 1, A%getn()
+       vector    = 0.d0
+       vector(i) = 1.d0
+       solution  = vector
+       call pardiso (pt, maxfct, mnum, mtype, phase, A%getn()  &
+            , A%geta(), A%getai(), A%getaj(), idum, nrhs, iparm &
+            , msglvl, vector, solution, error                  )
+       if (error /= 0) then
+          write(*,'(a,i5)') 'Inverse matrix error'
+          stop
+       end if
+       do j = 1, A%getn()
+          if (solution(j) .ne. 0.d0) then
+             call inverse%append( val = solution(j) , row = i, col = j)
+          end if
+       end do
+       !write(*,*) 'Inverse =>', (100*i/A%getn()),'%'
+    end do
+    deallocate(vector,solution)
+    call inverse%makeCRS(sortRows)
+    print'(a)', 'Inverse ok'
+    return
+  end function inverse
+  
 end module SparseKit
 

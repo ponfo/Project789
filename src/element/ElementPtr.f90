@@ -43,6 +43,7 @@ module ElementPtrM
      procedure, public :: calculateLHS
      procedure, public :: calculateRHS
      procedure, public :: calculateResults
+     procedure, public :: calculatedt   
   end type ElementPtrDT
 
 contains
@@ -150,5 +151,12 @@ contains
     real(rkind)        , dimension(:,:,:), allocatable, intent(inout) :: resultMat
     call this%ptr%calculateResults(resultMat)
   end subroutine calculateResults
-    
+
+  subroutine calculatedt(this, dt)
+    implicit none
+    class(ElementPtrDT), intent(inout) :: this
+    real(rkind)        , intent(inout) :: dt
+    call this%ptr%calculatedt(dt)
+  end subroutine calculatedt
+  
 end module ElementPtrM

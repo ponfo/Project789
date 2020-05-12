@@ -44,6 +44,7 @@ module ElementM
      procedure(calculateLHSInterf)        , deferred :: calculateLHS
      procedure(calculateRHSInterf)        , deferred :: calculateRHS
      procedure(calculateResultsInterf)    , deferred :: calculateResults
+     procedure(calculateDtInterf)         , deferred :: calculatedt
   end type ElementDT
 
   abstract interface
@@ -93,6 +94,16 @@ module ElementM
      end subroutine calculateResultsInterf
   end interface
 
+  abstract interface
+     subroutine calculateDtInterf(this, dt)
+       use UtilitiesM
+       import ElementDT
+       implicit none
+       class(ElementDT), intent(inout) :: this
+       real(rkind)     , intent(inout) :: dt
+     end subroutine calculateDtInterf
+  end interface
+  
 contains
 
   subroutine assignGeometry(this, geometry)

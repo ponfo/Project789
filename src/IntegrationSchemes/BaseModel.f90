@@ -12,7 +12,6 @@ module BaseModelM
   public :: SetBaseModel, BaseModelDT
   
   type, extends(IntegrandDT) :: BaseModelDT
-     real(rkind), dimension(:), allocatable :: state
      real(rkind) :: constant
    contains
      procedure, public :: t          => dBaseModel_dt 
@@ -43,10 +42,11 @@ contains
     call constructor%set_quadrature(integrand)
   end function constructor
   
-  function dBaseModel_dt(this) result(dState_dt)
+  function dBaseModel_dt(this, dof) result(dState_dt)
     class(BaseModelDT),intent(in) :: this
     class(IntegrandDT) ,allocatable :: dState_dt
     type(BaseModelDT),allocatable :: local_dState_dt
+    real(rkind), dimension(:), intent(in) :: dof
     allocate(local_dState_dt)
     call local_dState_dt%set_quadrature(this%get_quadrature())
     allocate(local_dState_dt%state(size(this%state)))
@@ -81,8 +81,8 @@ contains
     type(BaseModelDT) , allocatable :: local_product
     allocate(local_product)
     call local_product%set_quadrature(lhs%get_quadrature())
-    local_product%state = lhs%state* rhs
-    local_product%constant = lhs%constant * rhs
+    local_product%state = rhs * lhs%state
+    local_product%constant = rhs * lhs%constant
     call move_alloc(local_product,product)
   end function multiply_BaseModel
   

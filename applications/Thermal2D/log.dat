@@ -1,0 +1,43 @@
+22:13:46  Initiating Program
+22:13:46    Reading project data
+22:13:46      Project name: problema1d
+22:13:46      Path: /home/marco/Gid/problemtypes/Project789/applications/Thermal2D/Gid/Thermal2D.gid
+22:13:46    Reading mesh data
+22:13:46      Number of Elements.............................: 400
+22:13:46      Are Elements Quadratic.........................: 0
+22:13:46      Number of Triangular elements..................: 0
+22:13:46      Number of Rectangular elements.................: 400
+22:13:46      Number of Nodes................................: 441
+22:13:46      Number of Dirichlet conditions.................: 21
+22:13:46      Number of NormalFluxOnLines conditions.........: 20
+22:13:46      Number of ConvectionOnLines conditions.........: 0
+22:13:46      Number of Sources on points....................: 0
+22:13:46      Number of Sources on surfaces..................: 1
+22:13:46      Number of points with pointSource..............: 0
+22:13:46      Number of Surfaces with surfaceSource..........: 400
+22:13:46      Number of Materials............................: 1
+22:13:46      Gauss cuadrature order.........................: 3
+22:13:46          Allocated weights: 4
+22:13:46          Allocated gPoints: 8
+22:13:46          Allocated weights: 3
+22:13:46          Allocated gPoints: 3
+22:13:46          Allocated weights: 4
+22:13:46          Allocated gPoints: 8
+22:13:46          Allocated weights: 3
+22:13:46          Allocated gPoints: 3
+22:13:46          Allocated weights: 9
+22:13:46          Allocated gPoints: 18
+22:13:46          Allocated weights: 3
+22:13:46          Allocated gPoints: 3
+22:13:46          Allocated weights: 9
+22:13:46          Allocated gPoints: 18
+22:13:46          Allocated weights: 3
+22:13:46          Allocated gPoints: 3
+22:13:46    Reading materials properties
+22:13:46    Reading elements
+22:13:46    Reading point and line Sources
+22:13:46    Reading Boundary Conditions
+22:13:46  End loading data
+22:13:46    Assembling stiffness matrix and right hand side vector
+22:13:46  solving linear system
+22:13:46  done solving
