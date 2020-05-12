@@ -1,4 +1,3 @@
-include 'mkl_pardiso.f90'
 module mklPardisoM
 
   use UtilitiesM
