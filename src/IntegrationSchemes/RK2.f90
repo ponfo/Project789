@@ -27,8 +27,8 @@ contains
     select type (this)
     class is (IntegrandDT)
        allocate(this_half,source=this)
-       this_half = this + this%t()*(0.5*dt)
-       this      = this + this_half%t()*dt
+       this_half = this + this%t(this%state)*(0.5*dt)
+       this      = this + this_half*dt
        class default
        stop 'integrate: unsupported class'
     end select

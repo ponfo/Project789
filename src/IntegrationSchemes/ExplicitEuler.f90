@@ -25,7 +25,7 @@ contains
     real(rkind), intent(in) :: dt
     select type (this)
     class is (IntegrandDT)
-       this = this + this%t()*dt
+       this = this + this%t(this%state)*dt
        class default
        stop 'integrate: unsupported class.'
     end select

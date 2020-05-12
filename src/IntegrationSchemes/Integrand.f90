@@ -13,27 +13,26 @@ module IntegrandM
   
   type, abstract, extends(NewProcessDT) :: IntegrandDT
      class(NewSchemeDT), allocatable :: quadrature
+     real(rkind), dimension(:), allocatable :: state
    contains
      procedure, non_overridable :: integrate  
      procedure, non_overridable :: set_quadrature
      procedure, non_overridable :: get_quadrature
-     procedure(time_derivative), deferred :: t 
+     procedure(time_derivative), deferred :: t
      procedure(symmetric_operator), deferred :: add
      procedure(asymmetric_operator), deferred :: multiply
      procedure(symmetric_assignment), deferred :: assign
-     generic :: operator(+) => add
-     generic :: operator(*) => multiply
+     generic :: operator(+)   => add
+     generic :: operator(*)   => multiply
      generic :: assignment(=) => assign
   end type IntegrandDT
   
   abstract interface
-
-
-     
-     function time_derivative(this) result(dState_dt)
-       import :: IntegrandDT
-       class(IntegrandDT) ,intent(in) :: this
-       class(IntegrandDT) ,allocatable :: dState_dt
+     function time_derivative(this, dof) result(dState_dt)
+       import :: IntegrandDT, rkind
+       class(IntegrandDT) ,intent(in)        :: this
+       class(IntegrandDT) ,allocatable       :: dState_dt
+       real(rkind), dimension(:), intent(in) :: dof
      end function time_derivative
      
      function symmetric_operator(lhs,rhs) result(operator_result)
@@ -53,8 +52,7 @@ module IntegrandM
        import :: IntegrandDT
        class(IntegrandDT) ,intent(in) :: rhs
        class(IntegrandDT) ,intent(inout) :: lhs
-     end subroutine symmetric_assignment
-     
+     end subroutine symmetric_assignment   
   end interface
   
 contains
@@ -73,7 +71,7 @@ contains
   end function get_quadrature
   
   subroutine integrate(model,dt)
-    class(IntegrandDT) :: model
+    class(IntegrandDT)      :: model
     real(rkind) ,intent(in) :: dt
     if (allocated(model%quadrature)) then
        call model%quadrature%integrate(model,dt)

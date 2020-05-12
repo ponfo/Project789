@@ -1,0 +1,40 @@
+15:22:30  Initiating Program
+15:22:30    Reading project data
+15:22:30      Project name: problema1d
+15:22:30    Reading mesh data
+15:22:30      Number of Elements.............................: 400
+15:22:30      Are Elements Quadratic.........................: 0
+15:22:30      Number of Triangular elements..................: 0
+15:22:30      Number of Rectangular elements.................: 400
+15:22:30      Number of Nodes................................: 441
+15:22:30      Number of Dirichlet conditions.................: 21
+15:22:30      Number of NormalFluxOnLines conditions.........: 20
+15:22:30      Number of ConvectionOnLines conditions.........: 0
+15:22:30      Number of Sources on points....................: 0
+15:22:30      Number of Sources on surfaces..................: 1
+15:22:30      Number of points with pointSource..............: 0
+15:22:30      Number of Surfaces with surfaceSource..........: 400
+15:22:30      Number of Materials............................: 1
+15:22:30      Gauss cuadrature order.........................: 3
+15:22:30          Allocated weights: 4
+15:22:30          Allocated gPoints: 8
+15:22:30          Allocated weights: 3
+15:22:30          Allocated gPoints: 3
+15:22:30          Allocated weights: 4
+15:22:30          Allocated gPoints: 8
+15:22:30          Allocated weights: 3
+15:22:30          Allocated gPoints: 3
+15:22:30          Allocated weights: 9
+15:22:30          Allocated gPoints: 18
+15:22:30          Allocated weights: 3
+15:22:30          Allocated gPoints: 3
+15:22:30          Allocated weights: 9
+15:22:30          Allocated gPoints: 18
+15:22:30          Allocated weights: 3
+15:22:30          Allocated gPoints: 3
+15:22:30    Reading materials properties
+15:22:30    Reading elements
+15:22:30    Reading point and line Sources
+15:22:30    Reading Boundary Conditions
+15:22:30  End loading data
+15:22:30    Assembling stiffness matrix and right hand side vector
