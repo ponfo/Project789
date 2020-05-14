@@ -20,7 +20,7 @@ program main
        , resultNumber = application%model%getnNode()  &
        , component1   = application%model%dof         )
   call printResults(resultName = 'FluxOnTetras'                     &
-       , type         = 'Tetrahedron'                               &
+       , type         = 'Tetrahedra'                                &
        , step         = 1                                           &
        , graphType    = 'Vector'                                    &
        , locationName = 'onGaussPoints'                             &
@@ -30,5 +30,16 @@ program main
        , component1   = application%model%heatFlux%tetraFlux(:,1)    &
        , component2   = application%model%heatFlux%tetraFlux(:,2)    &
        , component3   = application%model%heatFlux%tetraFlux(:,3)    )
+  call printResults(resultName = 'FluxOnHexas'                      &
+       , type         = 'Hexahedra'                                 &
+       , step         = 1                                           &
+       , graphType    = 'Vector'                                    &
+       , locationName = 'onGaussPoints'                             &
+       , gaussPoints  = application%model%heatFlux%hexaGPoint        &
+       , resultNumber = size(application%model%heatFlux%hexaElemID)  &
+       , elemID       = application%model%heatFlux%hexaElemID        &
+       , component1   = application%model%heatFlux%hexaFlux(:,1)     &
+       , component2   = application%model%heatFlux%hexaFlux(:,2)     &
+       , component3   = application%model%heatFlux%hexaFlux(:,3)     )
  
 end program main

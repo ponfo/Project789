@@ -3,6 +3,7 @@ module ThermalElementM
   use UtilitiesM
 
   use Tetrahedron3D4NodeM
+  use Hexahedron3D8NodeM
 
   use IntegratorPtrM
 
@@ -42,6 +43,7 @@ module ThermalElementM
   end interface thermalElement
 
   type(Tetrahedron3D4NodeDT), target, save :: myTetrahedron3D4Node
+  type(Hexahedron3D8NodeDT) , target, save :: myHexahedron3D8Node
 
 contains
 
@@ -64,6 +66,8 @@ contains
     this%material => material
     if(size(node) == 4) then
        this%geometry => myTetrahedron3D4Node
+    else if(size(node) == 8) then
+       this%geometry => myHexahedron3D8Node
     end if
     allocate(this%source(1))
   end subroutine init
@@ -72,6 +76,7 @@ contains
     implicit none
     integer(ikind), intent(in) :: nGauss
     myTetrahedron3D4Node = tetrahedron3D4Node(nGauss)
+    myHexahedron3D8Node = Hexahedron3D8Node(nGauss)
   end subroutine initGeometries
 
   subroutine calculateLocalSystem(this, lhs, rhs)
@@ -136,7 +141,8 @@ contains
           end do
        end do
        if(this%node(i)%hasSource()) then
-          val = this%node(i)%ptr%source(1)%evaluate((/this%node(i)%getx(), this%node(i)%gety()/))
+          val = this%node(i)%ptr%source(1) &
+               %evaluate((/this%node(i)%getx(), this%node(i)%gety(), this%node(i)%getz()/))
           rhs(i) = rhs(i) + val
        end if
     end do
@@ -230,7 +236,8 @@ contains
     rhs = 0._rkind
     do i = 1, nNode
        if(this%node(i)%hasSource()) then
-          val = this%node(i)%ptr%source(1)%evaluate((/this%node(i)%getx(), this%node(i)%gety()/))
+          val = this%node(i)%ptr%source(1) &
+               %evaluate((/this%node(i)%getx(), this%node(i)%gety(), this%node(i)%getz()/))
           rhs(i) = rhs(i) + val
        end if
     end do

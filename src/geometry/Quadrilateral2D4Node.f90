@@ -77,10 +77,10 @@ contains
     class(Quadrilateral2D4NodeDT), intent(inout)         :: this
     class(PointDT)               , intent(in)            :: point
     real(rkind)                  , dimension(this%nNode) :: shapeFunc
-    shapeFunc(1) = (1.d0/4.d0)*(1-point%getx())*(1-point%gety())
-    shapeFunc(2) = (1.d0/4.d0)*(1+point%getx())*(1-point%gety())
-    shapeFunc(3) = (1.d0/4.d0)*(1+point%getx())*(1+point%gety())
-    shapeFunc(4) = (1.d0/4.d0)*(1-point%getx())*(1+point%gety())
+    shapeFunc(1) = (1._rkind/4._rkind)*(1-point%getx())*(1-point%gety())
+    shapeFunc(2) = (1._rkind/4._rkind)*(1+point%getx())*(1-point%gety())
+    shapeFunc(3) = (1._rkind/4._rkind)*(1+point%getx())*(1+point%gety())
+    shapeFunc(4) = (1._rkind/4._rkind)*(1-point%getx())*(1+point%gety())
   end function shapeFunc
 
   function dShapeFunc(this, point)
@@ -88,14 +88,14 @@ contains
     class(Quadrilateral2D4NodeDT), intent(inout)                   :: this
     class(PointDT)               , intent(in)                      :: point
     real(rkind)                  , dimension(this%dim, this%nNode) :: dShapeFunc
-    dShapeFunc(1,1) = -(1.d0/4.d0)*(1-point%gety())
-    dShapeFunc(2,1) = -(1.d0/4.d0)*(1-point%getx())
-    dShapeFunc(1,2) =  (1.d0/4.d0)*(1-point%gety())
-    dShapeFunc(2,2) = -(1.d0/4.d0)*(1+point%getx())
-    dShapeFunc(1,3) =  (1.d0/4.d0)*(1+point%gety())
-    dShapeFunc(2,3) =  (1.d0/4.d0)*(1+point%getx())
-    dShapeFunc(1,4) = -(1.d0/4.d0)*(1+point%gety())
-    dShapeFunc(2,4) =  (1.d0/4.d0)*(1-point%getx())
+    dShapeFunc(1,1) = -(1._rkind/4._rkind)*(1-point%gety())
+    dShapeFunc(2,1) = -(1._rkind/4._rkind)*(1-point%getx())
+    dShapeFunc(1,2) =  (1._rkind/4._rkind)*(1-point%gety())
+    dShapeFunc(2,2) = -(1._rkind/4._rkind)*(1+point%getx())
+    dShapeFunc(1,3) =  (1._rkind/4._rkind)*(1+point%gety())
+    dShapeFunc(2,3) =  (1._rkind/4._rkind)*(1+point%getx())
+    dShapeFunc(1,4) = -(1._rkind/4._rkind)*(1+point%gety())
+    dShapeFunc(2,4) =  (1._rkind/4._rkind)*(1-point%getx())
   end function dShapeFunc
 
   function jacobianAllNodes(this, pointToValue, node)

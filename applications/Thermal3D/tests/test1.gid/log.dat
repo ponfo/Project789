@@ -1,31 +1,39 @@
-20:35:55  Initiating Program
-20:35:55    Reading project data
-20:35:55      Project name: test1
-20:35:55      Path: /home/ponfo/Documents/Project789/applications/Thermal3D/Gid/Thermal3D.gid
-20:35:55    Reading mesh data
-20:35:55      Number of Elements.............................: 19189
-20:35:55      Are Elements Quadratic.........................: 0
-20:35:55      Number of Nodes................................: 3817
-20:35:55      Number of Dirichlet conditions.................: 412
-20:35:55      Number of NormalFluxOnSurfaces conditions......: 0
-20:35:55      Number of ConvectionOnSurfaces conditions......: 0
-20:35:55      Number of Sources on points....................: 0
-20:35:55      Number of Sources on surfaces..................: 0
-20:35:55      Number of points with pointSource..............: 0
-20:35:55      Number of Volumes with volumeSource............: 0
-20:35:55      Number of Materials............................: 1
-20:35:55      Gauss cuadrature order.........................: 3
-20:35:55          Allocated weights: 27
-20:35:55          Allocated gPoints: 81
-20:35:55          Allocated weights: 4
-20:35:55          Allocated gPoints: 8
-20:35:55          Allocated weights: 3
-20:35:55          Allocated gPoints: 3
-20:35:55    Reading materials properties
-20:35:55    Reading elements
-20:35:55    Reading point and line Sources
-20:35:55    Reading Boundary Conditions
-20:35:55  End loading data
-20:35:55    Assembling stiffness matrix and right hand side vector
-20:35:57  solving linear system
-20:35:57  done solving
+ 7:48:28  Initiating Program
+ 7:48:28    Reading project data
+ 7:48:28      Project name: test1
+ 7:48:28      Path: /home/ponfo/Documents/Project789/applications/Thermal3D/Gid/Thermal3D.gid
+ 7:48:28    Reading mesh data
+ 7:48:28      Number of Elements.............................: 78068
+ 7:48:28      Are Elements Quadratic.........................: 0
+ 7:48:28      Number of Tetrahedral elements.................: 78068
+ 7:48:28      Number of Hexahedral elements..................: 0
+ 7:48:28      Number of Nodes................................: 14583
+ 7:48:28      Number of Dirichlet conditions.................: 957
+ 7:48:28      Number of NormalFluxOnSurfaces conditions......: 0
+ 7:48:28      Number of ConvectionOnSurfaces conditions......: 0
+ 7:48:28      Number of Sources on points....................: 0
+ 7:48:28      Number of Sources on surfaces..................: 1
+ 7:48:28      Number of points with pointSource..............: 0
+ 7:48:28      Number of Volumes with volumeSource............: 78068
+ 7:48:28      Number of Materials............................: 1
+ 7:48:28      Gauss cuadrature order.........................: 3
+ 7:48:28          Allocated weights: 11
+ 7:48:28          Allocated gPoints: 33
+ 7:48:28          Allocated weights: 4
+ 7:48:28          Allocated gPoints: 8
+ 7:48:28          Allocated weights: 3
+ 7:48:28          Allocated gPoints: 3
+ 7:48:28          Allocated weights: 27
+ 7:48:28          Allocated gPoints: 81
+ 7:48:28          Allocated weights: 9
+ 7:48:28          Allocated gPoints: 18
+ 7:48:28          Allocated weights: 3
+ 7:48:28          Allocated gPoints: 3
+ 7:48:29    Reading materials properties
+ 7:48:29    Reading elements
+ 7:48:29    Reading point and line Sources
+ 7:48:29    Reading Boundary Conditions
+ 7:48:29  End loading data
+ 7:48:29    Assembling stiffness matrix and right hand side vector
+ 7:48:33  solving linear system
+ 7:48:33  done solving

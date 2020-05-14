@@ -88,6 +88,16 @@ contains
     shapeFunc(2) = point%getx()
     shapeFunc(3) = point%gety()
     shapeFunc(4) = point%getz()
+!!$    shapeFunc(1) = (1._rkind/12._rkind) &
+!!$         *(3._rkind+8._rkind*point%getx()-2._rkind*sqrt(2._rkind)*point%getz())
+!!$    shapeFunc(2) = (1._rkind/12._rkind) &
+!!$         *(3._rkind+4._rkind*point%getx()-4._rkind*sqrt(3._rkind)*point%gety() &
+!!$         -2._rkind*sqrt(2._rkind)*point%getz())
+!!$    shapeFunc(3) = (1._rkind/12._rkind) &
+!!$         *(3._rkind-4._rkind*point%getx()+4._rkind*sqrt(3._rkind)*point%gety() &
+!!$         -2._rkind*sqrt(2._rkind)*point%getz())
+!!$    shapeFunc(4) = (1._rkind/4._rkind)  &
+!!$         *(1._rkind+2._rkind*sqrt(2._rkind)*point%getz())
   end function shapeFunc
 
   function dShapeFunc(this, point)
@@ -106,7 +116,19 @@ contains
     dShapeFunc(3,1) = -1
     dShapeFunc(3,2) = 0
     dShapeFunc(3,3) = 0
-    dShapeFunc(3,4) = -1
+    dShapeFunc(3,4) = 1
+!!$    dShapeFunc(1,1) = (2._rkind/3._rkind)
+!!$    dShapeFunc(1,2) = -(1._rkind/4._rkind)
+!!$    dShapeFunc(1,3) = -(1._rkind/4._rkind)
+!!$    dShapeFunc(1,4) = 0
+!!$    dShapeFunc(2,1) = 0
+!!$    dShapeFunc(2,2) = -(4._rkind*sqrt(3._rkind)/12._rkind)
+!!$    dShapeFunc(2,3) = (4._rkind*sqrt(3._rkind)/12._rkind)
+!!$    dShapeFunc(2,4) = 0
+!!$    dShapeFunc(3,1) = -(2._rkind*sqrt(2._rkind)/12._rkind)
+!!$    dShapeFunc(3,2) = -(2._rkind*sqrt(2._rkind)/12._rkind)
+!!$    dShapeFunc(3,3) = -(2._rkind*sqrt(2._rkind)/12._rkind)
+!!$    dShapeFunc(3,4) = 2._rkind*sqrt(2._rkind)/4._rkind
   end function dShapeFunc
 
   function jacobianAllNodes(this, pointToValue, node)
@@ -182,7 +204,7 @@ contains
 
   real(rkind) function jacobianDetFromCoordAllNodes(this, pointToValue, node)
     implicit none
-    class(Tetrahedron3D4NodeDT), intent(inout)                     :: this
+    class(Tetrahedron3D4NodeDT), intent(inout)                  :: this
     class(PointDT)          , intent(in)                        :: pointToValue
     class(NodePtrDT)        , dimension(this%nNode), intent(in) :: node
     real(rkind)             , dimension(3,3)                    :: jacobian
@@ -271,7 +293,7 @@ contains
     do i = 1, integTerms
        x = this%integrator%gPoint(i,1)
        y = this%integrator%gPoint(i,2)
-       y = this%integrator%gPoint(i,3)
+       z = this%integrator%gPoint(i,3)
        this%integrator%shapeFunc(i, 1:NNODE) = this%shapeFunc(point(x, y, z))
        this%integrator%dShapeFunc(i, 1:3, 1:NNODE) = this%dShapeFunc(point(x, y, z))
     end do

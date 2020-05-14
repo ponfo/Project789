@@ -26,6 +26,7 @@ module DataInputM
   integer(ikind), dimension(8) :: date_time
   integer(ikind)               :: nElem
   integer(ikind)               :: nTetraElem
+  integer(ikind)               :: nHexaElem
   integer(ikind)               :: nPoint
   integer(ikind)               :: iPoint
   integer(ikind)               :: nNormalFlux
@@ -92,6 +93,8 @@ contains
     read(project,*)  aux, nElem
     read(project,*)  aux, nPoint
     read(project,*)  aux, isQuadratic
+    read(project,*)  aux, nTetraElem
+    read(project,*)  aux, nHexaElem
     read(project,*)  aux, nMaterial
     read(project,*)  aux, nGauss    
     read(project,*)  aux, nDirichlet
@@ -103,6 +106,8 @@ contains
     read(project,*)  aux, nVolumeSource
     call debugLog('    Number of Elements.............................: ', nElem)
     call debugLog('    Are Elements Quadratic.........................: ', isQuadratic)
+    call debugLog('    Number of Tetrahedral elements.................: ', nTetraElem)
+    call debugLog('    Number of Hexahedral elements..................: ', nHexaElem)
     call debugLog('    Number of Nodes................................: ', nPoint)
     call debugLog('    Number of Dirichlet conditions.................: ', nDirichlet)
     call debugLog('    Number of NormalFluxOnSurfaces conditions......: ', nNormalFlux)   

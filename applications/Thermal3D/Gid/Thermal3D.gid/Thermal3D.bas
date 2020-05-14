@@ -11,6 +11,20 @@ Elements_Number........................: *nelem
 Nodes_Number...........................: *npoin
 Are_Elements_Quadratic.................: *isQuadratic
 *#---------------------------------------------------------
+*set var j=0
+*set var k=0
+*loop elems
+*#ElemsTypeName
+*if(strcasecmp(ElemsTypeName(),"Tetrahedra")==0)
+*set var j=operation(j+1)
+*endif
+*if(strcasecmp(ElemsTypeName(),"Hexahedra")==0)
+*set var k=operation(k+1)
+*endif
+*end elems
+*#---------------------------------------------------------
+Tetrahedral_Elements_Number............: *j
+Hexahedral_Elements_Number.............: *k
 Materials_Number.......................: *nmats
 Gauss_Order............................: *GenData(Gauss_Order)
 *#---------------------------------------------------------

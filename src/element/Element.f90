@@ -23,7 +23,7 @@ module ElementM
      integer(ikind)                               :: id
      type(NodePtrDT)  , dimension(:), allocatable :: node
      class(GeometryDT)              , pointer     :: geometry
-     type(SourcePTrDT), dimension(:), allocatable :: source
+     type(SourcePtrDT), dimension(:), allocatable :: source
    contains
      procedure, public :: assignGeometry
      procedure, public :: assignNode

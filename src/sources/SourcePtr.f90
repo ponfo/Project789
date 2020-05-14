@@ -8,7 +8,7 @@ module SourcePtrM
   public :: SourcePtrDT
 
   type :: SourcePtrDT
-     class(SourceDT), pointer :: ptr
+     class(SourceDT), pointer :: ptr => null()
    contains
      procedure, public :: associate
      procedure, public :: evaluateFirstFunc
