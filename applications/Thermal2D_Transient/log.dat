@@ -1,0 +1,40 @@
+19:40:25  Initiating Program
+19:40:25    Reading project data
+19:40:25      Project name: Thermal_Benchmark_5
+19:40:25    Reading mesh data
+19:40:25      Number of Elements.............................: 438
+19:40:25      Are Elements Quadratic.........................: 0
+19:40:25      Number of Triangular elements..................: 438
+19:40:25      Number of Rectangular elements.................: 0
+19:40:25      Number of Nodes................................: 262
+19:40:25      Number of Dirichlet conditions.................: 32
+19:40:25      Number of NormalFluxOnLines conditions.........: 13
+19:40:25      Number of ConvectionOnLines conditions.........: 30
+19:40:25      Number of Sources on points....................: 0
+19:40:25      Number of Sources on surfaces..................: 1
+19:40:25      Number of points with pointSource..............: 0
+19:40:25      Number of Surfaces with surfaceSource..........: 438
+19:40:25      Number of Materials............................: 1
+19:40:25      Gauss cuadrature order.........................: 3
+19:40:25          Allocated weights: 4
+19:40:25          Allocated gPoints: 8
+19:40:25          Allocated weights: 3
+19:40:25          Allocated gPoints: 3
+19:40:25          Allocated weights: 4
+19:40:25          Allocated gPoints: 8
+19:40:25          Allocated weights: 3
+19:40:25          Allocated gPoints: 3
+19:40:25          Allocated weights: 9
+19:40:25          Allocated gPoints: 18
+19:40:25          Allocated weights: 3
+19:40:25          Allocated gPoints: 3
+19:40:25          Allocated weights: 9
+19:40:25          Allocated gPoints: 18
+19:40:25          Allocated weights: 3
+19:40:25          Allocated gPoints: 3
+19:40:25    Reading materials properties
+19:40:25    Reading elements
+19:40:25    Reading point and line Sources
+19:40:25    Reading Boundary Conditions
+19:40:25  End loading data
+19:40:25    Assembling stiffness matrix and right hand side vector
