@@ -1,39 +1,39 @@
- 7:48:28  Initiating Program
- 7:48:28    Reading project data
- 7:48:28      Project name: test1
- 7:48:28      Path: /home/ponfo/Documents/Project789/applications/Thermal3D/Gid/Thermal3D.gid
- 7:48:28    Reading mesh data
- 7:48:28      Number of Elements.............................: 78068
- 7:48:28      Are Elements Quadratic.........................: 0
- 7:48:28      Number of Tetrahedral elements.................: 78068
- 7:48:28      Number of Hexahedral elements..................: 0
- 7:48:28      Number of Nodes................................: 14583
- 7:48:28      Number of Dirichlet conditions.................: 957
- 7:48:28      Number of NormalFluxOnSurfaces conditions......: 0
- 7:48:28      Number of ConvectionOnSurfaces conditions......: 0
- 7:48:28      Number of Sources on points....................: 0
- 7:48:28      Number of Sources on surfaces..................: 1
- 7:48:28      Number of points with pointSource..............: 0
- 7:48:28      Number of Volumes with volumeSource............: 78068
- 7:48:28      Number of Materials............................: 1
- 7:48:28      Gauss cuadrature order.........................: 3
- 7:48:28          Allocated weights: 11
- 7:48:28          Allocated gPoints: 33
- 7:48:28          Allocated weights: 4
- 7:48:28          Allocated gPoints: 8
- 7:48:28          Allocated weights: 3
- 7:48:28          Allocated gPoints: 3
- 7:48:28          Allocated weights: 27
- 7:48:28          Allocated gPoints: 81
- 7:48:28          Allocated weights: 9
- 7:48:28          Allocated gPoints: 18
- 7:48:28          Allocated weights: 3
- 7:48:28          Allocated gPoints: 3
- 7:48:29    Reading materials properties
- 7:48:29    Reading elements
- 7:48:29    Reading point and line Sources
- 7:48:29    Reading Boundary Conditions
- 7:48:29  End loading data
- 7:48:29    Assembling stiffness matrix and right hand side vector
- 7:48:33  solving linear system
- 7:48:33  done solving
+10:56:22  Initiating Program
+10:56:22    Reading project data
+10:56:22      Project name: test1
+10:56:22      Path: /home/ponfo/Documents/Project789/applications/Thermal3D/Gid/Thermal3D.gid
+10:56:22    Reading mesh data
+10:56:22      Number of Elements.............................: 1000
+10:56:22      Are Elements Quadratic.........................: 0
+10:56:22      Number of Tetrahedral elements.................: 0
+10:56:22      Number of Hexahedral elements..................: 1000
+10:56:22      Number of Nodes................................: 1331
+10:56:22      Number of Dirichlet conditions.................: 121
+10:56:22      Number of NormalFluxOnSurfaces conditions......: 100
+10:56:22      Number of ConvectionOnSurfaces conditions......: 0
+10:56:22      Number of Sources on points....................: 0
+10:56:22      Number of Sources on surfaces..................: 1
+10:56:22      Number of points with pointSource..............: 0
+10:56:22      Number of Volumes with volumeSource............: 1000
+10:56:22      Number of Materials............................: 1
+10:56:22      Gauss cuadrature order.........................: 3
+10:56:22          Allocated weights: 11
+10:56:22          Allocated gPoints: 33
+10:56:22          Allocated weights: 4
+10:56:22          Allocated gPoints: 8
+10:56:22          Allocated weights: 3
+10:56:22          Allocated gPoints: 3
+10:56:22          Allocated weights: 27
+10:56:22          Allocated gPoints: 81
+10:56:22          Allocated weights: 9
+10:56:22          Allocated gPoints: 18
+10:56:22          Allocated weights: 3
+10:56:22          Allocated gPoints: 3
+10:56:22    Reading materials properties
+10:56:22    Reading elements
+10:56:22    Reading point and line Sources
+10:56:22    Reading Boundary Conditions
+10:56:22  End loading data
+10:56:22    Assembling stiffness matrix and right hand side vector
+10:56:22  solving linear system
+10:56:22  done solving

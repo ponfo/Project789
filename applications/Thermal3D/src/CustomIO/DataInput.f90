@@ -242,26 +242,22 @@ contains
     do i = 1, 7
        read(project,*)
     end do
-    if(isQuadratic == 0) then
-       nPointID = 2
-    else
-       nPointID = 3
-    end if
-    allocate(pointID(nPointID))
-    allocate(node(nPointID))
+    allocate(pointID(8))
     conditionCounter = 0
     if(verbose) print'(/,A)', 'Normal Flux On Surfaces conditions'
     if(verbose) print'(A)', 'Elem    Nodes     Value'
     do i = 1, nNormalFlux
        conditionCounter = conditionCounter + 1
-       read(Project,*) elemID, (pointID(j),j=1,nPointID), value
+       read(Project,*) elemID, nPointID, (pointID(j),j=1,nPointID), value
        if(verbose) print*, elemID, (pointID(j),j=1,nPointID), value
        element = thermalAppl%element(elemID)
+       allocate(node(nPointID))
        do j = 1, nPointID
           node(j) = element%node(pointID(j))
        end do
        thermalAppl%normalFluxOS(i) = fluxOnSurface(i, pointID, value, node, element%geometry)
        call thermalAppl%model%addCondition(conditionCounter, thermalAppl%normalFluxOS(i))
+       deallocate(node)
     end do
     do i = 1, 7
        read(project,*)
@@ -270,14 +266,16 @@ contains
     if(verbose) print'(A)', 'Elem    Nodes     Coef     Temp'
     do i = 1, nConvection
        conditionCounter = conditionCounter + 1
-       read(Project,*) elemID, (pointID(j),j=1,nPointID), coef, temp
+       read(Project,*) elemID, nPointID, (pointID(j),j=1,nPointID), coef, temp
        if(verbose) print*, elemID, (pointID(j),j=1,nPointID), coef, temp
        element = thermalAppl%element(elemID)
+       allocate(node(nPointID))
        do j = 1, nPointID
           node(j) = element%node(pointID(j))
        end do
        thermalAppl%convectionOS(i) = convectionOnSurface(i, pointID, coef, temp, node, element%geometry)
        call thermalAppl%model%addCondition(conditionCounter, thermalAppl%convectionOS(i))
+       deallocate(node)
     end do
     close(project)
   end subroutine readBoundaryConditions
