@@ -14,6 +14,8 @@ module IntegrandM
   type, abstract, extends(NewProcessDT) :: IntegrandDT
      class(NewSchemeDT), allocatable :: quadrature
      real(rkind), dimension(:), allocatable :: state
+     real(rkind), dimension(:,:), allocatable :: values
+     integer(ikind) :: step
    contains
      procedure, non_overridable :: integrate  
      procedure, non_overridable :: set_quadrature

@@ -85,6 +85,7 @@ OBJECTS := $(BINDIR)/Debugger.o                 \
 	$(BINDIR)/BaseModel.o			\
 	$(BINDIR)/RK2.o				\
 	$(BINDIR)/RK4.o				\
+	$(BINDIR)/AdamsB4.o			\
 	$(BINDIR)/ExplicitEuler.o		\
 	$(BINDIR)/SolvingStrategy.o             \
                                                 \
@@ -242,6 +243,8 @@ $(BINDIR)/ExplicitEuler.o : $(VPATH)/IntegrationSchemes/ExplicitEuler.f90
 $(BINDIR)/RK2.o : $(VPATH)/IntegrationSchemes/RK2.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/RK4.o : $(VPATH)/IntegrationSchemes/RK4.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/AdamsB4.o : $(VPATH)/IntegrationSchemes/AdamsB4.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 
 $(BINDIR)/GIDDataOutput.o : $(VPATH)/io/GIDDataOutput.f90

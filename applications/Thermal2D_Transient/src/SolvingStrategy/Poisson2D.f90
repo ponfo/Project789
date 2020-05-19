@@ -32,16 +32,18 @@ module Poisson2DM
 contains
 
   type(poisson2DDT) function constructor(initial_state, stiffness&
-       , rhs, lumpedMassInverse, this_strategy)
+       , rhs, lumpedMassInverse, this_strategy, step)
     class(NewSchemeDT)       , intent(in) :: this_strategy
     type(Sparse)             , intent(in) :: stiffness
     type(Sparse)             , intent(in) :: lumpedMassInverse
     real(rkind), dimension(:), intent(in) :: initial_state
     real(rkind), dimension(:), intent(in) :: rhs
+    integer(ikind), intent(in), optional :: step
     constructor%state             = initial_state
     constructor%stiffness         = stiffness
     constructor%rhs               = rhs
     constructor%lumpedMassInverse = lumpedMassInverse
+    if (present(step)) constructor%step = step
     call constructor%set_quadrature(this_strategy)
   end function constructor
   
@@ -91,6 +93,7 @@ contains
     select type(rhs)
     class is (Poisson2DDT)
        lhs%state = rhs%state
+       lhs%step = rhs%step
        lhs%rhs = rhs%rhs
        lhs%stiffness = rhs%stiffness
        lhs%lumpedMassInverse = rhs%lumpedMassInverse

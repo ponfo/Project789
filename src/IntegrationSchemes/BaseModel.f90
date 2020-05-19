@@ -33,12 +33,14 @@ contains
     class(BaseModelDT), intent(inout) :: this
   end subroutine process
   
-  type(BaseModelDT) function constructor(initial_state,c,integrand)
+  type(BaseModelDT) function constructor(initial_state,c,integrand, step)
     real(rkind), dimension(:) ,intent(in) :: initial_state
     real(rkind), intent(in) :: c
+    integer(ikind), intent(in), optional :: step
     class(NewSchemeDT),intent(in) :: integrand
     constructor%state=initial_state
     constructor%constant=c
+    if (present(step)) constructor%step = step
     call constructor%set_quadrature(integrand)
   end function constructor
   
@@ -92,6 +94,7 @@ contains
     select type(rhs)
     class is (BaseModelDT)
        lhs%state = rhs%state
+       lhs%step = rhs%step
        lhs%constant = rhs%constant
        call lhs%set_quadrature(rhs%get_quadrature())
        class default

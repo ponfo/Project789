@@ -14,8 +14,6 @@ module ThermalStrategyM
   use ThermalBuilderAndSolverM
   use SchemeM
   use Poisson2DM
-  use ExplicitEulerM
-  use rk2M
   use RK4M
   use BuilderAndSolverM
 
@@ -36,20 +34,13 @@ contains
     class(ThermalStrategyDT), intent(inout) :: this
     class(ThermalmodelDT)   , intent(inout) :: model
     type(Sparse)                            :: inverseMatrix
-    type(Sparse)                            :: matrix
     type(ThermalSchemeDT)                   :: directScheme
     type(ThermalBuilderAndSolverDT)         :: directBAndS
     type(Poisson2DDT)                       :: poisson2D
-    type(ExplicitEulerDT)                   :: EEuler
-    type(RK2DT)                             :: rk2
     type(RK4DT)                             :: rk4
     type(Calculate_dtDT)                    :: calculate_dt
     type(PrintDT)                           :: writeOutput
     real(rkind), dimension(:), allocatable  :: rhs
-    real(rkind), dimension(:), allocatable  :: rhs1
-    real(rkind), dimension(:), allocatable  :: rhs2
-    real(rkind), dimension(:), allocatable  :: rhs3
-    real(rkind), dimension(:), allocatable  :: dof
     real(rkind)                             :: t
     real(rkind)                             :: dt
     real(rkind)                             :: error
@@ -59,9 +50,6 @@ contains
     allocate(this%scheme, source = SetScheme(directScheme))
     allocate(this%builderAndSolver, source = SetBuilderAndSolver(directBAndS))
     model%dof    = 0._rkind
-    rhs1        = model%dof
-    rhs2        = model%dof
-    rhs3        = model%dof
     step1       = 0
     step2       = 0
     t           = 0._rkind
@@ -70,8 +58,7 @@ contains
     !call DirectScheme%calculateFlux(model)
     allocate(this%process , source = calculate_dt)
     dt    = calculate_dt%calculate(model)*500
-    inverseMatrix = (model%mass)
-    inverseMatrix = inverse(inverseMatrix)
+    inverseMatrix = inverse(model%mass)
     deallocate(this%process)
     allocate(this%process, source = WriteOutput)
     call WriteOutput%initPrint()
