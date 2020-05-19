@@ -43,10 +43,10 @@ contains
 !!$    print*, 'SYSTEM'
 !!$    print*, 'LHS'
 !!$    call model%lhs%printNonZeros()
-    print*, 'RHS'
-    do i = 1, size(model%rhs)
-       print'(A,I0,A,E16.8)', 'rhs(', i, ') = ', model%rhs(i)
-    end do
+!!$    print*, 'RHS'
+!!$    do i = 1, size(model%rhs)
+!!$       print'(A,I0,A,E16.8)', 'rhs(', i, ') = ', model%rhs(i)
+!!$    end do
     write(*,*) '*** Init Linear Solver ***'
     call solve(model)
   end subroutine buildAndSolve
@@ -112,13 +112,9 @@ contains
           call localLHS%free()
        end if
        if(condition%getAffectsRHS() == .true.) then
-          !print*, 'contribución rhs'
           do i = 1, nNode
              row = condition%getNodeID(i)
              model%rhs(row) = model%rhs(row) + localRHS(i)
-!!$             print*, 'i -> ', i
-!!$             print*, 'row -> ', row
-!!$             print*, 'localRHS -> ', localRHS(i)
           end do
           deallocate(localRHS)
        end if

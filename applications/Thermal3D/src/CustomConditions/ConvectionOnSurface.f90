@@ -48,7 +48,7 @@ contains
 
   subroutine init(this, id, nodeIDList, coef, temp, node, geometry)
     implicit none
-    class(ConvectionOnSurfaceDT)      , intent(inout) :: this
+    class(ConvectionOnSurfaceDT)   , intent(inout) :: this
     integer(ikind)                 , intent(in)    :: id
     integer(ikind)   , dimension(:), intent(in)    :: nodeIDList
     real(rkind)                    , intent(in)    :: coef
@@ -67,7 +67,7 @@ contains
 
   subroutine calculateLocalSystem(this, lhs, rhs)
     implicit none
-    class(ConvectionOnSurfaceDT)                             , intent(inout) :: this
+    class(ConvectionOnSurfaceDT)                          , intent(inout) :: this
     type(LeftHandSideDT)                                  , intent(inout) :: lhs
     real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
     integer(ikind)                                                        :: i, j, k
@@ -109,7 +109,7 @@ contains
 
   subroutine calculateLHS(this, lhs)
     implicit none
-    class(ConvectionOnSurfaceDT)                             , intent(inout) :: this
+    class(ConvectionOnSurfaceDT)                          , intent(inout) :: this
     type(LeftHandSideDT)                                  , intent(inout) :: lhs
     integer(ikind)                                                        :: i, j, k
     integer(ikind)                                                        :: nNode
@@ -140,7 +140,7 @@ contains
 
   subroutine calculateRHS(this, rhs)
     implicit none
-    class(ConvectionOnSurfaceDT)                             , intent(inout) :: this
+    class(ConvectionOnSurfaceDT)                          , intent(inout) :: this
     real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
     integer(ikind)                                                        :: i, j
     integer(ikind)                                                        :: nNode

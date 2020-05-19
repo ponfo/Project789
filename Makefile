@@ -39,10 +39,15 @@ OBJECTS := $(BINDIR)/Debugger.o                 \
 	$(BINDIR)/Quadrilateral2D4Node.o        \
 	$(BINDIR)/Quadrilateral2D8Node.o        \
 	$(BINDIR)/Line3D2Node.o                 \
+	$(BINDIR)/Line3D3Node.o                 \
 	$(BINDIR)/Triangle3D3Node.o             \
+	$(BINDIR)/Triangle3D6Node.o             \
 	$(BINDIR)/Quadrilateral3D4Node.o        \
+	$(BINDIR)/Quadrilateral3D8Node.o        \
 	$(BINDIR)/Tetrahedron3D4Node.o          \
+	$(BINDIR)/Tetrahedron3D10Node.o         \
 	$(BINDIR)/Hexahedron3D8Node.o           \
+	$(BINDIR)/Hexahedron3D20Node.o          \
                                                 \
 	$(BINDIR)/Element.o                     \
 	$(BINDIR)/ElementPtr.o                  \
@@ -138,13 +143,23 @@ $(BINDIR)/Quadrilateral2D8Node.o : $(VPATH)/geometry/Quadrilateral2D8Node.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/Line3D2Node.o : $(VPATH)/geometry/Line3D2Node.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/Line3D3Node.o : $(VPATH)/geometry/Line3D3Node.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/Triangle3D3Node.o : $(VPATH)/geometry/Triangle3D3Node.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/Triangle3D6Node.o : $(VPATH)/geometry/Triangle3D6Node.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/Quadrilateral3D4Node.o : $(VPATH)/geometry/Quadrilateral3D4Node.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/Quadrilateral3D8Node.o : $(VPATH)/geometry/Quadrilateral3D8Node.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/Tetrahedron3D4Node.o : $(VPATH)/geometry/Tetrahedron3D4Node.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/Tetrahedron3D10Node.o : $(VPATH)/geometry/Tetrahedron3D10Node.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/Hexahedron3D8Node.o : $(VPATH)/geometry/Hexahedron3D8Node.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/Hexahedron3D20Node.o : $(VPATH)/geometry/Hexahedron3D20Node.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 
 $(BINDIR)/FortranParser.o : $(VPATH)/property/FortranParser.f90

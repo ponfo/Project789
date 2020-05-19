@@ -91,7 +91,7 @@ contains
     class(NodePtrDT)    , dimension(this%nNode), intent(in) :: node
     real(rkind)         , dimension(this%dim, this%dim)     :: jacobianAllNodes
     integer(ikind)                                          :: i
-    real(rkind)         , dimension(2, NNODE)               :: dsf
+    real(rkind)         , dimension(3, NNODE)               :: dsf
     jacobianAllNodes = 0._rkind
     dsf = this%dShapeFunc(pointToValue)
     do i = 1, this%nNode
@@ -109,7 +109,7 @@ contains
     class(NodePtrDT)    , dimension(:)         , intent(in) :: node
     real(rkind)         , dimension(this%dim, this%dim)      :: jacobianSomeNodes
     integer(ikind)                                           :: i
-    real(rkind)         , dimension(2, NNODE)                :: dsf
+    real(rkind)         , dimension(3, NNODE)                :: dsf
     jacobianSomeNodes = 0._rkind
     dsf = this%dShapeFunc(pointToValue)
     do i = 1, size(node)
@@ -125,7 +125,7 @@ contains
     class(NodePtrDT), dimension(this%nNode)             , intent(in)    :: node
     real(rkind), dimension(this%integrator%integTerms,this%dim,this%dim) :: jacobianAtGPoints
     integer(ikind)                                                      :: i, j
-    real(rkind), dimension(this%integrator%integTerms,2,NNODE)           :: dsf
+    real(rkind), dimension(this%integrator%integTerms,3,NNODE)           :: dsf
     jacobianAtGPoints = 0._rkind
     dsf = this%integrator%dShapeFunc
     do i = 1, this%integrator%integTerms
@@ -199,11 +199,11 @@ contains
     real(rkind)                         :: x
     integTerms = this%integrator%integTerms
     allocate(this%integrator%shapeFunc(integTerms, NNODE))
-    allocate(this%integrator%dShapeFunc(integTerms, 2, NNODE))
+    allocate(this%integrator%dShapeFunc(integTerms, 3, NNODE))
     do i = 1, integTerms
        x = this%integrator%gPoint(i,1)
        this%integrator%shapeFunc(i, 1:NNODE) = this%shapeFunc(point(x))
-       this%integrator%dShapeFunc(i, 1:2, 1:NNODE) = this%dShapeFunc(point(x))
+       this%integrator%dShapeFunc(i, 1:3, 1:NNODE) = this%dShapeFunc(point(x))
     end do
   end subroutine valueShapeFuncAtGPoints
 

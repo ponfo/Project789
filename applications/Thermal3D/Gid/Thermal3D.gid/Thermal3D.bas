@@ -174,7 +174,7 @@ Conditions List:
 *Set Cond Normal_Flux_On_Surfaces *elems *canrepeat
 *loop elems *OnlyInCond
 *format "%5i%7i%7i"
-*elemsnum  *ElemsNnodeFaceCurt *localnodes  *cond(Flux,real)
+*elemsnum  *ElemsNnodeFace *localnodes  *cond(Flux,real)
 *end
 
 ######################### Convection On Surfaces #########################
@@ -185,7 +185,7 @@ Conditions List:
 -------------------------------------------------------------
 *Set Cond Convection_On_Surfaces *elems *canrepeat
 *loop elems *OnlyInCond
-*elemsnum   *ElemsNnodeFaceCurt *localnodes  *cond(Coeficient)  *cond(Temperature)
+*elemsnum   *ElemsNnodeFace *localnodes  *cond(Coeficient)  *cond(Temperature)
 *end 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

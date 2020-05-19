@@ -1,0 +1,45 @@
+19:40:19  Initiating Program
+19:40:19    Reading project data
+19:40:19      Project name: test3
+19:40:19      Path: /home/ponfo/Documents/Project789/applications/Thermal3D/Gid/Thermal3D.gid
+19:40:19    Reading mesh data
+19:40:19      Number of Elements.............................: 1
+19:40:19      Are Elements Quadratic.........................: 1
+19:40:19      Number of Tetrahedral elements.................: 1
+19:40:19      Number of Hexahedral elements..................: 0
+19:40:19      Number of Nodes................................: 10
+19:40:19      Number of Dirichlet conditions.................: 7
+19:40:19      Number of NormalFluxOnSurfaces conditions......: 0
+19:40:19      Number of ConvectionOnSurfaces conditions......: 0
+19:40:19      Number of Sources on points....................: 0
+19:40:19      Number of Sources on surfaces..................: 0
+19:40:19      Number of points with pointSource..............: 0
+19:40:19      Number of Volumes with volumeSource............: 0
+19:40:19      Number of Materials............................: 1
+19:40:19      Gauss cuadrature order.........................: 3
+19:40:19          Allocated weights: 11
+19:40:19          Allocated gPoints: 33
+19:40:19          Allocated weights: 4
+19:40:19          Allocated gPoints: 8
+19:40:19          Allocated weights: 3
+19:40:19          Allocated gPoints: 3
+19:40:19          Allocated weights: 11
+19:40:19          Allocated gPoints: 33
+19:40:19          Allocated weights: 4
+19:40:19          Allocated gPoints: 8
+19:40:19          Allocated weights: 3
+19:40:19          Allocated gPoints: 3
+19:40:19          Allocated weights: 27
+19:40:19          Allocated gPoints: 81
+19:40:19          Allocated weights: 9
+19:40:19          Allocated gPoints: 18
+19:40:19          Allocated weights: 3
+19:40:19          Allocated gPoints: 3
+19:40:19    Reading materials properties
+19:40:19    Reading elements
+19:40:19    Reading point and line Sources
+19:40:19    Reading Boundary Conditions
+19:40:19  End loading data
+19:40:19    Assembling stiffness matrix and right hand side vector
+19:40:19  solving linear system
+19:40:19  done solving

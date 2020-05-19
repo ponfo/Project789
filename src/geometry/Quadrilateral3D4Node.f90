@@ -62,31 +62,13 @@ contains
     implicit none
     class(Quadrilateral3D4NodeDT)                       , intent(inout) :: this
     class(NodePtrDT)             , dimension(this%nNode), intent(in)    :: node
-    real(rkind)                                                         :: x1, y1, z1
-    real(rkind)                                                         :: x2, y2, z2
-    real(rkind)                                                         :: x3, y3, z3
-    real(rkind)                                                         :: triang1, triang2
-    x1 = node(2)%getx()-node(1)%getx()
-    y1 = node(2)%gety()-node(1)%gety()
-    z1 = node(2)%getz()-node(1)%getz()
-    x2 = node(3)%getx()-node(1)%getx()
-    y2 = node(3)%gety()-node(1)%gety()
-    z2 = node(3)%getz()-node(1)%getz()
-    x3 = y1*z2 - y2*z1
-    y3 = x1*z2 - x2*z1
-    z3 = x1*y2 - x2*y1
-    triang1 = sqrt(x3*x3+y3*y3+z3*z3)/2._rkind
-    x1 = node(3)%getx()-node(1)%getx()
-    y1 = node(3)%gety()-node(1)%gety()
-    z1 = node(3)%getz()-node(1)%getz()
-    x2 = node(4)%getx()-node(1)%getx()
-    y2 = node(4)%gety()-node(1)%gety()
-    z2 = node(4)%getz()-node(1)%getz()
-    x3 = y1*z2 - y2*z1
-    y3 = x1*z2 - x2*z1
-    z3 = x1*y2 - x2*y1
-    triang2 = sqrt(x3*x3+y3*y3+z3*z3)/2._rkind
-    getLenght = triang1 + triang2
+    integer(ikind)                                                      :: i
+    real(rkind)                  , dimension(:), allocatable            :: jacobianDet
+    jacobianDet = this%jacobianDetAtGPoints(node)
+    getLenght = 0._rkind
+    do i = 1, this%integrator%getIntegTerms()
+       getLenght = getLenght + this%integrator%getWeight(i)*jacobianDet(i)
+    end do
   end function getLenght
 
   function shapeFunc(this, point)

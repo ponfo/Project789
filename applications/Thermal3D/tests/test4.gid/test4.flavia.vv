@@ -1,0 +1,19 @@
+BeginZE /home/ponfo/Documents/Project789/applications/Thermal3D/tests/test4.gid/test4.flavia.vv
+   x -30.935 21.3071
+   y 10.3251 -16.0683
+   z -31.2245 18.8337
+   e 8.34303
+   v 0.384045 0.245042 0.61485
+   r 0.643757
+   m 0.123827 -0.603414 0.787755 0 0.979843 -0.0510632 -0.193135 0 0.156766 0.795792 0.584928 0 0 0 0 1
+   c -5.94037 3.89908 6.19538
+   pd 0
+   pno 0
+   pfo 0
+   pf 4
+   pv 0
+   NowUse 2
+   DrawingType 3
+   LightVector 90 90 150 0
+EndZE /home/ponfo/Documents/Project789/applications/Thermal3D/tests/test4.gid/test4.flavia.vv
+

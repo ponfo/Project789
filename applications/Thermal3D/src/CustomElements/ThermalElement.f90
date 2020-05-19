@@ -3,7 +3,9 @@ module ThermalElementM
   use UtilitiesM
 
   use Tetrahedron3D4NodeM
+  use Tetrahedron3D10NodeM
   use Hexahedron3D8NodeM
+  use Hexahedron3D20NodeM
 
   use IntegratorPtrM
 
@@ -42,8 +44,10 @@ module ThermalElementM
      procedure :: constructor
   end interface thermalElement
 
-  type(Tetrahedron3D4NodeDT), target, save :: myTetrahedron3D4Node
-  type(Hexahedron3D8NodeDT) , target, save :: myHexahedron3D8Node
+  type(Tetrahedron3D4NodeDT) , target, save :: myTetrahedron3D4Node
+  type(Tetrahedron3D10NodeDT), target, save :: myTetrahedron3D10Node
+  type(Hexahedron3D8NodeDT)  , target, save :: myHexahedron3D8Node
+  type(Hexahedron3D20NodeDT) , target, save :: myHexahedron3D20Node
 
 contains
 
@@ -68,6 +72,10 @@ contains
        this%geometry => myTetrahedron3D4Node
     else if(size(node) == 8) then
        this%geometry => myHexahedron3D8Node
+    else if(size(node) == 10) then
+       this%geometry => myTetrahedron3D10Node
+    else if(size(node) == 20) then
+       this%geometry => myHexahedron3D20Node
     end if
     allocate(this%source(1))
   end subroutine init
@@ -76,7 +84,9 @@ contains
     implicit none
     integer(ikind), intent(in) :: nGauss
     myTetrahedron3D4Node = tetrahedron3D4Node(nGauss)
-    myHexahedron3D8Node = Hexahedron3D8Node(nGauss)
+    myTetrahedron3D10Node = tetrahedron3D10Node(nGauss)
+    myHexahedron3D8Node = hexahedron3D8Node(nGauss)
+    myHexahedron3D20Node = hexahedron3D20Node(nGauss)
   end subroutine initGeometries
 
   subroutine calculateLocalSystem(this, lhs, rhs)
@@ -352,7 +362,7 @@ contains
        kz = this%material%conductivity(3)
        resultMat(1,iGauss,1) = -1._rkind*kx*qx
        resultMat(1,iGauss,2) = -1._rkind*ky*qy
-       resultMat(1,iGauss,3) = -3._rkind*kz*qz
+       resultMat(1,iGauss,3) = -1._rkind*kz*qz
     end do
   end subroutine calculateResults
 

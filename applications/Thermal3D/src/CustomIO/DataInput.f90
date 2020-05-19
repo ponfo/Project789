@@ -39,6 +39,7 @@ module DataInputM
   integer(ikind)               :: nSourceOnVolumes
   integer(ikind)               :: nPointSource
   integer(ikind)               :: nVolumeSource
+  integer(ikind)               :: nnz
   character(100)               :: projectName
   character(100)               :: path
   character(100)               :: aux
@@ -118,6 +119,12 @@ contains
     call debugLog('    Number of Volumes with volumeSource............: ', nVolumeSource)
     call debugLog('    Number of Materials............................: ', nMaterial)
     call debugLog('    Gauss cuadrature order.........................: ', nGauss)
+
+    if(isQuadratic == 0) then
+       nnz = nElem*8*8
+    else if (isQuadratic == 1) then
+       nnz = nElem*20*20
+    end if
     
     thermalAppl = thermal3DApplication(                        &
            nNode = nPoint                                      &
@@ -126,7 +133,8 @@ contains
          , nConvection = nConvection                           &
          , nSource = nSourceOnPoints + nSourceOnVolumes        &
          , nMaterial = nMaterial                               &
-         , nGauss = nGauss                                     )
+         , nGauss = nGauss                                     &
+         , nnz = nnz                                           )
     
     do i = 1, 6
        read(project,*)
@@ -161,7 +169,7 @@ contains
   subroutine initElements(thermalAppl)
     type(Thermal3DApplicationDT), intent(inout) :: thermalAppl
     type(NodePtrDT), dimension(:), allocatable :: auxNode
-    integer(ikind) :: i, j, iElem, iMat, nNode, Conectivities(8)
+    integer(ikind) :: i, j, iElem, iMat, nNode, Conectivities(20)
     character(len=13) :: type
     Conectivities = 0
     do i = 1, 7
@@ -242,7 +250,7 @@ contains
     do i = 1, 7
        read(project,*)
     end do
-    allocate(pointID(8))
+    allocate(pointID(20))
     conditionCounter = 0
     if(verbose) print'(/,A)', 'Normal Flux On Surfaces conditions'
     if(verbose) print'(A)', 'Elem    Nodes     Value'

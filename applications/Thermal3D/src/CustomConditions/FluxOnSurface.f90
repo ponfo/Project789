@@ -86,7 +86,6 @@ contains
     real(rkind)              , dimension(:)  , allocatable                :: jacobianDet
     type(IntegratorPtrDT)                                                 :: integrator
     type(NodePtrDT)          , dimension(:)  , allocatable                :: nodalPoints
-    real(rkind) :: area
     nNode = this%getnNode()
     integrator = this%getIntegrator()
     integrator%ptr => this%geometry%boundaryGeometry%integrator
@@ -96,10 +95,7 @@ contains
     do i = 1, nNode
        nodalPoints(i) = this%node(i)
     end do
-    area = this%geometry%boundaryGeometry%getLenght(nodalPoints)
     jacobianDet = this%geometry%boundaryGeometry%jacobianDetAtGPoints(nodalPoints)
-    print*, 'area -> ', area
-    print*, 'jacobianDet -> ', jacobianDet(1)
     do i = 1, nNode
        int = 0._rkind
        do j = 1, integrator%getIntegTerms()

@@ -51,14 +51,14 @@ contains
        nNode = element%getnNode()
        integrator = element%getIntegrator()
        nGauss = integrator%getIntegTerms()
-       if(nNode == 4) then
+       if(nNode == 4 .or. nNode == 10) then
           nPointsTetra = nPointsTetra + nGauss
           nTetra = nTetra + 1
           if(firstTetra) then
              model%heatFlux%tetraGPoint = integrator%getGPointFull()
              firstTetra = .false.
           end if
-       else if(nNode == 8) then
+       else if(nNode == 8 .or. nNode == 20) then
           nPointsHexa = nPointsHexa + nGauss
           nHexa = nHexa + 1
           if(firstHexa) then
@@ -80,7 +80,7 @@ contains
        nNode = element%getnNode()
        call element%calculateResults(localResultMat)
        nGauss = size(localResultMat,2)
-       if(nNode == 4) then
+       if(nNode == 4 .or. nNode == 10) then
           tetraCounter = tetraCounter + 1
           model%heatFlux%tetraElemID(tetraCounter) = iElem
           do iGauss = 1, nGauss
@@ -89,7 +89,7 @@ contains
              model%heatFlux%tetraFlux(tetraPointCounter,2) = localResultMat(1,iGauss,2)
              model%heatFlux%tetraFlux(tetraPointCounter,3) = localResultMat(1,iGauss,3)
           end do
-       else if(nNode == 8) then
+       else if(nNode == 8 .or. nNode == 20) then
           hexaCounter = hexaCounter + 1
           model%heatFlux%hexaElemID(hexaCounter) = iElem
           do iGauss = 1, nGauss

@@ -61,19 +61,13 @@ contains
     implicit none
     class(Triangle3D3NodeDT)                       , intent(inout) :: this
     class(NodePtrDT)        , dimension(this%nNode), intent(in)    :: node
-    real(rkind)                                                    :: x1, y1, z1
-    real(rkind)                                                    :: x2, y2, z2
-    real(rkind)                                                    :: x3, y3, z3
-    x1 = node(2)%getx()-node(1)%getx()
-    y1 = node(2)%gety()-node(1)%gety()
-    z1 = node(2)%getz()-node(1)%getz()
-    x2 = node(3)%getx()-node(1)%getx()
-    y2 = node(3)%gety()-node(1)%gety()
-    z2 = node(3)%getz()-node(1)%getz()
-    x3 = y1*z2 - y2*z1
-    y3 = x1*z2 - x2*z1
-    z3 = x1*y2 - x2*y1
-    getLenght = sqrt(x3*x3+y3*y3+z3*z3)/2._rkind
+    integer(ikind)                                                 :: i
+    real(rkind)             , dimension(:), allocatable            :: jacobianDet
+    jacobianDet = this%jacobianDetAtGPoints(node)
+    getLenght = 0._rkind
+    do i = 1, this%integrator%getIntegTerms()
+       getLenght = getLenght + this%integrator%getWeight(i)*jacobianDet(i)
+    end do
   end function getLenght
 
   function shapeFunc(this, point)
@@ -175,7 +169,7 @@ contains
     x = jacobian(1,2)*jacobian(2,3)-jacobian(2,2)*jacobian(1,3)
     y = jacobian(2,1)*jacobian(1,3)-jacobian(1,1)*jacobian(2,3)
     z = jacobian(1,1)*jacobian(3,2)-jacobian(2,1)*jacobian(1,2)
-    jacobianDetFromCoordAllNodes = sqrt(x*x+y*y+z*z)/2._rkind
+    jacobianDetFromCoordAllNodes = sqrt(x*x+y*y+z*z)!/2._rkind
   end function jacobianDetFromCoordAllNodes
 
   real(rkind) function jacobianDetFromCoordSomeNodes(this, indexList, pointToValue, node)
@@ -190,7 +184,7 @@ contains
     x = jacobian(1,2)*jacobian(2,3)-jacobian(2,2)*jacobian(1,3)
     y = jacobian(2,1)*jacobian(1,3)-jacobian(1,1)*jacobian(2,3)
     z = jacobian(1,1)*jacobian(3,2)-jacobian(2,1)*jacobian(1,2)
-    jacobianDetFromCoordSomeNodes = sqrt(x*x+y*y+z*z)/2._rkind
+    jacobianDetFromCoordSomeNodes = sqrt(x*x+y*y+z*z)!/2._rkind
   end function jacobianDetFromCoordSomeNodes
 
   real(rkind) function jacobianDetFromJacobian(this, jacobian)
@@ -201,7 +195,7 @@ contains
     x = jacobian(1,2)*jacobian(2,3)-jacobian(2,2)*jacobian(1,3)
     y = jacobian(2,1)*jacobian(1,3)-jacobian(1,1)*jacobian(2,3)
     z = jacobian(1,1)*jacobian(3,2)-jacobian(2,1)*jacobian(1,2)
-    jacobianDetFromJacobian = sqrt(x*x+y*y+z*z)/2._rkind
+    jacobianDetFromJacobian = sqrt(x*x+y*y+z*z)!/2._rkind
   end function jacobianDetFromJacobian
 
   function jacobianDetAtGPointsFromCoord(this, node)
@@ -217,7 +211,7 @@ contains
        x = jacobian(i,1,2)*jacobian(i,2,3)-jacobian(i,2,2)*jacobian(i,1,3)
        y = jacobian(i,2,1)*jacobian(i,1,3)-jacobian(i,1,1)*jacobian(i,2,3)
        z = jacobian(i,1,1)*jacobian(i,3,2)-jacobian(i,2,1)*jacobian(i,1,2)
-       jacobianDetAtGPointsFromCoord(i) = sqrt(x*x+y*y+z*z)/2._rkind
+       jacobianDetAtGPointsFromCoord(i) = sqrt(x*x+y*y+z*z)!/2._rkind
     end do
   end function jacobianDetAtGPointsFromCoord
 
@@ -232,7 +226,7 @@ contains
        x = jacobian(i,1,2)*jacobian(i,2,3)-jacobian(i,2,2)*jacobian(i,1,3)
        y = jacobian(i,2,1)*jacobian(i,1,3)-jacobian(i,1,1)*jacobian(i,2,3)
        z = jacobian(i,1,1)*jacobian(i,3,2)-jacobian(i,2,1)*jacobian(i,1,2)
-       jacobianDetAtGPointsFromJacobian(i) = sqrt(x*x+y*y+z*z)/2._rkind
+       jacobianDetAtGPointsFromJacobian(i) = sqrt(x*x+y*y+z*z)!/2._rkind
     end do
   end function jacobianDetAtGPointsFromJacobian
   

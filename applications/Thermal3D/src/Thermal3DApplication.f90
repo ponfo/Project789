@@ -35,7 +35,7 @@ module Thermal3DApplicationM
 contains
 
   type(Thermal3DApplicationDT) function  &
-       constructor(nNode, nElement, nConvection, nNormalFlux, nSource, nMaterial, nGauss)
+       constructor(nNode, nElement, nConvection, nNormalFlux, nSource, nMaterial, nGauss, nnz)
     implicit none
     integer(ikind), intent(in) :: nNode
     integer(ikind), intent(in) :: nElement
@@ -44,10 +44,11 @@ contains
     integer(ikind), intent(in) :: nSource
     integer(ikind), intent(in) :: nMaterial
     integer(ikind), intent(in) :: nGauss
-    call constructor%init(nNode, nElement, nConvection, nNormalFlux, nSource, nMaterial, nGauss)
+    integer(ikind), intent(in) :: nnz
+    call constructor%init(nNode, nElement, nConvection, nNormalFlux, nSource, nMaterial, nGauss, nnz)
   end function constructor
 
-  subroutine init(this, nNode, nElement, nConvection, nNormalFlux, nSource, nMaterial, nGauss)
+  subroutine init(this, nNode, nElement, nConvection, nNormalFlux, nSource, nMaterial, nGauss, nnz)
     implicit none
     class(Thermal3DApplicationDT), intent(inout) :: this
     integer(ikind)               , intent(in)    :: nNode
@@ -57,6 +58,7 @@ contains
     integer(ikind)               , intent(in)    :: nSource
     integer(ikind)               , intent(in)    :: nMaterial
     integer(ikind)               , intent(in)    :: nGauss
+    integer(ikind)               , intent(in)    :: nnz
     allocate(this%node(nNode))
     allocate(this%element(nElement))
     allocate(this%convectionOS(nConvection))
@@ -66,7 +68,7 @@ contains
     call initGeometries(nGauss)
     this%model = thermalModel(                    &
            nDof = nNode                           &
-         , nnz = nElement*64                      &
+         , nnz = nnz                              &
          , id = 1                                 &
          , nNode = nNode                          &
          , nElement = nElement                    &

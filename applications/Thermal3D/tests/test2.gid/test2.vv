@@ -1,18 +1,18 @@
 BeginZE /home/ponfo/Documents/Project789/applications/Thermal3D/tests/test2.gid/test2.vv
-   x -0.981412 1.58141
-   y 1.13633 -0.136328
+   x -1.06839 1.66839
+   y 1.17952 -0.179522
    z -1.86934 1.76934
    e 0.606447
-   v 0.188887 -0.19152 -0.0409408
-   r -0.962271
-   m 0.923288 -0.151143 0.353121 0 0.0064414 0.925291 0.379202 0 -0.384054 -0.347838 0.855284 0 0 0 0 1
+   v 0.136918 -0.255887 -0.0633872
+   r -0.95486
+   m 0.861008 -0.191123 0.471314 0 0.0509806 0.954471 0.293916 0 -0.506029 -0.229036 0.831551 0 0 0 0 1
    c 0.3 0.5 0.05
    pd 0
    pno 0
    pfo 0
    pf 4
    pv 0
-   NowUse 1
+   NowUse 0
    DrawingType 0
    LightVector 90 90 150 0
 EndZE /home/ponfo/Documents/Project789/applications/Thermal3D/tests/test2.gid/test2.vv
