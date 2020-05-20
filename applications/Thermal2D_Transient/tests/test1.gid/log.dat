@@ -1,0 +1,40 @@
+ 8:15:30  Initiating Program
+ 8:15:30    Reading project data
+ 8:15:30      Project name: test1
+ 8:15:30    Reading mesh data
+ 8:15:30      Number of Elements.............................: 361
+ 8:15:30      Are Elements Quadratic.........................: 0
+ 8:15:30      Number of Triangular elements..................: 361
+ 8:15:30      Number of Rectangular elements.................: 0
+ 8:15:30      Number of Nodes................................: 208
+ 8:15:30      Number of Dirichlet conditions.................: 12
+ 8:15:30      Number of NormalFluxOnLines conditions.........: 0
+ 8:15:30      Number of ConvectionOnLines conditions.........: 25
+ 8:15:30      Number of Sources on points....................: 0
+ 8:15:30      Number of Sources on surfaces..................: 0
+ 8:15:30      Number of points with pointSource..............: 0
+ 8:15:30      Number of Surfaces with surfaceSource..........: 0
+ 8:15:30      Number of Materials............................: 1
+ 8:15:30      Gauss cuadrature order.........................: 3
+ 8:15:30          Allocated weights: 4
+ 8:15:30          Allocated gPoints: 8
+ 8:15:30          Allocated weights: 3
+ 8:15:30          Allocated gPoints: 3
+ 8:15:30          Allocated weights: 4
+ 8:15:30          Allocated gPoints: 8
+ 8:15:30          Allocated weights: 3
+ 8:15:30          Allocated gPoints: 3
+ 8:15:30          Allocated weights: 9
+ 8:15:30          Allocated gPoints: 18
+ 8:15:30          Allocated weights: 3
+ 8:15:30          Allocated gPoints: 3
+ 8:15:30          Allocated weights: 9
+ 8:15:30          Allocated gPoints: 18
+ 8:15:30          Allocated weights: 3
+ 8:15:30          Allocated gPoints: 3
+ 8:15:30    Reading materials properties
+ 8:15:30    Reading elements
+ 8:15:30    Reading point and line Sources
+ 8:15:30    Reading Boundary Conditions
+ 8:15:30  End loading data
+ 8:15:30    Assembling stiffness matrix and right hand side vector

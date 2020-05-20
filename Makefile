@@ -9,8 +9,8 @@ COMPILER	:=  ifort
 FFLAGS		:=  -Ofast -qopenmp -free -check bounds -mkl -liomp5 -lpthread -ldl -traceback -module $(OBJECTDIR)
 FFLAGSDebug 	:=  -O0 -fpp -check bounds -traceback -warn nounused -module $(OBJECTDIR)
 
-OBJECTS := $(BINDIR)/Debugger.o                 \
-	$(BINDIR)/Utilities.o                   \
+OBJECTS := $(BINDIR)/Utilities.o                \
+	$(BINDIR)/Debugger.o                    \
 	$(BINDIR)/Quicksort.o                   \
 	$(BINDIR)/SparseKit.o                   \
 	                                        \

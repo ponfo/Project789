@@ -26,6 +26,7 @@ module Thermal2DApplicationM
      type(ThermalModelDT)                                :: model
    contains
      procedure, public :: init
+     procedure, public :: setTransientValues
   end type Thermal2DApplicationDT
 
   interface thermal2DApplication
@@ -72,5 +73,16 @@ contains
          , nElement = nElement                    &
          , nCondition = nConvection + nNormalFlux )
   end subroutine init
+
+  subroutine setTransientValues(this, printStep, t0, errorTol)
+    implicit none
+    class(Thermal2DApplicationDT), intent(inout) :: this
+    integer(ikind)               , intent(in)    :: printStep
+    real(rkind)                  , intent(in)    :: t0
+    real(rkind)                  , intent(in)    :: errorTol
+    this%model%printStep = printStep
+    this%model%t0 = t0
+    this%model%errorTol = errorTol
+  end subroutine setTransientValues
 
 end module Thermal2DApplicationM

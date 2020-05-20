@@ -1,0 +1,44 @@
+10:51:33  Initiating Program
+10:51:33    Reading project data
+10:51:33      Project name: test2
+10:51:33    Reading mesh data
+10:51:33      Number of Elements.............................: 442
+10:51:33      Are Elements Quadratic.........................: 0
+10:51:33      Number of Triangular elements..................: 442
+10:51:33      Number of Rectangular elements.................: 0
+10:51:33      Number of Nodes................................: 250
+10:51:33      Number of Dirichlet conditions.................: 15
+10:51:33      Number of NormalFluxOnLines conditions.........: 14
+10:51:33      Number of ConvectionOnLines conditions.........: 0
+10:51:33      Number of Sources on points....................: 0
+10:51:33      Number of Sources on surfaces..................: 1
+10:51:33      Number of points with pointSource..............: 0
+10:51:33      Number of Surfaces with surfaceSource..........: 442
+10:51:33      Number of Materials............................: 1
+10:51:33      Gauss cuadrature order.........................: 3
+10:51:33      PrintStep......................................: 500
+10:51:33      Initial time...................................:   0.00000000E+00
+10:51:33      Error tolerance................................:   0.50000000E-04
+10:51:33          Allocated weights: 4
+10:51:33          Allocated gPoints: 8
+10:51:33          Allocated weights: 3
+10:51:33          Allocated gPoints: 3
+10:51:33          Allocated weights: 4
+10:51:33          Allocated gPoints: 8
+10:51:33          Allocated weights: 3
+10:51:33          Allocated gPoints: 3
+10:51:33          Allocated weights: 9
+10:51:33          Allocated gPoints: 18
+10:51:33          Allocated weights: 3
+10:51:33          Allocated gPoints: 3
+10:51:33          Allocated weights: 9
+10:51:33          Allocated gPoints: 18
+10:51:33          Allocated weights: 3
+10:51:33          Allocated gPoints: 3
+10:51:33    Reading materials properties
+10:51:33    Reading elements
+10:51:33    Reading point and line Sources
+10:51:33    Reading Boundary Conditions
+10:51:33    Reading Initial Values
+10:51:33  End loading data
+10:51:33    Assembling stiffness matrix and right hand side vector

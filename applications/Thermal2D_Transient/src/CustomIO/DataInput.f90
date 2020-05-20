@@ -40,6 +40,9 @@ module DataInputM
   integer(ikind)               :: nPointSource
   integer(ikind)               :: nLineSource
   integer(ikind)               :: nSurfaceSource
+  integer(ikind)               :: printStep
+  real(rkind)                  :: t0
+  real(rkind)                  :: errorTol
   character(100)               :: projectName
   character(100)               :: aux
   logical       , parameter    :: verbose = .false.
@@ -68,6 +71,8 @@ contains
     call readPointLineSurfaceSources(thermalAppl)
     call debugLog('  Reading Boundary Conditions')
     call readBoundaryConditions(thermalAppl)
+    call debugLog('  Reading Initial Values')
+    call readInitialValues(thermalAppl)
     call debugLog('End loading data')
   end subroutine initFEM2D
   
@@ -102,6 +107,9 @@ contains
     read(project,*)  aux, nSourceOnSurfaces
     read(project,*)  aux, nPointSource
     read(project,*)  aux, nSurfaceSource
+    read(project,*)  aux, printStep
+    read(project,*)  aux, t0
+    read(project,*)  aux, errorTol
     call debugLog('    Number of Elements.............................: ', nElem)
     call debugLog('    Are Elements Quadratic.........................: ', isQuadratic)
     call debugLog('    Number of Triangular elements..................: ', nTriangElem)
@@ -116,6 +124,9 @@ contains
     call debugLog('    Number of Surfaces with surfaceSource..........: ', nSurfaceSource)
     call debugLog('    Number of Materials............................: ', nMaterial)
     call debugLog('    Gauss cuadrature order.........................: ', nGauss)
+    call debugLog('    PrintStep......................................: ', printStep)
+    call debugLog('    Initial time...................................: ', t0)
+    call debugLog('    Error tolerance................................: ', errorTol)
     
     thermalAppl = thermal2DApplication(                        &
            nNode = nPoint                                      &
@@ -125,6 +136,8 @@ contains
          , nSource = nSourceOnPoints + nSourceOnSurfaces       &
          , nMaterial = nMaterial                               &
          , nGauss = nGauss                                     )
+
+    call thermalAppl%setTransientValues(printStep, t0, errorTol)
     
     do i = 1, 6
        read(project,*)
@@ -277,8 +290,24 @@ contains
        thermalAppl%convectionOL(i) = convectionOnLine(i, pointID, coef, temp, node, element%geometry)
        call thermalAppl%model%addCondition(conditionCounter, thermalAppl%convectionOL(i))
     end do
-    close(project)
   end subroutine readBoundaryConditions
+
+  subroutine readInitialValues(thermalAppl)
+    implicit none
+    type(Thermal2DApplicationDT), intent(inout) :: thermalAppl
+    integer(ikind) :: i, nodeID
+    real(rkind) :: temp
+    do i = 1, 7
+       read(project,*)
+    end do
+    if(verbose) print'(/,A)', 'Initial Temperature'
+    if(verbose) print'(A)', 'Node   Temperature'
+    do i = 1, nPoint
+       read(project,*) nodeID, temp
+       if(verbose) print*, nodeID, temp
+       thermalAppl%model%dof(nodeID) = temp
+    end do
+  end subroutine readInitialValues
 
 end module DataInputM
   

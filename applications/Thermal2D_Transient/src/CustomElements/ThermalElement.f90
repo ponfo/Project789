@@ -174,7 +174,7 @@ contains
     type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
     nNode = this%getnNode()
     integrator = this%getIntegrator()
-    lhs = leftHandSide(0, 0, nNode)
+    lhs = leftHandSide(nNode, 0, nNode)
     allocate(nodalPoints(nNode))
     do i = 1, nNode
        nodalPoints(i) = this%node(i)
@@ -184,6 +184,7 @@ contains
     do i = 1, nNode
        do j = 1, nNode
           lhs%stiffness(i,j) = 0._rkind
+          lhs%mass(i,j)      = 0._rkind
           do k = 1, integrator%getIntegTerms()
              bi = jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
                   - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i)
@@ -199,44 +200,17 @@ contains
                   *(this%material%conductivity(1)*bi*bj  &
                   + this%material%conductivity(2)*ci*cj) &
                   / jacobianDet(k)
-          end do
-       end do
-    end do
-  end subroutine calculateLHS
 
-  subroutine calculateMass(this, lhs)
-    implicit none
-    class(ThermalElementDT)                               , intent(inout) :: this
-    type(LeftHandSideDT)                                  , intent(inout) :: lhs
-    integer(ikind)                                                        :: i, j, k, nNode
-    real(rkind)                                                           :: bi, bj, ci, cj
-    real(rkind)            , dimension(:,:,:), allocatable                :: jacobian
-    real(rkind)            , dimension(:)    , allocatable                :: jacobianDet
-    type(IntegratorPtrDT)                                                 :: integrator
-    type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
-    nNode = this%getnNode()
-    integrator = this%getIntegrator()
-    lhs = leftHandSide(nNode, 0, nNode)
-    allocate(nodalPoints(nNode))
-    do i = 1, nNode
-       nodalPoints(i) = this%node(i)
-    end do
-    jacobian = this%geometry%jacobianAtGPoints(nodalPoints)
-    jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
-    do i = 1, nNode
-       do j = 1, nNode
-          lhs%mass(i,j) = 0._rkind
-          do k = 1, integrator%getIntegTerms()
              lhs%mass(i,j) = lhs%mass(i,j)                   &
                   + integrator%getWeight(k)                  &
                   *(this%material%cp*this%material%rho        &
                   *integrator%getShapeFunc(k,i)              &
                   *integrator%getShapeFunc(k,j))             &
-                  / jacobianDet(k)
+                  * jacobianDet(k)*2
           end do
        end do
     end do
-  end subroutine calculateMass
+  end subroutine calculateLHS
   
   subroutine calculateRHS(this, rhs)
     implicit none

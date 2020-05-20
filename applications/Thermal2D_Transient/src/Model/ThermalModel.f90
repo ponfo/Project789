@@ -14,6 +14,9 @@ module ThermalModelM
   public :: ThermalModelDT, thermalModel
 
   type, extends(modelDT) :: ThermalModelDT
+     integer(ikind)                           :: printStep
+     real(rkind)                              :: t0
+     real(rkind)                              :: errorTol
      type(Sparse)                             :: lhs
      type(Sparse)                             :: mass
      real(rkind), dimension(:)  , allocatable :: rhs

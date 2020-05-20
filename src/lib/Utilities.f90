@@ -1,12 +1,10 @@
 module UtilitiesM
-  use DebuggerM
 !!$ Intrinsic standart iso_fortran Real types REAL32, REAL64, REAL128
   use, intrinsic :: iso_fortran_env
   implicit none
 
   public :: isp, idp, iqp, ikind, rsp, rdp, rqp, rkind!, debugger
   
-  type(DebuggerDT)   :: debugger
   integer, parameter :: isp = int16
   integer, parameter :: idp = int32
   integer, parameter :: iqp = int64
