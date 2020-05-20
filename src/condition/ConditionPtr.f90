@@ -13,6 +13,8 @@ module ConditionPtrM
 
   use LeftHandSideM
 
+  use ProcessInfoM
+
   implicit none
 
   private
@@ -98,26 +100,29 @@ contains
     getAffectsRHS = this%ptr%getAffectsRHS()
   end function getAffectsRHS
 
-  subroutine calculateLocalSystem(this, lhs, rhs)
+  subroutine calculateLocalSystem(this, processInfo, lhs, rhs)
     implicit none
     class(ConditionPtrDT)                          , intent(inout) :: this
+    type(ProcessInfoDT)                            , intent(inout) :: processInfo
     type(LeftHandSideDT)                           , intent(inout) :: lhs
     real(rkind)         , dimension(:), allocatable, intent(inout) :: rhs
-    call this%ptr%calculateLocalSystem(lhs, rhs)
+    call this%ptr%calculateLocalSystem(processInfo, lhs, rhs)
   end subroutine calculateLocalSystem
 
-  subroutine calculateLHS(this, lhs)
+  subroutine calculateLHS(this, processInfo, lhs)
     implicit none
     class(ConditionPtrDT), intent(inout) :: this
+    type(ProcessInfoDT)  , intent(inout) :: processInfo
     type(LeftHandSideDT) , intent(inout) :: lhs
-    call this%ptr%calculateLHS(lhs)
+    call this%ptr%calculateLHS(processInfo, lhs)
   end subroutine calculateLHS
 
-  subroutine calculateRHS(this, rhs)
+  subroutine calculateRHS(this, processInfo, rhs)
     implicit none
     class(ConditionPtrDT)                           , intent(inout) :: this
+    type(ProcessInfoDT)                             , intent(inout) :: processInfo
     real(rkind)          , dimension(:), allocatable, intent(inout) :: rhs
-    call this%ptr%calculateRHS(rhs)
+    call this%ptr%calculateRHS(processInfo, rhs)
   end subroutine calculateRHS
 
 end module ConditionPtrM

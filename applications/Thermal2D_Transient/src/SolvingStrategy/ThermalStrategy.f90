@@ -7,7 +7,6 @@ module ThermalStrategyM
 
   use SolvingStrategyM
 
-  use Calculate_dtM
   use PrintM
 
   use ThermalSchemeM
@@ -38,7 +37,6 @@ contains
     type(ThermalBuilderAndSolverDT)         :: directBAndS
     type(Poisson2DDT)                       :: poisson2D
     type(RK4DT)                             :: rk4
-    type(Calculate_dtDT)                    :: calculate_dt
     type(PrintDT)                           :: writeOutput
     real(rkind), dimension(:), allocatable  :: rhs
     real(rkind)                             :: t
@@ -59,10 +57,8 @@ contains
     printStep   = model%printStep
     call directBAndS%buildAndSolve(model)
     call DirectScheme%calculateFlux(model)
-    allocate(this%process , source = calculate_dt)
-    dt    = calculate_dt%calculate(model)*50
+    dt    = model%processInfo%dt*50
     inverseMatrix = inverse(model%mass)
-    deallocate(this%process)
     allocate(this%process, source = WriteOutput)
     call WriteOutput%initPrint()
     do while(error .ge. errorTol)

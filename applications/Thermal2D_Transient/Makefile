@@ -19,7 +19,6 @@ OBJECTS := $(BINDIR)/ThermalMaterial.o      \
 	$(BINDIR)/ThermalScheme.o           \
 	$(BINDIR)/Poisson2D.o	  	    \
 	$(BINDIR)/Print.o	            \
-	$(BINDIR)/Calculate_dt.o 	    \
 	$(BINDIR)/ThermalStrategy.o         \
 	$(BINDIR)/Thermal2DApplication.o    \
 	$(BINDIR)/DataInput.o               \
@@ -57,8 +56,6 @@ $(BINDIR)/ThermalScheme.o : $(VPATH)/SolvingStrategy/ThermalScheme.f90
 $(BINDIR)/Poisson2D.o : $(VPATH)/SolvingStrategy/Poisson2D.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/Print.o : $(VPATH)/Process/Print.f90
-	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
-$(BINDIR)/Calculate_dt.o : $(VPATH)/Process/Calculate_dt.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/ThermalStrategy.o : $(VPATH)/SolvingStrategy/ThermalStrategy.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@

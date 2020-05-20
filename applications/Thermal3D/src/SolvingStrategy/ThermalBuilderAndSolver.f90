@@ -63,7 +63,7 @@ contains
     do iElem = 1, nElem
        element = model%getElement(iElem)
        nNode = element%getnNode()
-       call element%calculateLocalSystem(localLHS, localRHS)
+       call element%calculateLocalSystem(model%processInfo, localLHS, localRHS)
        do i = 1, nNode
           row = element%getNodeID(i)
           do j = 1, nNode
@@ -98,7 +98,7 @@ contains
     do iCond = 1, nCond
        condition = model%getCondition(iCond)
        nNode = condition%getnNode()
-       call condition%calculateLocalSystem(localLHS, localRHS)
+       call condition%calculateLocalSystem(model%processInfo, localLHS, localRHS)
        if(condition%getAffectsLHS() == .true.) then
           do i = 1, nNode
              row = condition%getNodeID(i)

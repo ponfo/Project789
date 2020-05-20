@@ -11,6 +11,8 @@ module ConditionM
 
   use LeftHandSideM
 
+  use ProcessInfoM
+
   implicit none
 
   private
@@ -37,38 +39,43 @@ module ConditionM
      procedure(calculateLocalSystemInterf), deferred :: calculateLocalSystem
      procedure(calculateLHSInterf)        , deferred :: calculateLHS
      procedure(calculateRHSInterf)        , deferred :: calculateRHS
-     procedure                                       :: calculateResults
   end type ConditionDT
 
   abstract interface
-     subroutine calculateLocalSystemInterf(this, lhs, rhs)
+     subroutine calculateLocalSystemInterf(this, processInfo, lhs, rhs)
        use UtilitiesM
        import ConditionDT
+       import ProcessInfoDT
        import LeftHandSideDT
        implicit none
        class(ConditionDT)                               , intent(inout) :: this
+       type(ProcessInfoDT)                              , intent(inout) :: processInfo
        type(LeftHandSideDT)                             , intent(inout) :: lhs
        real(rkind)         , dimension(:)  , allocatable, intent(inout) :: rhs
      end subroutine calculateLocalSystemInterf
   end interface
 
   abstract interface
-     subroutine calculateRHSInterf(this, rhs)
+     subroutine calculateRHSInterf(this, processInfo, rhs)
        use UtilitiesM
        import ConditionDT
+       import ProcessInfoDT
        implicit none
        class(ConditionDT)                           , intent(inout) :: this
+       type(ProcessInfoDT)                          , intent(inout) :: processInfo
        real(rkind)       , dimension(:), allocatable, intent(inout) :: rhs
      end subroutine calculateRHSInterf
   end interface
 
   abstract interface
-     subroutine calculateLHSInterf(this, lhs)
+     subroutine calculateLHSInterf(this, processInfo, lhs)
        use UtilitiesM
        import ConditionDT
+       import ProcessInfoDT
        import LeftHandSideDT
        implicit none
        class(ConditionDT)  , intent(inout) :: this
+       type(ProcessInfoDT) , intent(inout) :: processInfo
        type(LeftHandSideDT), intent(inout) :: lhs
      end subroutine calculateLHSInterf
   end interface
@@ -134,12 +141,6 @@ contains
     class(ConditionDT), intent(in) :: this
     getAffectsRHS = this%affectsRHS
   end function getAffectsRHS
-
-  subroutine calculateResults(this)
-    implicit none
-    class(ConditionDT), intent(inout) :: this
-    print*, "** Condition's calculateResults not implemented **"
-  end subroutine calculateResults
 
 end module ConditionM
 

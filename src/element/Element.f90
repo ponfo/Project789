@@ -10,6 +10,8 @@ module ElementM
   use IntegratorPtrM
 
   use LeftHandSideM
+
+  use ProcessInfoM
   
   use SourceM
   use SourcePtrM
@@ -44,38 +46,43 @@ module ElementM
      procedure(calculateLHSInterf)        , deferred :: calculateLHS
      procedure(calculateRHSInterf)        , deferred :: calculateRHS
      procedure(calculateResultsInterf)    , deferred :: calculateResults
-     procedure(calculateDtInterf)         , deferred :: calculatedt
   end type ElementDT
 
   abstract interface
-     subroutine calculateLocalSystemInterf(this, lhs, rhs)
+     subroutine calculateLocalSystemInterf(this, processInfo, lhs, rhs)
        use UtilitiesM
        import ElementDT
+       import ProcessInfoDT
        import LeftHandSideDT
        implicit none
        class(ElementDT)                                 , intent(inout) :: this
+       type(ProcessInfoDT)                              , intent(inout) :: processInfo
        type(LeftHandSideDT)                             , intent(inout) :: lhs
        real(rkind)         , dimension(:)  , allocatable, intent(inout) :: rhs
      end subroutine calculateLocalSystemInterf
   end interface
 
   abstract interface
-     subroutine calculateRHSInterf(this, rhs)
+     subroutine calculateRHSInterf(this, processInfo, rhs)
        use UtilitiesM
        import ElementDT
+       import ProcessInfoDT
        implicit none
        class(ElementDT)                           , intent(inout) :: this
+       type(ProcessInfoDT)                        , intent(inout) :: processInfo
        real(rkind)     , dimension(:), allocatable, intent(inout) :: rhs
      end subroutine calculateRHSInterf
   end interface
 
   abstract interface
-     subroutine calculateLHSInterf(this, lhs)
+     subroutine calculateLHSInterf(this, processInfo, lhs)
        use UtilitiesM
        import ElementDT
+       import ProcessInfoDT
        import LeftHandSideDT
        implicit none
        class(ElementDT)    , intent(inout) :: this
+       type(ProcessInfoDT) , intent(inout) :: processInfo
        type(LeftHandSideDT), intent(inout) :: lhs
      end subroutine calculateLHSInterf
   end interface
@@ -85,23 +92,15 @@ module ElementM
   !!                       j: Number of point where the result lays
   !!                       k: Number of dimensions of the result
   abstract interface
-     subroutine calculateResultsInterf(this, resultMat)
+     subroutine calculateResultsInterf(this, processInfo, resultMat)
        use UtilitiesM
        import ElementDT
+       import ProcessInfoDT
        implicit none
        class(ElementDT)                               , intent(inout) :: this
+       type(ProcessInfoDT)                            , intent(inout) :: processInfo
        real(rkind)     , dimension(:,:,:), allocatable, intent(inout) :: resultMat
      end subroutine calculateResultsInterf
-  end interface
-
-  abstract interface
-     subroutine calculateDtInterf(this, dt)
-       use UtilitiesM
-       import ElementDT
-       implicit none
-       class(ElementDT), intent(inout) :: this
-       real(rkind)     , intent(inout) :: dt
-     end subroutine calculateDtInterf
   end interface
   
 contains
@@ -181,20 +180,6 @@ contains
     integer(ikind)  , intent(in)    :: iSource
     hasSourceMultiSource = associated(this%source(iSource)%ptr)
   end function hasSourceMultiSource
-
-  subroutine calculateLocalSystem(this, lhs, rhs)
-    implicit none
-    class(ElementDT)                               , intent(inout) :: this
-    real(rkind)       , dimension(:,:), allocatable, intent(out)   :: lhs
-    real(rkind)       , dimension(:)  , allocatable, intent(out)   :: rhs
-    print*, "** Element's calculateLocalSystem not implemented **"
-  end subroutine calculateLocalSystem
-
-  subroutine calculateResults(this)
-    implicit none
-    class(ElementDT), intent(inout) :: this
-    print*, "** Element's calculateResults not implemented **"
-  end subroutine calculateResults
 
 end module ElementM
 

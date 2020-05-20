@@ -14,6 +14,7 @@ module ThermalElementM
   use NodePtrM
 
   use LeftHandSideM
+  use ProcessInfoM
 
   use SourceM
   use SourcePtrM
@@ -37,7 +38,7 @@ module ThermalElementM
      procedure, public  :: calculateResults
      procedure, private :: setupIntegration
      procedure, private :: getValuedSource
-     procedure, public  :: calculateDt
+     procedure, private :: calculateDt
   end type ThermalElementDT
 
   interface thermalElement
@@ -89,9 +90,10 @@ contains
     myQuadrilateral2D8Node = quadrilateral2D8Node(nGauss)
   end subroutine initGeometries
 
-  subroutine calculateLocalSystem(this, lhs, rhs)
+  subroutine calculateLocalSystem(this, processInfo, lhs, rhs)
     implicit none
     class(ThermalElementDT)                               , intent(inout) :: this
+    type(ProcessInfoDT)                                   , intent(inout) :: processInfo
     type(LeftHandSideDT)                                  , intent(inout) :: lhs
     real(rkind)            , dimension(:)    , allocatable, intent(inout) :: rhs
     integer(ikind)                                                        :: i, j, k, nNode
@@ -100,6 +102,7 @@ contains
     real(rkind)            , dimension(:)    , allocatable                :: jacobianDet
     real(rkind)                                                           :: val
     real(rkind)            , dimension(:)    , allocatable                :: valuedSource
+    real(rkind)                                                           :: dt
     type(IntegratorPtrDT)                                                 :: integrator
     type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
     nNode = this%getnNode()
@@ -160,11 +163,14 @@ contains
        deallocate(valuedSource)
        deallocate(jacobianDet)
     end if
+    call this%calculateDT(dt)
+    call processInfo%setMinimumDT(dt)
   end subroutine calculateLocalSystem
 
-  subroutine calculateLHS(this, lhs)
+  subroutine calculateLHS(this, processInfo, lhs)
     implicit none
     class(ThermalElementDT)                               , intent(inout) :: this
+    type(ProcessInfoDT)                                   , intent(inout) :: processInfo
     type(LeftHandSideDT)                                  , intent(inout) :: lhs
     integer(ikind)                                                        :: i, j, k, nNode
     real(rkind)                                                           :: bi, bj, ci, cj
@@ -212,9 +218,10 @@ contains
     end do
   end subroutine calculateLHS
   
-  subroutine calculateRHS(this, rhs)
+  subroutine calculateRHS(this, processInfo, rhs)
     implicit none
     class(ThermalElementDT)                           , intent(inout) :: this
+    type(ProcessInfoDT)                               , intent(inout) :: processInfo
     real(rkind)            , dimension(:), allocatable, intent(inout) :: rhs
     integer(ikind)                                                    :: i, j, nNode
     real(rkind)                                                       :: val
@@ -287,9 +294,10 @@ contains
     end do
   end function getValuedSource
 
-  subroutine calculateResults(this, resultMat)
+  subroutine calculateResults(this, processInfo, resultMat)
     implicit none
     class(ThermalElementDT)                               , intent(inout) :: this
+    type(ProcessInfoDT)                                   , intent(inout) :: processInfo
     real(rkind)            , dimension(:,:,:), allocatable, intent(inout) :: resultMat
     integer(ikind)                                                        :: i, iGauss, nNode
     real(rkind)                                                           :: bi, ci, qx, qy, xi, eta

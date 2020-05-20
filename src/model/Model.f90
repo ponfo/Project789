@@ -13,6 +13,7 @@ module ModelM
   use ConditionPtrM
   
   use MeshM
+  use ProcessInfoM
 
   use SourceM
 
@@ -24,7 +25,8 @@ module ModelM
   public :: ModelDT, model
 
   type ModelDT
-     type(MeshDT), dimension(:), allocatable :: mesh
+     type(MeshDT)       , dimension(:), allocatable :: mesh
+     type(ProcessInfoDT)                            :: processInfo
    contains
      procedure, public  :: initModel
      
@@ -45,6 +47,9 @@ module ModelM
      generic  , public  :: removeNode      => removeNodeOneMesh, removeNodeMultiMesh
      generic  , public  :: removeElement   => removeElementOneMesh, removeElementMultiMesh
      generic  , public  :: removeCondition => removeConditionOneMesh, removeConditionMultiMesh
+
+     procedure, public  :: getMesh
+     procedure, public  :: getProcessInfo
 
      procedure, private :: addNodeOneMesh
      procedure, private :: addNodeMultiMesh
@@ -295,5 +300,18 @@ contains
     integer(ikind), intent(in)    :: conditionID
     call this%mesh(meshID)%removeCondition(conditionID)
   end subroutine removeConditionMultiMesh
+
+  type(MeshDT) function getMesh(this, meshID)
+    implicit none
+    class(ModelDT), intent(in) :: this
+    integer(ikind), intent(in) :: meshID
+    getMesh = this%mesh(meshID)
+  end function getMesh
+
+  type(ProcessInfoDT) pure function getProcessInfo(this)
+    implicit none
+    class(ModelDT), intent(in) :: this
+    getProcessInfo = this%processInfo
+  end function getProcessInfo
   
 end module ModelM

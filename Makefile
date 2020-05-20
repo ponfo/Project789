@@ -48,6 +48,8 @@ OBJECTS := $(BINDIR)/Utilities.o                \
 	$(BINDIR)/Tetrahedron3D10Node.o         \
 	$(BINDIR)/Hexahedron3D8Node.o           \
 	$(BINDIR)/Hexahedron3D20Node.o          \
+	                                        \
+	$(BINDIR)/ProcessInfo.o			\
                                                 \
 	$(BINDIR)/Element.o                     \
 	$(BINDIR)/ElementPtr.o                  \
@@ -57,7 +59,6 @@ OBJECTS := $(BINDIR)/Utilities.o                \
                                                 \
 	$(BINDIR)/Mesh.o                        \
 	$(BINDIR)/Model.o			\
-	$(BINDIR)/ProcessInfo.o			\
 						\
 	$(BINDIR)/Preconditioner.o		\
 	$(BINDIR)/PreconditionerMethod.o	\
@@ -190,9 +191,9 @@ $(BINDIR)/LeftHandSide.o : $(VPATH)/leftHandSide/LeftHandSide.f90
 
 $(BINDIR)/Mesh.o : $(VPATH)/model/Mesh.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
-$(BINDIR)/Model.o : $(VPATH)/model/Model.f90
-	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/ProcessInfo.o : $(VPATH)/model/ProcessInfo.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/Model.o : $(VPATH)/model/Model.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 
 $(BINDIR)/mklPardiso.o : $(VPATH)/solvers/Linear/Direct/Solvers/mklPardiso.f90

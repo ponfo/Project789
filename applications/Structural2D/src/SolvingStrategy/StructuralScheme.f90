@@ -90,7 +90,7 @@ contains
     do iElem = 1, nElem
        element = model%getElement(iElem)
        nNode = element%getnNode()
-       call element%calculateResults(localResultMat)
+       call element%calculateResults(model%processInfo, localResultMat)
        nGauss = size(localResultMat,2)
        if(nNode == 3 .or. nNode == 6) then
           triangCounter = triangCounter + 1

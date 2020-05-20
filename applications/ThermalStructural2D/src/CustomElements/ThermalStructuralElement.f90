@@ -10,6 +10,7 @@ module ThermalStructuralElementM
   use IntegratorPtrM
 
   use LeftHandSideM
+  use ProcessInfoM
 
   use PointM
   use NodeM
@@ -35,7 +36,6 @@ module ThermalStructuralElementM
      procedure, public  :: calculateRHS
      procedure, public  :: calculateLocalSystem
      procedure, public  :: calculateResults
-     procedure, public  :: calculateDT
      procedure, private :: setupIntegration
      procedure, private :: getValuedSource
   end type ThermalStructuralElementDT
@@ -89,9 +89,10 @@ contains
     myQuadrilateral2D8Node = quadrilateral2D8Node(nGauss)
   end subroutine initGeometriesTS
 
-  subroutine calculateLocalSystem(this, lhs, rhs)
+  subroutine calculateLocalSystem(this, processInfo, lhs, rhs)
     implicit none
-    class(ThermalStructuralElementDT)                            , intent(inout) :: this
+    class(ThermalStructuralElementDT)                     , intent(inout) :: this
+    type(ProcessInfoDT)                                   , intent(inout) :: processInfo
     type(LeftHandSideDT)                                  , intent(inout) :: lhs
     real(rkind)            , dimension(:)    , allocatable, intent(inout) :: rhs
     integer(ikind)                                                        :: i, j, ii, jj, k
@@ -204,9 +205,10 @@ contains
     deallocate(jacobianDet)
   end subroutine calculateLocalSystem
 
-  subroutine calculateLHS(this, lhs)
+  subroutine calculateLHS(this, processInfo, lhs)
     implicit none
-    class(ThermalStructuralElementDT)                            , intent(inout) :: this
+    class(ThermalStructuralElementDT)                     , intent(inout) :: this
+    type(ProcessInfoDT)                                   , intent(inout) :: processInfo
     type(LeftHandSideDT)                                  , intent(inout) :: lhs
     integer(ikind)                                                        :: i, j, ii, jj, k
     integer(ikind)                                                        :: nNode, nDof
@@ -263,9 +265,10 @@ contains
     lhs%stiffness = lhs%stiffness * this%material%thickness
   end subroutine calculateLHS
 
-  subroutine calculateRHS(this, rhs)
+  subroutine calculateRHS(this, processInfo, rhs)
     implicit none
-    class(ThermalStructuralElementDT)                            , intent(inout) :: this
+    class(ThermalStructuralElementDT)                     , intent(inout) :: this
+    type(ProcessInfoDT)                                   , intent(inout) :: processInfo
     real(rkind)            , dimension(:)    , allocatable, intent(inout) :: rhs
     integer(ikind)                                                        :: i, j, nNode, nDof
     real(rkind)                                                           :: val1, val2
@@ -381,9 +384,10 @@ contains
     end do
   end function getValuedSource
 
-  subroutine calculateResults(this, resultMat)
+  subroutine calculateResults(this, processInfo, resultMat)
     implicit none
     class(ThermalStructuralElementDT)                     , intent(inout) :: this
+    type(ProcessInfoDT)                                   , intent(inout) :: processInfo
     real(rkind)            , dimension(:,:,:), allocatable, intent(inout) :: resultMat
     integer(ikind)                                                        :: i, iGauss, nNode
     real(rkind)                                                           :: nsx, nsy !NormalStress
@@ -438,11 +442,5 @@ contains
        resultMat(3,iGauss,2) = epy
     end do
   end subroutine calculateResults
-
-  subroutine calculateDT(this, dt)
-    implicit none
-    class(ThermalStructuralElementDT), intent(inout) :: this
-    real(rkind)                      , intent(inout) :: dt
-  end subroutine calculateDT
 
 end module ThermalStructuralElementM

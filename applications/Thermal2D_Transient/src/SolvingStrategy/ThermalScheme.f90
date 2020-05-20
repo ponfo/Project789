@@ -28,7 +28,7 @@ contains
 
   subroutine calculateFlux(this, model)
     implicit none
-    class(ThermalSchemeDT), intent(inout)          :: this
+    class(ThermalSchemeDT), intent(inout)                :: this
     class(ThermalModelDT), intent(inout)                 :: model
     logical                                              :: firstTriang = .true.
     logical                                              :: firstQuad = .true.
@@ -65,14 +65,18 @@ contains
           end if
        end if
     end do
-    if (allocated(model%heatFlux%triangElemID)) deallocate(model%heatFlux%triangElemID)
-    allocate(model%heatFlux%triangElemID(nTriang))
-    if (allocated(model%heatFlux%triangFlux)) deallocate(model%heatFlux%triangFlux)
-    allocate(model%heatFlux%triangFlux(nPointsTriang,2))
-    if (allocated(model%heatFlux%quadElemID)) deallocate(model%heatFlux%quadElemID)
-    allocate(model%heatFlux%quadElemID(nQuad))
-    if (allocated(model%heatFlux%quadFlux)) deallocate(model%heatFlux%quadFlux)
-    allocate(model%heatFlux%quadFlux(nPointsQuad,2))
+!!$    if (allocated(model%heatFlux%triangElemID)) deallocate(model%heatFlux%triangElemID)
+!!$    allocate(model%heatFlux%triangElemID(nTriang))
+!!$    if (allocated(model%heatFlux%triangFlux)) deallocate(model%heatFlux%triangFlux)
+!!$    allocate(model%heatFlux%triangFlux(nPointsTriang,2))
+!!$    if (allocated(model%heatFlux%quadElemID)) deallocate(model%heatFlux%quadElemID)
+!!$    allocate(model%heatFlux%quadElemID(nQuad))
+!!$    if (allocated(model%heatFlux%quadFlux)) deallocate(model%heatFlux%quadFlux)
+!!$    allocate(model%heatFlux%quadFlux(nPointsQuad,2))
+    if(.not.allocated(model%heatFlux%triangElemID)) allocate(model%heatFlux%triangElemID(nTriang))
+    if(.not.allocated(model%heatFlux%triangFlux)) allocate(model%heatFlux%triangFlux(nPointsTriang,2))
+    if(.not.allocated(model%heatFlux%quadElemID)) allocate(model%heatFlux%quadElemID(nQuad))
+    if(.not.allocated(model%heatFlux%quadFlux)) allocate(model%heatFlux%quadFlux(nPointsQuad,2))
     triangCounter = 0
     triangPointCounter = 0
     quadCounter = 0
@@ -80,7 +84,7 @@ contains
     do iElem = 1, nElem
        element = model%getElement(iElem)
        nNode = element%getnNode()
-       call element%calculateResults(localResultMat)
+       call element%calculateResults(model%processInfo, localResultMat)
        nGauss = size(localResultMat,2)
        if(nNode == 3 .or. nNode == 6) then
           triangCounter = triangCounter + 1

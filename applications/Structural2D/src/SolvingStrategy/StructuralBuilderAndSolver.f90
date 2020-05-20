@@ -64,7 +64,7 @@ contains
     do iElem = 1, nElem
        element = model%getElement(iElem)
        nNode = element%getnNode()
-       call element%calculateLocalSystem(localLHS, localRHS)
+       call element%calculateLocalSystem(model%processInfo, localLHS, localRHS)
        do iNode = 1, nNode
           iNodeID = element%getNodeID(iNode)
           do jNode = 1, nNode
@@ -104,7 +104,7 @@ contains
     do iCond = 1, nCond
        condition = model%getCondition(iCond)
        nNode = condition%getnNode()
-       call condition%calculateRHS(localRHS)
+       call condition%calculateRHS(model%processInfo, localRHS)
        do iNode = 1, nNode
           iNodeID = condition%getNodeID(iNode)
           model%rhs(iNodeID*2-1) = model%rhs(iNodeID*2-1) + localRHS(iNode*2-1)

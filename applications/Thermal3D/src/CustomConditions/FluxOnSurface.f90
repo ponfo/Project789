@@ -7,6 +7,7 @@ module FluxOnSurfaceM
   use GeometryM
 
   use LeftHandSideM
+  use ProcessInfoM
 
   use IntegratorPtrM
   
@@ -61,24 +62,27 @@ contains
     this%geometry => geometry
   end subroutine init
 
-  subroutine calculateLocalSystem(this, lhs, rhs)
-    implicit none
-    class(FluxOnSurfaceDT)                                   , intent(inout) :: this
-    type(LeftHandSideDT)                                  , intent(inout) :: lhs
-    real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
-    call this%calculateRHS(rhs)
-  end subroutine calculateLocalSystem
-
-  subroutine calculateLHS(this, lhs)
+  subroutine calculateLocalSystem(this, processInfo, lhs, rhs)
     implicit none
     class(FluxOnSurfaceDT)                                , intent(inout) :: this
+    type(ProcessInfoDT)                                   , intent(inout) :: processInfo
+    type(LeftHandSideDT)                                  , intent(inout) :: lhs
+    real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
+    call this%calculateRHS(processInfo, rhs)
+  end subroutine calculateLocalSystem
+
+  subroutine calculateLHS(this, processInfo, lhs)
+    implicit none
+    class(FluxOnSurfaceDT)                                , intent(inout) :: this
+    type(ProcessInfoDT)                                   , intent(inout) :: processInfo
     type(LeftHandSideDT)                                  , intent(inout) :: lhs
     print*, 'No LHS component in FluxOnSurface condition'
   end subroutine calculateLHS
 
-  subroutine calculateRHS(this, rhs)
+  subroutine calculateRHS(this, processInfo, rhs)
     implicit none
     class(FluxOnSurfaceDT)                                , intent(inout) :: this
+    type(ProcessInfoDT)                                   , intent(inout) :: processInfo
     real(rkind)              , dimension(:)  , allocatable, intent(inout) :: rhs
     integer(ikind)                                                        :: i, j
     integer(ikind)                                                        :: nNode

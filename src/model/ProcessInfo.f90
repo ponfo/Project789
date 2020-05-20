@@ -13,6 +13,7 @@ module ProcessInfoM
    contains
      procedure, public :: setTime
      procedure, public :: setDT
+     procedure, public :: setMinimumDT
      procedure, public :: getTime
      procedure, public :: getDT
   end type ProcessInfoDT
@@ -34,6 +35,18 @@ contains
     if(.not.allocated(this%dt)) allocate(this%dt)
     this%dt = dt
   end subroutine setDT
+
+  subroutine setMinimumDT(this, dt)
+    implicit none
+    class(ProcessInfoDT), intent(inout) :: this
+    real(rkind)         , intent(in)    :: dt
+    if(.not.allocated(this%dt)) then
+       allocate(this%dt)
+       this%dt = dt
+    else if(this%dt > dt) then
+       this%dt = dt
+    end if
+  end subroutine setMinimumDT
 
   real(rkind) pure function getTime(this)
     implicit none
