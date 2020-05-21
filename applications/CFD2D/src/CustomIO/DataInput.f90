@@ -7,6 +7,7 @@ module DataInputM
   use NodePtrM
   use GeometryM
   use SourceM
+  use CFDMaterialM
   use CFDElementM
   use NormalVelocityMM
   use CFDApplicationM
@@ -29,7 +30,7 @@ module DataInputM
   integer(ikind)               :: nRectElem
   integer(ikind)               :: nPoint
   integer(ikind)               :: iPoint
-  integer(ikind)               :: nPressure
+  integer(ikind)               :: nNormalVelocity
   integer(ikind)               :: nDirichletX
   integer(ikind)               :: nDirichletY
   integer(ikind)               :: nMaterial
@@ -40,6 +41,9 @@ module DataInputM
   integer(ikind)               :: nSourceOnSurfaces
   integer(ikind)               :: nPointSource
   integer(ikind)               :: nSurfaceSource
+  integer(ikind)               :: printStep
+  real(rkind)                  :: t0
+  real(rkind)                  :: errorTol
   character(100)               :: projectName
   character(100)               :: aux
   logical       , parameter    :: verbose = .true.
@@ -98,6 +102,9 @@ contains
     read(project,*)  aux, nSourceOnSurfaces
     read(project,*)  aux, nPointSource
     read(project,*)  aux, nSurfaceSource
+    read(project,*)  aux, printStep
+    read(project,*)  aux, t0
+    read(project,*)  aux, errorTol
     
     if(verbose) print'(A,I0)','Number of Elements.............................: ', nElem
     if(verbose) print'(A,I0)','Are Elements Quadratic.........................: ', isQuadratic

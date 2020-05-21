@@ -51,13 +51,13 @@ contains
     allocate(this%builderAndSolver, source = SetBuilderAndSolver(directBAndS))
     step1       = 0
     step2       = 0
-    t           = model%t0
-    errorTol    = model%errorTol
+    t           = model%processInfo%t0
+    errorTol    = model%processInfo%errorTol
     error       = errorTol+1
-    printStep   = model%printStep
+    printStep   = model%processInfo%printStep
     call directBAndS%buildAndSolve(model)
     call DirectScheme%calculateFlux(model)
-    dt    = model%processInfo%dt*50
+    dt    = model%processInfo%dt*500
     inverseMatrix = inverse(model%mass)
     allocate(this%process, source = WriteOutput)
     call WriteOutput%initPrint()
@@ -73,12 +73,12 @@ contains
        model%dof = poisson2D%getState()
        t         = t + dt
        call applyDirichlet(model)
-       call directScheme%calculateFlux(model)
+       !call directScheme%calculateFlux(model)
        rhs  = (model%rhs-model%lhs*model%dof)
        error = sqrt(dot_product(rhs, rhs))
        step1 = step1 + 1
     end do
-    !call directScheme%calculateFlux(model)
+    call directScheme%calculateFlux(model)
     write(*,*) 't final = ', t, 'error = ', error 
     write(*,*) '*** Finished Integration ***'
   end subroutine buildStrategyAndSolve

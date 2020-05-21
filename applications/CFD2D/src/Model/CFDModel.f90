@@ -7,8 +7,6 @@ module CFDModelM
   use ModelM
 
   use ResultsM
-
-  use CFDMaterialM
   
   implicit none
 
@@ -21,7 +19,6 @@ module CFDModelM
      real(rkind), dimension(:), allocatable :: rhs
      real(rkind), dimension(:), allocatable :: dof
      type(ResultsDT)                        :: results
-     type(CFDMaterialDT)                    :: material
    contains
      procedure, public :: init
      procedure, public :: initWithoutSystem

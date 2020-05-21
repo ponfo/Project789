@@ -14,9 +14,6 @@ module ThermalModelM
   public :: ThermalModelDT, thermalModel
 
   type, extends(modelDT) :: ThermalModelDT
-     integer(ikind)                           :: printStep
-     real(rkind)                              :: t0
-     real(rkind)                              :: errorTol
      type(Sparse)                             :: lhs
      type(Sparse)                             :: mass
      real(rkind), dimension(:)  , allocatable :: rhs
@@ -25,6 +22,7 @@ module ThermalModelM
    contains
      procedure, public :: init
      procedure, public :: freeSystem
+     procedure, public :: setTransientValues
   end type ThermalModelDT
 
   interface thermalModel
@@ -67,5 +65,16 @@ contains
     call this%lhs%free()
     if(allocated(this%rhs)) deallocate(this%rhs)
   end subroutine freeSystem
+
+  subroutine setTransientValues(this, printStep, t0, errorTol)
+    implicit none
+    class(ThermalModelDT), intent(inout) :: this
+    integer(ikind)       , intent(in)    :: printStep
+    real(rkind)          , intent(in)    :: t0
+    real(rkind)          , intent(in)    :: errorTol
+    call this%processInfo%setPrintStep(printStep)
+    call this%processInfo%setT0(t0)
+    call this%processInfo%setErrorTol(errorTol)
+  end subroutine setTransientValues
   
 end module ThermalModelM

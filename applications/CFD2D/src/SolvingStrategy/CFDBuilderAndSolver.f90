@@ -59,7 +59,7 @@ contains
     do iElem = 1, nElem
        element = model%getElement(iElem)
        nNode = element%getnNode()
-       call element%calculateLocalSystem(localLHS, localRHS)
+       call element%calculateLocalSystem(model%processInfo,localLHS, localRHS)
        do iNode = 1, nNode
           iNodeID = element%getNodeID(iNode)
           do jNode = 1, nNode
@@ -67,13 +67,17 @@ contains
              do iDof = 1, nDof
                 adder = 0._rkind
                 do jDof = 1, nDof
-                        adder = adder                                                 &
+                   call model%LHS%append(                                                          &
+                          val = localLHS%stiffness(iNode*nDof-(nDof-iDof),jNode*nDof-(nDof-jDof))  &
+                        , row = iNodeID*nDof-(nDof-iDof)                                          &
+                        , col = jNodeID*nDof-(nDof-jDof)                                          )
+                        adder = adder                                                             &
                         + localLHS%mass(iNode*nDof-(nDof-iDof),jNode*nDof-(nDof-jDof))  
                 end do
-                call model%mass%append(                                                &
-                        val = adder                                                   &
-                        , row = iNodeID*nDof-(nDof-iDof)                              &
-                        , col = iNodeID*nDof-(nDof-iDof)                              )
+                call model%mass%append(                                                            &
+                        val = adder                                                               &
+                        , row = iNodeID*nDof-(nDof-iDof)                                          &
+                        , col = iNodeID*nDof-(nDof-iDof)                                          )
              end do
           end do
           model%rhs(iNodeID*nDof-3) = model%rhs(iNodeID*nDof-3) + localRHS(iNode*nDof-3)
@@ -85,6 +89,7 @@ contains
        deallocate(localRHS)
     end do
     call model%lhs%makeCRS()
+    call model%mass%makeCRS()
   end subroutine assembleSystem
 
   subroutine applyBC(model)

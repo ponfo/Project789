@@ -1,40 +1,44 @@
-19:40:25  Initiating Program
-19:40:25    Reading project data
-19:40:25      Project name: Thermal_Benchmark_5
-19:40:25    Reading mesh data
-19:40:25      Number of Elements.............................: 438
-19:40:25      Are Elements Quadratic.........................: 0
-19:40:25      Number of Triangular elements..................: 438
-19:40:25      Number of Rectangular elements.................: 0
-19:40:25      Number of Nodes................................: 262
-19:40:25      Number of Dirichlet conditions.................: 32
-19:40:25      Number of NormalFluxOnLines conditions.........: 13
-19:40:25      Number of ConvectionOnLines conditions.........: 30
-19:40:25      Number of Sources on points....................: 0
-19:40:25      Number of Sources on surfaces..................: 1
-19:40:25      Number of points with pointSource..............: 0
-19:40:25      Number of Surfaces with surfaceSource..........: 438
-19:40:25      Number of Materials............................: 1
-19:40:25      Gauss cuadrature order.........................: 3
-19:40:25          Allocated weights: 4
-19:40:25          Allocated gPoints: 8
-19:40:25          Allocated weights: 3
-19:40:25          Allocated gPoints: 3
-19:40:25          Allocated weights: 4
-19:40:25          Allocated gPoints: 8
-19:40:25          Allocated weights: 3
-19:40:25          Allocated gPoints: 3
-19:40:25          Allocated weights: 9
-19:40:25          Allocated gPoints: 18
-19:40:25          Allocated weights: 3
-19:40:25          Allocated gPoints: 3
-19:40:25          Allocated weights: 9
-19:40:25          Allocated gPoints: 18
-19:40:25          Allocated weights: 3
-19:40:25          Allocated gPoints: 3
-19:40:25    Reading materials properties
-19:40:25    Reading elements
-19:40:25    Reading point and line Sources
-19:40:25    Reading Boundary Conditions
-19:40:25  End loading data
-19:40:25    Assembling stiffness matrix and right hand side vector
+12:45:20  Initiating Program
+12:45:20    Reading project data
+12:45:20      Project name: Thermal_Benchmark_5
+12:45:20    Reading mesh data
+12:45:20      Number of Elements.............................: 438
+12:45:20      Are Elements Quadratic.........................: 0
+12:45:20      Number of Triangular elements..................: 438
+12:45:20      Number of Rectangular elements.................: 0
+12:45:20      Number of Nodes................................: 262
+12:45:20      Number of Dirichlet conditions.................: 32
+12:45:20      Number of NormalFluxOnLines conditions.........: 13
+12:45:20      Number of ConvectionOnLines conditions.........: 30
+12:45:20      Number of Sources on points....................: 0
+12:45:20      Number of Sources on surfaces..................: 1
+12:45:20      Number of points with pointSource..............: 0
+12:45:20      Number of Surfaces with surfaceSource..........: 438
+12:45:20      Number of Materials............................: 1
+12:45:20      Gauss cuadrature order.........................: 3
+12:45:20      PrintStep......................................: 500
+12:45:20      Initial time...................................:   0.00000000E+00
+12:45:20      Error tolerance................................:   0.50000000E-06
+12:45:20          Allocated weights: 4
+12:45:20          Allocated gPoints: 8
+12:45:20          Allocated weights: 3
+12:45:20          Allocated gPoints: 3
+12:45:20          Allocated weights: 4
+12:45:20          Allocated gPoints: 8
+12:45:20          Allocated weights: 3
+12:45:20          Allocated gPoints: 3
+12:45:20          Allocated weights: 9
+12:45:20          Allocated gPoints: 18
+12:45:20          Allocated weights: 3
+12:45:20          Allocated gPoints: 3
+12:45:20          Allocated weights: 9
+12:45:20          Allocated gPoints: 18
+12:45:20          Allocated weights: 3
+12:45:20          Allocated gPoints: 3
+12:45:20    Reading materials properties
+12:45:20    Reading elements
+12:45:20    Reading point and line Sources
+12:45:20    Reading Boundary Conditions
+12:45:20    Reading Initial Values
+12:45:20  End loading data
+12:45:20    Assembling stiffness matrix and right hand side vector

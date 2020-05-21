@@ -80,9 +80,7 @@ contains
     integer(ikind)               , intent(in)    :: printStep
     real(rkind)                  , intent(in)    :: t0
     real(rkind)                  , intent(in)    :: errorTol
-    this%model%printStep = printStep
-    this%model%t0 = t0
-    this%model%errorTol = errorTol
+    call this%model%setTransientValues(printStep, t0, errorTol)
   end subroutine setTransientValues
 
 end module Thermal2DApplicationM

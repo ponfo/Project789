@@ -7,7 +7,6 @@ module CFDStrategyM
   
   use SolvingStrategyM
 
-  use Calculate_dtM
   use PrintM
 
   use CFDSchemeM
@@ -38,41 +37,41 @@ contains
     type(Sparse)                           :: inverseMatrix
     type(NavierStokes2DDT)                 :: navierStokes2D
     type(RK4DT)                            :: rk4
-    type(Calculate_dtDT)                   :: calculate_dt
     type(PrintDT)                          :: writeOutput
     real(rkind), dimension(:), allocatable :: rhs
     real(rkind)                            :: t
     real(rkind)                            :: dt
     real(rkind)                            :: error
+    real(rkind)                            :: errorTol
     integer(ikind)                         :: step1
     integer(ikind)                         :: step2
+    integer(ikind)                          :: printStep
     write(*,*) '*** Transient Strategy ***'
     allocate(this%scheme, source = SetScheme(scheme))
     allocate(this%builderAndSolver, source = SetBuilderAndSolver(builAndSolve))
-    model%dof    = 0._rkind
     step1       = 0
     step2       = 0
-    t           = 0._rkind
-    error       = 1._rkind
+    t           = model%t0
+    errorTol    = model%errorTol
+    error       = errorTol+1
+    printStep   = model%printStep
     call builAndSolve%buildAndSolve(model)
     call scheme%calculateOutputs(model)
     !::::::::::::::::::::::::::::::::::::::::::::::
-    allocate(this%process , source = calculate_dt)
-    dt    = calculate_dt%calculate(model)
+    dt    = model%processInfo%dt*50
     inverseMatrix = inverse(model%mass)
-    deallocate(this%process)
     allocate(this%process, source = WriteOutput)
     call WriteOutput%initPrint()
     !::::::::::::::::::::::::::::::::::::::::::::::
-    do while(error .ge. 5e-8)
+    do while(error .ge. errorTol)
     navierStokes2D = SetNavierStokes2D(model%dof, model%lhs&
-         , model%rhs, inverseMatrix, rk4         )
+         , model%rhs, inverseMatrix, rk4                   )
        if (step1 == step2) then
           call writeOutput%print(step1, model%density      &
                , model%internalEnergy , model%mach         &
                , model%pressure       , model%temperature  &
                , model%velocity                            )
-          step2 = step2 + 500
+          step2 = step2 + printStep
        write(*,*) 't = ', t, 'error = ', error
        end if      
        call navierStokes2D%integrate(dt)

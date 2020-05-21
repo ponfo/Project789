@@ -72,7 +72,7 @@ contains
     call debugLog('  Reading Boundary Conditions')
     call readBoundaryConditions(thermalAppl)
     call debugLog('  Reading Initial Values')
-    call readInitialValues(thermalAppl)
+    !call readInitialValues(thermalAppl)
     call debugLog('End loading data')
   end subroutine initFEM2D
   

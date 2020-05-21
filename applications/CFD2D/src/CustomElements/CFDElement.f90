@@ -10,6 +10,7 @@ module CFDElementM
   use IntegratorPtrM
 
   use LeftHandSideM
+  use ProcessInfoM
 
   use PointM
   use NodeM
@@ -19,6 +20,8 @@ module CFDElementM
   use SourcePtrM
 
   use ElementM
+  
+  use CFDMaterialM
 
   implicit none
 
@@ -26,6 +29,7 @@ module CFDElementM
   public :: CFDElementDT, cfdElement, initGeometries
 
   type, extends(ElementDT) :: CFDElementDT
+     class(ThermalMaterialDT), pointer :: material
    contains
      procedure, public  :: init
      procedure, public  :: calculateLHS
@@ -48,20 +52,23 @@ module CFDElementM
 
 contains
 
-  type(CFDElementDT) function constructor(id, node)
+  type(CFDElementDT) function constructor(id, node, material)
     implicit none
     integer(ikind)                          , intent(in) :: id
     type(NodePtrDT)           , dimension(:), intent(in) :: node
-    call constructor%init(id, node)
+    class(ThermalMaterialDT), target      , intent(in) :: material
+    call constructor%init(id, node, material)
   end function constructor
 
-  subroutine init(this, id, node)
+  subroutine init(this, id, node, material)
     implicit none
     class(CFDElementDT)              , intent(inout) :: this
     integer(ikind)                          , intent(in)    :: id
     type(NodePtrDT)           , dimension(:), intent(in)    :: node
+    class(ThermalMaterialDT), target      , intent(in)    :: material
     this%id = id
     this%node = node
+    this%material => material
     if(size(node) == 3) then
        this%geometry => myTriangle2D3Node
     else if(size(node) == 4) then
@@ -83,9 +90,10 @@ contains
     myQuadrilateral2D8Node = quadrilateral2D8Node(nGauss)
   end subroutine initGeometries
 
-  subroutine calculateLocalSystem(this, lhs, rhs)
+  subroutine calculateLocalSystem(this, processInfo, lhs, rhs)
     implicit none
     class(CFDElementDT)                            , intent(inout) :: this
+    type(ProcessInfoDT)                                   , intent(inout) :: processInfo
     type(LeftHandSideDT)                                  , intent(inout) :: lhs
     real(rkind)            , dimension(:)    , allocatable, intent(inout) :: rhs
     integer(ikind)                                                        :: i, j, ii, jj, k
@@ -95,6 +103,7 @@ contains
     real(rkind)                                                           :: val1, val2
     real(rkind)                                                           :: val3, val4
     real(rkind)            , dimension(:,:)  , allocatable                :: valuedSource
+    real(rkind)                                                           :: dt
     type(IntegratorPtrDT)                                                 :: integrator
     type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
     nNode = this%getnNode()
@@ -224,11 +233,14 @@ contains
     end if
     deallocate(jacobian)
     deallocate(jacobianDet)
+    call this%calculateDT(dt)
+    call processInfo%setMinimumDT(dt)
   end subroutine calculateLocalSystem
 
-  subroutine calculateLHS(this, lhs)
+  subroutine calculateLHS(this, processInfo, lhs)
     implicit none
     class(CFDElementDT)                            , intent(inout) :: this
+    type(ProcessInfoDT)                                   , intent(inout) :: processInfo
     type(LeftHandSideDT)                                  , intent(inout) :: lhs
     integer(ikind)                                                        :: i, j, ii, jj, k
     integer(ikind)                                                        :: nNode, nDof
@@ -326,9 +338,10 @@ contains
     end do
   end subroutine calculateLHS
 
-  subroutine calculateRHS(this, rhs)
+  subroutine calculateRHS(this, processInfo, rhs)
     implicit none
     class(CFDElementDT)                          , intent(inout) :: this
+    type(ProcessInfoDT)                               , intent(inout) :: processInfo
     real(rkind)            , dimension(:)  , allocatable, intent(inout) :: rhs
     integer(ikind)                                                      :: i, j, nNode, nDof
     real(rkind)                                                         :: val1, val2, val3, val4
@@ -422,9 +435,10 @@ contains
     end do
   end function getValuedSource
 
-  subroutine calculateResults(this, resultMat)
+  subroutine calculateResults(this, processInfo, resultMat)
     implicit none
     class(CFDElementDT)                                   , intent(inout) :: this
+    type(ProcessInfoDT)                               , intent(inout) :: processInfo
     real(rkind)            , dimension(:,:,:), allocatable, intent(inout) :: resultMat
     integer(ikind)                                                        :: i, j, ii, jj, k
     integer(ikind)                                                        :: nNode, nDof
