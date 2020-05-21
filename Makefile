@@ -74,7 +74,7 @@ OBJECTS := $(BINDIR)/Utilities.o                \
 	$(BINDIR)/IterativeLinearSolver.o	\
 	$(BINDIR)/LinearSolver.o		\
 	$(BINDIR)/mklPardiso.o                  \
-	$(BINDIR)/IterativeLinearSolverMethod.o \
+	$(BINDIR)/BiConjugateGradient.o 	\
 						\
 	$(BINDIR)/NonLinearSolvers.o		\
 	$(BINDIR)/NonLinearSolver.o		\
@@ -212,7 +212,7 @@ $(BINDIR)/PreconditionerMethod.o : $(VPATH)/solvers/Linear/Preconditioner/Precon
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/UsePreconditioner.o : $(VPATH)/solvers/Linear/Preconditioner/UsePreconditioner.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
-$(BINDIR)/IterativeLinearSolverMethod.o : $(VPATH)/solvers/Linear/Iterative/Solvers/IterativeLinearSolverMethod.f90
+$(BINDIR)/BiConjugateGradient.o : $(VPATH)/solvers/Linear/Iterative/Solvers/BiConjugateGradient.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/IterativeLinearSolver.o : $(VPATH)/solvers/Linear/Iterative/IterativeLinearSolver.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
