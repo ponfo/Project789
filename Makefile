@@ -32,16 +32,18 @@ OBJECTS := $(BINDIR)/Utilities.o                \
 	$(BINDIR)/IntegratorPtr.o               \
 	                                        \
 	$(BINDIR)/Geometry.o                    \
+	$(BINDIR)/Line1D2Node.o                 \
+	$(BINDIR)/Line1D3Node.o                 \
 	$(BINDIR)/Line2D2Node.o                 \
 	$(BINDIR)/Line2D3Node.o                 \
-	$(BINDIR)/Triangle2D3Node.o             \
-	$(BINDIR)/Triangle2D6Node.o             \
-	$(BINDIR)/Quadrilateral2D4Node.o        \
-	$(BINDIR)/Quadrilateral2D8Node.o        \
 	$(BINDIR)/Line3D2Node.o                 \
 	$(BINDIR)/Line3D3Node.o                 \
+	$(BINDIR)/Triangle2D3Node.o             \
+	$(BINDIR)/Triangle2D6Node.o             \
 	$(BINDIR)/Triangle3D3Node.o             \
 	$(BINDIR)/Triangle3D6Node.o             \
+	$(BINDIR)/Quadrilateral2D4Node.o        \
+	$(BINDIR)/Quadrilateral2D8Node.o        \
 	$(BINDIR)/Quadrilateral3D4Node.o        \
 	$(BINDIR)/Quadrilateral3D8Node.o        \
 	$(BINDIR)/Tetrahedron3D4Node.o          \
@@ -130,6 +132,10 @@ $(BINDIR)/IntegratorPtr.o : $(VPATH)/integrator/IntegratorPtr.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 
 $(BINDIR)/Geometry.o : $(VPATH)/geometry/Geometry.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/Line1D2Node.o : $(VPATH)/geometry/Line1D2Node.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/Line1D3Node.o : $(VPATH)/geometry/Line1D3Node.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/Line2D2Node.o : $(VPATH)/geometry/Line2D2Node.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
