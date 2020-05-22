@@ -944,6 +944,8 @@ contains
        end do
        inverse(i,i) = 1._rkind/inverse(i,i)
     end do
+    tau  = calculateTau()
+    mu_a = calculateMu_a()
     lhs%stiffness =                      matmul(resultMat(:,:,1),resultMat(:,:,6)) &
          +                              matmul(resultMat(:,:,2),resultMat(:,:,7))  &
          + tau*(matmul(resultMat(:,:,3),matmul(resultMat(:,:,6),resultMat(:,:,6))) &
@@ -953,8 +955,10 @@ contains
          -      matmul(inverse         ,(matmul(resultMat(:,:,1),resultMat(:,:,6)) &
          +                              matmul(resultMat(:,:,2),resultMat(:,:,7))))&
          + mu_a*(resultMat(:,:,3)+resultMat(:,:,4)+2._rkind*resultMat(:,:,5))      &
-         + matmul() + matmul()          &
-         + matmul()          
+         +                              matmul(resultMat(:,:,3),resultMat(:,:,8))  &
+         +                              matmul(resultMat(:,:,5),resultMat(:,:,9))  &
+         +                              matmul(resultMat(:,:,5),resultMat(:,:,10)) &
+         +                              matmul(resultMat(:,:,4),resultMat(:,:,11))          
   end subroutine calculateResults
 
   subroutine calculateDT(this, processInfo, dt)
@@ -1010,6 +1014,14 @@ contains
     if(dt > cota) dt = cota
   end subroutine calculateDT
 
+  function calculateTau()
+    implicit none
+  end function calculateTau
+
+  function calculateMu_a()
+    implicit none
+  end function calculateMu_a
+  
   function MA1(v,gamma,E)
     implicit none
     real(rkind), dimension(4,4) :: A1
