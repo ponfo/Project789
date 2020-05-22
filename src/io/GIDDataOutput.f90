@@ -5,6 +5,7 @@ module GIDDataOutputM
   public :: printResults, finishProgram, initDataOutput
   interface printResults
      procedure :: printResultsVec1
+     procedure :: printResultsVec2
      procedure :: printResults1DVec2
      procedure :: printResults2DVec1
      procedure :: printResults2DVec2
@@ -42,6 +43,23 @@ contains
     End Do
     write(results,*)   'End Values'
   end subroutine printResultsVec1
+
+  subroutine printResultsVec2(resultName, step, graphType, locationName, resultNumber&
+       , component1, component2)
+    implicit none
+    integer(ikind)                 :: iPoint
+    integer(ikind), intent(in)     :: step, resultNumber
+    real(rkind), intent(in), dimension(resultNumber) :: component1
+    real(rkind), intent(in), dimension(resultNumber) :: component2
+    character(*), intent(in) :: resultName, graphType, locationName
+    write(results,*)   'Result "',trim(resultName),'" "',trim(projectName)&
+         ,'" ',step,' ',trim(graphType),' ',trim(locationName)
+    write(results,*)   'Values'
+    Do iPoint = 1, resultNumber
+       Write(results,*) iPoint, component1(iPoint), component2(iPoint)
+    End Do
+    write(results,*)   'End Values'
+  end subroutine printResultsVec2
   
   subroutine printResults1DVec2(resultName, type, step, graphType, locationName, gaussPoints &
        , resultNumber, elemID, component1, component2)

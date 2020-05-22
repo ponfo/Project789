@@ -24,7 +24,6 @@ module CFDModelM
      procedure, public :: initWithoutSystem
      procedure, public :: initSystem
      procedure, public :: freeSystem
-     procedure, public :: setTransientValues
   end type CFDModelDT
 
   interface cfdModel
@@ -90,16 +89,5 @@ contains
     call this%mass%free()
     if(allocated(this%rhs)) deallocate(this%rhs)
   end subroutine freeSystem
-
-  subroutine setTransientValues(this, printStep, t0, errorTol)
-    implicit none
-    class(CFDModelDT), intent(inout) :: this
-    integer(ikind)   , intent(in)    :: printStep
-    real(rkind)      , intent(in)    :: t0
-    real(rkind)      , intent(in)    :: errorTol
-    call this%processInfo%setPrintStep(printStep)
-    call this%processInfo%setT0(t0)
-    call this%processInfo%setErrorTol(errorTol)
-  end subroutine setTransientValues
   
 end module CFDModelM

@@ -27,9 +27,9 @@ contains
     implicit none
     class(CFDSchemeDT), intent(inout)          :: this
     class(CFDModelDT) , intent(inout)          :: model
-    integer(ikind), dimension(:)               :: counter
+    integer(ikind), dimension(:), allocatable  :: counter
     integer(ikind)                             :: iElem, nNode
-    integer(ikind)                             :: nElem, dim
+    integer(ikind)                             :: nElem, dim, iNode
     integer(ikind)                             :: position
     real(rkind), dimension(:,:,:), allocatable :: localResultMat
     type(ElementPtrDT)                         :: element

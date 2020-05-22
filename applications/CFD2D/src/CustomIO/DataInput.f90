@@ -9,7 +9,7 @@ module DataInputM
   use SourceM
   use CFDMaterialM
   use CFDElementM
-  use NormalVelocityMM
+  use NormalVelocityM
   use CFDApplicationM
 
   use MeshM
@@ -121,18 +121,18 @@ contains
     if(verbose) print'(A,I0)','Number of Velocity conditions..................: ', nVelocity
     if(verbose) print'(A,I0)','Number of Density conditions...................: ', nDensity
     if(verbose) print'(A,I0)','Number of Temperature conditions...............: ', nTemperature   
-    if(verbose) print'(A,I0)','Number of Normal Velocity conditions...........: ', nPressure 
+    if(verbose) print'(A,I0)','Number of Normal Velocity conditions...........: ', nNormalVelocity 
     if(verbose) print'(A,I0)','Number of Loads on points......................: ', nSourceOnPoints 
     if(verbose) print'(A,I0)','Number of Loads on surfaces....................: ', nSourceOnSurfaces
     if(verbose) print'(A,I0)','Number of points with pointSource..............: ', nPointSource
     if(verbose) print'(A,I0)','Number of Surfaces with surfaceSource..........: ', nSurfaceSource
     if(verbose) print'(A,I0)','Number of Materials............................: ', nMaterial
     if(verbose) print'(A,I0)','Gauss cuadrature order.........................: ', nGauss
-    if(verbose) print'(A,I0)','PrintStep......................................: ', printStep)
-    if(verbose) print'(A,I0)','Initial time...................................: ', t0)
-    if(verbose) print'(A,I0)','Error tolerance................................: ', errorTol)
-    if(verbose) print'(A,I0)','Safety Factor..................................: ', fSafe)
-    if(verbose) print'(A,I0)','Shock Capturing constant.......................: ', constant)
+    if(verbose) print'(A,I0)','PrintStep......................................: ', printStep
+    if(verbose) print'(A,I0)','Initial time...................................: ', t0
+    if(verbose) print'(A,I0)','Error tolerance................................: ', errorTol
+    if(verbose) print'(A,I0)','Safety Factor..................................: ', fSafe
+    if(verbose) print'(A,I0)','Shock Capturing constant.......................: ', constant
     
     call debugLog('    Number of Elements.............................: ', nElem)
     call debugLog('    Are Elements Quadratic.........................: ', isQuadratic)
@@ -142,7 +142,7 @@ contains
     call debugLog('    Number of Velocity conditions..........---.....: ', nVelocity)
     call debugLog('    Number of Density conditions...................: ', nDensity)
     call debugLog('    Number of Temperature conditions...............: ', nTemperature)    
-    call debugLog('    Number of Pressure conditions..................: ', nPressure) 
+    call debugLog('    Number of Pressure conditions..................: ', nNormalVelocity) 
     call debugLog('    Number of Loads on points......................: ', nSourceOnPoints) 
     call debugLog('    Number of Loads on surfaces....................: ', nSourceOnSurfaces)
     call debugLog('    Number of points with pointSource..............: ', nPointSource)

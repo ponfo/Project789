@@ -33,16 +33,16 @@ module CFDApplicationM
 
 contains
 
-  type(CFDApplicationDT) function  &
-       constructor(nNode, nElement, nNormalVelocity, nSource, nMaterial, nGauss)
+  type(CFDApplicationDT) function constructor&
+       (nNode, nElement, nNormalVelocity, nSource, nMaterial, nGauss)
     implicit none
     integer(ikind), intent(in) :: nNode
     integer(ikind), intent(in) :: nElement
-    integer(ikind), intent(in) :: nPressure
+    integer(ikind), intent(in) :: nNormalVelocity
     integer(ikind), intent(in) :: nSource
     integer(ikind), intent(in) :: nMaterial
     integer(ikind), intent(in) :: nGauss
-    call constructor%init(nNode, nElement, nPressure, nSource, nGauss)
+    call constructor%init(nNode, nElement, nNormalVelocity, nSource, nMaterial, nGauss)
   end function constructor
 
   subroutine init(this, nNode, nElement, nNormalVelocity, nSource, nMaterial, nGauss)
@@ -50,7 +50,7 @@ contains
     class(CFDApplicationDT), intent(inout) :: this
     integer(ikind)                  , intent(in)    :: nNode
     integer(ikind)                  , intent(in)    :: nElement
-    integer(ikind)                  , intent(in)    :: nPressure
+    integer(ikind)                  , intent(in)    :: nNormalVelocity
     integer(ikind)                  , intent(in)    :: nSource
     integer(ikind)                  , intent(in)    :: nMaterial
     integer(ikind)                  , intent(in)    :: nGauss
@@ -71,16 +71,19 @@ contains
 
   subroutine setTransientValues(this, printStep, t0, errorTol, fSafe, constant)
     implicit none
-    class(Thermal2DApplicationDT), intent(inout) :: this
-    integer(ikind)               , intent(in)    :: printStep
-    real(rkind)                  , intent(in)    :: t0
-    real(rkind)                  , intent(in)    :: errorTol
-    real(rkind)                  , intent(in)    :: fSafe
-    real(rkind)                  , intent(in)    :: constant
+    class(CFDApplicationDT), intent(inout) :: this
+    integer(ikind)          , intent(in)    :: printStep
+    real(rkind)             , intent(in)    :: t0
+    real(rkind)             , intent(in)    :: errorTol
+    real(rkind)             , intent(in)    :: fSafe
+    real(rkind)             , intent(in)    :: constant
+    real(rkind), dimension(:), allocatable  :: vector
+    allocate(vector(2))
+    vector = (/fSafe,constant/)
     call this%model%processInfo%setPrintStep(printStep)
     call this%model%processInfo%setT0(t0)
     call this%model%processInfo%setErrorTol(errorTol)
-    call this%model%processInfo%setConstants(2,(/fSafe,constant/))
+    call this%model%processInfo%setConstants(2, vector)
   end subroutine setTransientValues
 
 end module CFDApplicationM

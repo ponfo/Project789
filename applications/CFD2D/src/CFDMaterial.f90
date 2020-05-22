@@ -37,7 +37,7 @@ contains
     real(rkind), intent(in) :: Vx
     real(rkind), intent(in) :: Vy
     real(rkind), intent(in) :: T
-    real(rkind), intent(in) :: P
+    real(rkind), intent(in) :: rho
     call constructor%init(R, gamma, mu, k, Vx, Vy, T, rho)
   end function constructor
 

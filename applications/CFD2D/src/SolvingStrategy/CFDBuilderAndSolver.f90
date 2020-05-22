@@ -109,7 +109,7 @@ contains
     do iCond = 1, nCond
        condition = model%getCondition(iCond)
        nNode = condition%getnNode()
-       call condition%calculateRHS(localRHS)
+       call condition%calculateRHS(model%processInfo, localRHS)
        do iNode = 1, nNode
           iNodeID = condition%getNodeID(iNode)
           model%rhs(iNodeID*4-3) = model%rhs(iNodeID*4-3) + localRHS(iNode*4-3)
