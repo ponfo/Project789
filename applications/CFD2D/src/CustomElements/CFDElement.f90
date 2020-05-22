@@ -1,6 +1,7 @@
 module CFDElementM
 
   use UtilitiesM
+  use SparseKit
 
   use Triangle2D3NodeM
   use Triangle2D6NodeM
@@ -35,6 +36,7 @@ module CFDElementM
      procedure, public  :: calculateLHS
      procedure, public  :: calculateRHS
      procedure, public  :: calculateLocalSystem
+     procedure, public  :: calculateSystem
      procedure, public  :: calculateResults
      procedure, public  :: calculateDT
      procedure, private :: setupIntegration
@@ -62,10 +64,10 @@ contains
 
   subroutine init(this, id, node, material)
     implicit none
-    class(CFDElementDT)              , intent(inout) :: this
+    class(CFDElementDT)                     , intent(inout) :: this
     integer(ikind)                          , intent(in)    :: id
     type(NodePtrDT)           , dimension(:), intent(in)    :: node
-    class(ThermalMaterialDT), target      , intent(in)    :: material
+    class(ThermalMaterialDT), target        , intent(in)    :: material
     this%id = id
     this%node = node
     this%material => material
@@ -92,7 +94,7 @@ contains
 
   subroutine calculateLocalSystem(this, processInfo, lhs, rhs)
     implicit none
-    class(CFDElementDT)                            , intent(inout) :: this
+    class(CFDElementDT)                                   , intent(inout) :: this
     type(ProcessInfoDT)                                   , intent(inout) :: processInfo
     type(LeftHandSideDT)                                  , intent(inout) :: lhs
     real(rkind)            , dimension(:)    , allocatable, intent(inout) :: rhs
@@ -109,7 +111,7 @@ contains
     nNode = this%getnNode()
     nDof = this%node(1)%getnDof()
     integrator = this%getIntegrator()
-    lhs = leftHandSide(nNode*nDof, 0, 0)
+    lhs = leftHandSide(nNode*nDof, 0, nNode*nDof)
     allocate(rhs(nNode*nDof))
     allocate(nodalPoints(nNode))
     rhs = 0._rkind
@@ -233,13 +235,14 @@ contains
     end if
     deallocate(jacobian)
     deallocate(jacobianDet)
-    call this%calculateDT(dt)
+    call this%calculateSystem(processInfo, lhs)
+    call this%calculateDT(processInfo, dt)
     call processInfo%setMinimumDT(dt)
   end subroutine calculateLocalSystem
 
   subroutine calculateLHS(this, processInfo, lhs)
     implicit none
-    class(CFDElementDT)                            , intent(inout) :: this
+    class(CFDElementDT)                                   , intent(inout) :: this
     type(ProcessInfoDT)                                   , intent(inout) :: processInfo
     type(LeftHandSideDT)                                  , intent(inout) :: lhs
     integer(ikind)                                                        :: i, j, ii, jj, k
@@ -437,12 +440,74 @@ contains
 
   subroutine calculateResults(this, processInfo, resultMat)
     implicit none
-    class(CFDElementDT)                                   , intent(inout) :: this
-    type(ProcessInfoDT)                               , intent(inout) :: processInfo
+    class(StructuralElementDT)                            , intent(inout) :: this
+    type(ProcessInfoDT)                                   , intent(inout) :: processInfo
     real(rkind)            , dimension(:,:,:), allocatable, intent(inout) :: resultMat
+    integer(ikind)                                                        :: i, iGauss, nNode
+    real(rkind)                                                           :: nsx, nsy !NormalStress
+    real(rkind)                                                           :: shs      !SheatStress
+    real(rkind)                                                           :: epx, epy !Strain
+    real(rkind)                                                           :: bi, ci, xi, eta
+    real(rkind)                                                           :: dNidx, dNidy, kx, ky
+    real(rkind)                                                           :: d11, d12, d21, d22, d33
+    real(rkind)            , dimension(:,:,:), allocatable                :: jacobian 
+    real(rkind)            , dimension(:)    , allocatable                :: jacobianDet
+    type(IntegratorPtrDT)                                                 :: integrator
+    type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
+    integrator = this%getIntegrator()
+    nNode = this%getnNode()
+    allocate(nodalPoints(nNode))
+    allocate(resultMat(3,integrator%getIntegTerms(),2))
+    do i = 1, nNode
+       nodalPoints(i) = this%node(i)
+    end do
+    jacobian = this%geometry%jacobianAtGPoints(nodalPoints)
+    jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
+    do iGauss = 1, integrator%getIntegTerms()
+       xi = integrator%getGPoint(iGauss,1)
+       eta = integrator%getGPoint(iGauss,2)
+       nsx = 0._rkind
+       nsy = 0._rkind
+       shs = 0._rkind
+       epx = 0._rkind
+       epy = 0._rkind
+       do i = 1, nNode
+          bi = jacobian(iGauss,2,2)*integrator%getDShapeFunc(iGauss,1,i) &
+               - jacobian(iGauss,1,2)*integrator%getDShapeFunc(iGauss,2,i)
+          ci = jacobian(iGauss,1,1)*integrator%getDShapeFunc(iGauss,2,i) &
+               - jacobian(iGauss,2,1)*integrator%getDShapeFunc(iGauss,1,i)
+          dNidx = bi/jacobianDet(iGauss)
+          dNidy = ci/jacobianDet(iGauss)
+          nsx = nsx + dNidx*this%node(i)%ptr%dof(1)%val
+          nsy = nsy + dNidy*this%node(i)%ptr%dof(2)%val
+          shs = shs + dNidx*this%node(i)%ptr%dof(2)%val + dNidy*this%node(i)%ptr%dof(1)%val
+          epx = epx + dNidx*this%node(i)%ptr%dof(1)%val
+          epy = epy + dNidy*this%node(i)%ptr%dof(2)%val
+       end do
+       d11 = this%material%d11
+       d12 = this%material%d12
+       d21 = this%material%d21
+       d22 = this%material%d22
+       d33 = this%material%d33
+       resultMat(1,iGauss,1) = d11*nsx+d12*nsy
+       resultMat(1,iGauss,2) = d21*nsx+d22*nsy
+       resultMat(2,iGauss,1) = d33*shs
+       resultMat(3,iGauss,1) = epx
+       resultMat(3,iGauss,2) = epy
+    end do
+  end subroutine calculateResults
+  
+  subroutine calculateSystem(this, processInfo, lhs)
+    implicit none
+    class(CFDElementDT)                                   , intent(inout) :: this
+    type(ProcessInfoDT)                                   , intent(inout) :: processInfo
+    type(LeftHandSideDT)                                  , intent(inout) :: lhs
+    real(rkind)            , dimension(:,:,:), allocatable                :: resultMat
     integer(ikind)                                                        :: i, j, ii, jj, k
     integer(ikind)                                                        :: nNode, nDof
     real(rkind)            , dimension(:,:,:), allocatable                :: jacobian
+    real(rkind)            , dimension(4,4)                               :: A1, A2, K11, K12, K21, K22
+    real(rkind)            , dimension(:,:)  , allocatable                :: inverse
     real(rkind)            , dimension(:)    , allocatable                :: jacobianDet
     type(IntegratorPtrDT)                                                 :: integrator
     type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
@@ -450,7 +515,8 @@ contains
     nDof = this%node(1)%getnDof()
     integrator = this%getIntegrator()
     allocate(nodalPoints(nNode))
-    allocate(resultMat(nNode*nDof, nNode*nDof, 8))
+    allocate(inverse(nNode*nDof,nNode*nDof))
+    allocate(resultMat(nNode*nDof, nNode*nDof, 11))
     do i = 1, nNode
        nodalPoints(i) = this%node(i)
     end do
@@ -845,20 +911,69 @@ contains
           end do
        end do
     end do
+    gamma = this%material%gamma
+    mu    = this%material%mu
+    R     = this%material%R
+    k     = this%material%k
+    do i = 1, nNode
+       v(1) = (this%node(i)%ptr%dof(2)%val/this%node(i)%ptr%dof(1)%val)
+       v(2) = (this%node(i)%ptr%dof(3)%val/this%node(i)%ptr%dof(1)%val)
+       E    = (this%node(i)%ptr%dof(4)%val/this%node(i)%ptr%dof(1)%val)
+       A1  = MA1(v,gamma,E)
+       A2  = MA2(v,gamma,E)
+       K11 = MK11(v,mu,R,gamma,E,k)
+       K12 = MK12(v,mu,R,gamma,E,k)
+       K21 = MK21(v,mu,R,gamma,E,k)
+       K22 = MK22(v,mu,R,gamma,E,k)
+       do j = 1, nNode
+          ii   = nDof*i-3
+          jj   = nDof*j-3
+          resultMat(ii:ii+3,jj:jj+3,6 ) = resultMat(ii:ii+3,jj:jj+3,6 ) +  A1(:,:)
+          resultMat(ii:ii+3,jj:jj+3,7 ) = resultMat(ii:ii+3,jj:jj+3,7 ) +  A2(:,:)
+          resultMat(ii:ii+3,jj:jj+3,8 ) = resultMat(ii:ii+3,jj:jj+3,8 ) + K11(:,:)
+          resultMat(ii:ii+3,jj:jj+3,9 ) = resultMat(ii:ii+3,jj:jj+3,9 ) + K12(:,:)
+          resultMat(ii:ii+3,jj:jj+3,10) = resultMat(ii:ii+3,jj:jj+3,10) + K21(:,:)
+          resultMat(ii:ii+3,jj:jj+3,11) = resultMat(ii:ii+3,jj:jj+3,11) + K22(:,:)
+          
+       end do
+    end do
+    inverse = 0._rkind
+    do i = 1, nNode*nDof
+       do j = 1, nNode*nDof
+          inverse(i,i) = inverse(i,i) + inverse(i,j)
+       end do
+       inverse(i,i) = 1._rkind/inverse(i,i)
+    end do
+    lhs%stiffness =                      matmul(resultMat(:,:,1),resultMat(:,:,6)) &
+         +                              matmul(resultMat(:,:,2),resultMat(:,:,7))  &
+         + tau*(matmul(resultMat(:,:,3),matmul(resultMat(:,:,6),resultMat(:,:,6))) &
+         +      matmul(resultMat(:,:,5),matmul(resultMat(:,:,6),resultMat(:,:,7))) &
+         +      matmul(resultMat(:,:,5),matmul(resultMat(:,:,7),resultMat(:,:,6))) &
+         +      matmul(resultMat(:,:,4),matmul(resultMat(:,:,7),resultMat(:,:,7))) &
+         -      matmul(inverse         ,(matmul(resultMat(:,:,1),resultMat(:,:,6)) &
+         +                              matmul(resultMat(:,:,2),resultMat(:,:,7))))&
+         + mu_a*(resultMat(:,:,3)+resultMat(:,:,4)+2._rkind*resultMat(:,:,5))      &
+         + matmul() + matmul()          &
+         + matmul()          
   end subroutine calculateResults
 
-  subroutine calculateDT(this, dt)
+  subroutine calculateDT(this, processInfo, dt)
     implicit none
     class(CFDElementDT)          , intent(inout) :: this
+    type(ProcessInfoDT)          , intent(inout) :: processInfo
     real(rkind), dimension(:,:,:), allocatable   :: jacobian
     real(rkind), dimension(:)    , allocatable   :: jacobianDet
     type(IntegratorPtrDT)                        :: integrator
     real(rkind)                  , intent(inout) :: dt
     integer(ikind)                               :: i, nNode, nDof
-    real(rkind)                                  :: area   
-    real(rkind)                                  :: val1, val2    
-    real(rkind)                                  :: Vx, Vy 
+    real(rkind)                                  :: area, dt_min, alpha, deltaTU   
+    real(rkind)                                  :: val1, val2, V, dt_elem, deltaTC    
+    real(rkind)                                  :: Vx, Vy, Vxmax, Vymax, fSafe, cota 
     type(NodePtrDT), dimension(:), allocatable   :: nodalPoints
+    fSafe = processInfo%getConstants(1)
+    dt_min = 1.d20
+    Vxmax = 0.d0
+    Vymax = 0.d0
     nNode = this%getnNode()
     nDof = this%node(1)%getnDof()
     integrator = this%getIntegrator()
@@ -881,10 +996,21 @@ contains
        Vx = Vx + val1
        Vy = Vy + val2
     end do
-    
+    if (Vx .gt. Vxmax) Vxmax = Vx
+    if (Vy .gt. Vymax) Vymax = Vy
+    V       = sqrt((Vxmax**2+Vymax**2))
+    alpha   = min(V*sqrt(jacobianDet(1))/(2._rkind*0.001d0)/3._rkind,1._rkind)
+    deltaTU = 1._rkind/(4._rkind*0.001d0/sqrt(jacobianDet(1))**2._rkind+alpha*V/sqrt(jacobianDet(1)))
+    deltaTC = 1._rkind/(4._rkind*0.001d0/sqrt(jacobianDet(1))**2._rkind)
+    dt_elem  = fsafe/(1._rkind/deltaTC+1._rkind/deltaTU)
+    dt = dt_elem
+    IF (dt_elem .LT. dt_min) dt_min = dt_elem
+    cota = 10.d0*dt_min
+    !EL VALOR 10 ESTA PUESTO A OJO #MODIFICAR SI ES NECESARIO#
+    if(dt > cota) dt = cota
   end subroutine calculateDT
 
-    function A1(v,gamma,E)
+  function MA1(v,gamma,E)
     implicit none
     real(rkind), dimension(4,4) :: A1
     real(rkind), dimension(2)   :: v
@@ -910,9 +1036,9 @@ contains
          -((gamma-1._rkind)*v(1)*v(2))
     A1(4,3) = -(gamma-1._rkind)*v(1)*v(2)
     A1(4,4) = gamma*v(1)
-  end function A1
+  end function MA1
 
-  function A2(v,gamma,E)
+  function MA2(v,gamma,E)
     implicit none
     real(rkind), dimension(4,4) :: A2
     real(rkind), dimension(2)   :: v
@@ -938,9 +1064,9 @@ contains
     A2(4,3) = (gamma*E)-((gamma-1._rkind)*(v(1)**2+v(2)**2)/2._rkind)&
          -((gamma-1._rkind)*v(2)**2)
     A2(4,4) = gamma*v(2)
-  end function A2
+  end function MA2
 
-  function K11(v,mu,R,gamma,E,k)
+  function MK11(v,mu,R,gamma,E,k)
     implicit none
     real(rkind), dimension(4,4) :: K11
     real(rkind), dimension(2)   :: v
@@ -972,9 +1098,9 @@ contains
     K11(4,2) = ((mu/3._rkind)+mu-(k/Cv))*v(1)
     K11(4,3) = (mu-(k/Cv))*v(2)
     K11(4,4) = (k/Cv)
-  end function K11
+  end function MK11
 
-  function K12(v,mu,R,gamma,E,k)
+  function MK12(v,mu,R,gamma,E,k)
     implicit none
     real(rkind), dimension(4,4) :: K12
     real(rkind), dimension(2)   :: v
@@ -1004,9 +1130,9 @@ contains
     K12(4,2) = mu*v(2)
     K12(4,3) = -2._rkind*mu*v(1)/3._rkind
     K12(4,4) = 0._rkind
-  end function K12
+  end function MK12
 
-  function K21(v,mu,R,gamma,E,k)
+  function MK21(v,mu,R,gamma,E,k)
     implicit none
     real(rkind), dimension(4,4) :: K21
     real(rkind), dimension(2)   :: v
@@ -1036,9 +1162,9 @@ contains
     K21(4,2) = -2._rkind*mu*v(2)/3._rkind
     K21(4,3) = mu*v(1)
     K21(4,4) = 0._rkind
-  end function K21
+  end function MK21
 
-  function K22(v,mu,R,gamma,E,k)
+  function MK22(v,mu,R,gamma,E,k)
     implicit none
     real(rkind), dimension(4,4) :: K22
     real(rkind), dimension(2)   :: v
@@ -1070,6 +1196,25 @@ contains
     K22(4,2) = (mu-(k/Cv))*v(1)
     K22(4,3) = ((mu/3._rkind)+mu-(k/Cv))*v(2)
     K22(4,4) = (k/Cv)
-  end function K22
+  end function MK22
   
 end module CFDElementM
+
+!!$    integer(ikind)                    :: i
+!!$    integer(ikind)                    :: n
+!!$    n = model%getnNode()
+!!$    allocate(model%results%density(n)       , model%results%velocity(n,n) )
+!!$    allocate(model%results%internalEnergy(n), model%results%temperature(n))
+!!$    allocate(model%results%pressure(n)      , model%results%mach(n)       )
+!!$    do i = 1, size(model%dof),4
+!!$       model%results%density(i)        = model%dof(i)
+!!$       model%results%velocity(i,i)     = (/model%dof(i+1),model%dof(i+2)/)/model%dof(i)
+!!$       model%results%internalEnergy(i) = model%dof(i+3)/model%dof(i)
+!!$       model%results%temperature(i)    = &
+!!$            (model%gamma-1)/R*(model%dof(i+3)-0.5*(model%dof(i+1)**2+model%dof(i+2)**2))
+!!$       model%results%pressure(i)       = &
+!!$            (model%gamma-1)*model%dof(i)*(model%dof(i+3)-0.5*(model%dof(i+1)**2+model%dof(i+2)**2))
+!!$       model%results%mach(i)           = sqrt(model%dof(i+1)**2+model%dof(i+2)**2)         &
+!!$            /sqrt(model%gamma*model%R                                                   &
+!!$            *(model%gamma-1)/R*(model%dof(i+3)-0.5*(model%dof(i+1)**2+model%dof(i+2)**2)))
+!!$    end do

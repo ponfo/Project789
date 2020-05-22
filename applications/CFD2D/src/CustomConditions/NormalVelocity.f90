@@ -47,7 +47,7 @@ contains
 
   subroutine init(this, id, nodeIDList, velocity, node, geometry)
     implicit none
-    class(NormalVelocityDT)                        , intent(inout) :: this
+    class(NormalVelocityDT)                  , intent(inout) :: this
     integer(ikind)                           , intent(in)    :: id
     integer(ikind)             , dimension(:), intent(in)    :: nodeIDList
     real(rkind)                              , intent(in)    :: velocity
@@ -64,7 +64,7 @@ contains
 
   subroutine calculateLocalSystem(this, lhs, rhs)
     implicit none
-    class(NormalVelocityDT)                                , intent(inout) :: this
+    class(NormalVelocityDT)                          , intent(inout) :: this
     type(LeftHandSideDT)                             , intent(inout) :: lhs
     real(rkind)         , dimension(:)  , allocatable, intent(inout) :: rhs
     call this%calculateRHS(rhs)

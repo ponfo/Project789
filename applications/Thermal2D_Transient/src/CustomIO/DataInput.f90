@@ -22,7 +22,6 @@ module DataInputM
   
   integer(ikind), parameter    :: projectData = 1
   integer(ikind), parameter    :: project = 2
-  integer(ikind), parameter    :: functions = 4
   integer(ikind), dimension(8) :: date_time
   integer(ikind)               :: nElem
   integer(ikind)               :: nTriangElem
@@ -38,7 +37,6 @@ module DataInputM
   integer(ikind)               :: nSourceOnPoints
   integer(ikind)               :: nSourceOnSurfaces
   integer(ikind)               :: nPointSource
-  integer(ikind)               :: nLineSource
   integer(ikind)               :: nSurfaceSource
   integer(ikind)               :: printStep
   real(rkind)                  :: t0
@@ -46,7 +44,6 @@ module DataInputM
   character(100)               :: projectName
   character(100)               :: aux
   logical       , parameter    :: verbose = .false.
-  logical                      :: isMaterialAsigned = .true.
   
   interface initFEM2D
      procedure :: initFEM2D
@@ -71,7 +68,7 @@ contains
     call readPointLineSurfaceSources(thermalAppl)
     call debugLog('  Reading Boundary Conditions')
     call readBoundaryConditions(thermalAppl)
-    call debugLog('  Reading Initial Values')
+    !call debugLog('  Reading Initial Values')
     !call readInitialValues(thermalAppl)
     call debugLog('End loading data')
   end subroutine initFEM2D

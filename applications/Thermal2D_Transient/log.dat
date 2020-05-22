@@ -1,44 +1,43 @@
-12:45:20  Initiating Program
-12:45:20    Reading project data
-12:45:20      Project name: Thermal_Benchmark_5
-12:45:20    Reading mesh data
-12:45:20      Number of Elements.............................: 438
-12:45:20      Are Elements Quadratic.........................: 0
-12:45:20      Number of Triangular elements..................: 438
-12:45:20      Number of Rectangular elements.................: 0
-12:45:20      Number of Nodes................................: 262
-12:45:20      Number of Dirichlet conditions.................: 32
-12:45:20      Number of NormalFluxOnLines conditions.........: 13
-12:45:20      Number of ConvectionOnLines conditions.........: 30
-12:45:20      Number of Sources on points....................: 0
-12:45:20      Number of Sources on surfaces..................: 1
-12:45:20      Number of points with pointSource..............: 0
-12:45:20      Number of Surfaces with surfaceSource..........: 438
-12:45:20      Number of Materials............................: 1
-12:45:20      Gauss cuadrature order.........................: 3
-12:45:20      PrintStep......................................: 500
-12:45:20      Initial time...................................:   0.00000000E+00
-12:45:20      Error tolerance................................:   0.50000000E-06
-12:45:20          Allocated weights: 4
-12:45:20          Allocated gPoints: 8
-12:45:20          Allocated weights: 3
-12:45:20          Allocated gPoints: 3
-12:45:20          Allocated weights: 4
-12:45:20          Allocated gPoints: 8
-12:45:20          Allocated weights: 3
-12:45:20          Allocated gPoints: 3
-12:45:20          Allocated weights: 9
-12:45:20          Allocated gPoints: 18
-12:45:20          Allocated weights: 3
-12:45:20          Allocated gPoints: 3
-12:45:20          Allocated weights: 9
-12:45:20          Allocated gPoints: 18
-12:45:20          Allocated weights: 3
-12:45:20          Allocated gPoints: 3
-12:45:20    Reading materials properties
-12:45:20    Reading elements
-12:45:20    Reading point and line Sources
-12:45:20    Reading Boundary Conditions
-12:45:20    Reading Initial Values
-12:45:20  End loading data
-12:45:20    Assembling stiffness matrix and right hand side vector
+19:53: 3  Initiating Program
+19:53: 3    Reading project data
+19:53: 3      Project name: Thermal_Benchmark_5
+19:53: 3    Reading mesh data
+19:53: 3      Number of Elements.............................: 438
+19:53: 3      Are Elements Quadratic.........................: 0
+19:53: 3      Number of Triangular elements..................: 438
+19:53: 3      Number of Rectangular elements.................: 0
+19:53: 3      Number of Nodes................................: 262
+19:53: 3      Number of Dirichlet conditions.................: 32
+19:53: 3      Number of NormalFluxOnLines conditions.........: 13
+19:53: 3      Number of ConvectionOnLines conditions.........: 30
+19:53: 3      Number of Sources on points....................: 0
+19:53: 3      Number of Sources on surfaces..................: 1
+19:53: 3      Number of points with pointSource..............: 0
+19:53: 3      Number of Surfaces with surfaceSource..........: 438
+19:53: 3      Number of Materials............................: 1
+19:53: 3      Gauss cuadrature order.........................: 3
+19:53: 3      PrintStep......................................: 500
+19:53: 3      Initial time...................................:   0.00000000E+00
+19:53: 3      Error tolerance................................:   0.50000000E-06
+19:53: 3          Allocated weights: 4
+19:53: 3          Allocated gPoints: 8
+19:53: 3          Allocated weights: 3
+19:53: 3          Allocated gPoints: 3
+19:53: 3          Allocated weights: 4
+19:53: 3          Allocated gPoints: 8
+19:53: 3          Allocated weights: 3
+19:53: 3          Allocated gPoints: 3
+19:53: 3          Allocated weights: 9
+19:53: 3          Allocated gPoints: 18
+19:53: 3          Allocated weights: 3
+19:53: 3          Allocated gPoints: 3
+19:53: 3          Allocated weights: 9
+19:53: 3          Allocated gPoints: 18
+19:53: 3          Allocated weights: 3
+19:53: 3          Allocated gPoints: 3
+19:53: 3    Reading materials properties
+19:53: 3    Reading elements
+19:53: 3    Reading point and line Sources
+19:53: 3    Reading Boundary Conditions
+19:53: 3  End loading data
+19:53: 3    Assembling stiffness matrix and right hand side vector

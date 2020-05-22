@@ -24,6 +24,7 @@ module CFDModelM
      procedure, public :: initWithoutSystem
      procedure, public :: initSystem
      procedure, public :: freeSystem
+     procedure, public :: setTransientValues
   end type CFDModelDT
 
   interface cfdModel
@@ -46,12 +47,12 @@ contains
   subroutine init(this, nDof, nnz, id, nNode, nElement, nCondition)
     implicit none
     class(CFDModelDT), intent(inout) :: this
-    integer(ikind)          , intent(in)    :: nDof
-    integer(ikind)          , intent(in)    :: nnz
-    integer(ikind)          , intent(in)    :: id
-    integer(ikind)          , intent(in)    :: nNode
-    integer(ikind)          , intent(in)    :: nElement
-    integer(ikind)          , intent(in)    :: nCondition
+    integer(ikind)   , intent(in)    :: nDof
+    integer(ikind)   , intent(in)    :: nnz
+    integer(ikind)   , intent(in)    :: id
+    integer(ikind)   , intent(in)    :: nNode
+    integer(ikind)   , intent(in)    :: nElement
+    integer(ikind)   , intent(in)    :: nCondition
     this%lhs  = sparse(nnz, nDof)
     this%mass = sparse(nnz, nDof)
     allocate(this%rhs(nDof))
@@ -63,10 +64,10 @@ contains
   subroutine initWithoutSystem(this, id, nNode, nElement, nCondition)
     implicit none
     class(CFDModelDT), intent(inout) :: this
-    integer(ikind)          , intent(in)    :: id
-    integer(ikind)          , intent(in)    :: nNode
-    integer(ikind)          , intent(in)    :: nElement
-    integer(ikind)          , intent(in)    :: nCondition
+    integer(ikind)   , intent(in)    :: id
+    integer(ikind)   , intent(in)    :: nNode
+    integer(ikind)   , intent(in)    :: nElement
+    integer(ikind)   , intent(in)    :: nCondition
     call this%initModel(1)
     this%mesh(1) = mesh(id, nNode, nElement, nCondition)
   end subroutine initWithoutSystem
@@ -74,8 +75,8 @@ contains
   subroutine initSystem(this, nDof, nnz)
     implicit none
     class(CFDModelDT), intent(inout) :: this
-    integer(ikind)          , intent(in)    :: nDof
-    integer(ikind)          , intent(in)    :: nnz
+    integer(ikind)   , intent(in)    :: nDof
+    integer(ikind)   , intent(in)    :: nnz
     this%lhs  = sparse(nnz, nDof)
     this%mass = sparse(nnz, nDof)
     allocate(this%rhs(nDof))
@@ -89,5 +90,16 @@ contains
     call this%mass%free()
     if(allocated(this%rhs)) deallocate(this%rhs)
   end subroutine freeSystem
+
+  subroutine setTransientValues(this, printStep, t0, errorTol)
+    implicit none
+    class(CFDModelDT), intent(inout) :: this
+    integer(ikind)   , intent(in)    :: printStep
+    real(rkind)      , intent(in)    :: t0
+    real(rkind)      , intent(in)    :: errorTol
+    call this%processInfo%setPrintStep(printStep)
+    call this%processInfo%setT0(t0)
+    call this%processInfo%setErrorTol(errorTol)
+  end subroutine setTransientValues
   
 end module CFDModelM

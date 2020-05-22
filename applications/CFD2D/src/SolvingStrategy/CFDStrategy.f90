@@ -45,35 +45,37 @@ contains
     real(rkind)                            :: errorTol
     integer(ikind)                         :: step1
     integer(ikind)                         :: step2
-    integer(ikind)                          :: printStep
+    integer(ikind)                         :: printStep
     write(*,*) '*** Transient Strategy ***'
     allocate(this%scheme, source = SetScheme(scheme))
     allocate(this%builderAndSolver, source = SetBuilderAndSolver(builAndSolve))
     step1       = 0
     step2       = 0
-    t           = model%t0
-    errorTol    = model%errorTol
+    t           = model%processInfo%getT0()
+    errorTol    = model%processInfo%getErrorTol()
     error       = errorTol+1
-    printStep   = model%printStep
+    printStep   = model%processInfo%getPrintStep()
+    call model%processInfo%setStep(step1)
     call builAndSolve%buildAndSolve(model)
     call scheme%calculateOutputs(model)
     !::::::::::::::::::::::::::::::::::::::::::::::
-    dt    = model%processInfo%dt*50
+    dt    = model%processInfo%getDt()
     inverseMatrix = inverse(model%mass)
     allocate(this%process, source = WriteOutput)
     call WriteOutput%initPrint()
     !::::::::::::::::::::::::::::::::::::::::::::::
     do while(error .ge. errorTol)
-    navierStokes2D = SetNavierStokes2D(model%dof, model%lhs&
-         , model%rhs, inverseMatrix, rk4                   )
+       call model%processInfo%setStep(step1)
+       navierStokes2D = SetNavierStokes2D(model%dof, model%lhs&
+            , model%rhs, inverseMatrix, rk4                   )
        if (step1 == step2) then
-          call writeOutput%print(step1, model%density      &
-               , model%internalEnergy , model%mach         &
-               , model%pressure       , model%temperature  &
-               , model%velocity                            )
+          call writeOutput%print(step1, model%results%density          &
+               , model%results%internalEnergy, model%results%mach       &
+               , model%results%pressure      , model%results%temperature&
+               , model%results%velocity                                )
           step2 = step2 + printStep
-       write(*,*) 't = ', t, 'error = ', error
-       end if      
+          write(*,*) 't = ', t, 'error = ', error
+       end if
        call navierStokes2D%integrate(dt)
        model%dof = navierStokes2D%getState()
        t         = t + dt

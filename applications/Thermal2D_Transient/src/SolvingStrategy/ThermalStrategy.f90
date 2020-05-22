@@ -51,18 +51,19 @@ contains
     allocate(this%builderAndSolver, source = SetBuilderAndSolver(directBAndS))
     step1       = 0
     step2       = 0
-    t           = model%processInfo%t0
-    errorTol    = model%processInfo%errorTol
+    t           = model%processInfo%getT0()
+    errorTol    = model%processInfo%getErrorTol()
     error       = errorTol+1
-    printStep   = model%processInfo%printStep
+    printStep   = model%processInfo%getPrintStep()
     call directBAndS%buildAndSolve(model)
     call DirectScheme%calculateFlux(model)
-    dt    = model%processInfo%dt*500
+    dt    = model%processInfo%getDt()*500
     inverseMatrix = inverse(model%mass)
     allocate(this%process, source = WriteOutput)
     call WriteOutput%initPrint()
     do while(error .ge. errorTol)
-    poisson2D = SetPoisson2D(model%dof, model%lhs&
+       call model%processInfo%setStep(step1)
+       poisson2D = SetPoisson2D(model%dof, model%lhs&
          , model%rhs, inverseMatrix, rk4         )
        if (step1 == step2) then
           call writeOutput%print(model%dof, model%heatFlux, step1)

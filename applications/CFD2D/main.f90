@@ -3,7 +3,6 @@ program main
   use DataInputM
   use CFDApplicationM
   use CFDStrategyM
-  use GIDDataOutputM
 
   implicit none
 

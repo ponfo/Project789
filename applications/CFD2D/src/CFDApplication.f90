@@ -7,7 +7,7 @@ module CFDApplicationM
   
   use CFDElementM
   use NormalVelocityM
-  use ThermalMaterialM
+  use CFDMaterialM
   use CFDModelM
 
   implicit none
@@ -16,12 +16,12 @@ module CFDApplicationM
   public :: CFDApplicationDT, cfdApplication
 
   type :: CFDApplicationDT
-     type(NodeDT)           , dimension(:), allocatable :: node
-     type(CFDElementDT)     , dimension(:), allocatable :: element
-     type(NormalVelocityDT) , dimension(:), allocatable :: normalVelocity
-     type(SourceDT)         , dimension(:), allocatable :: source
-     type(ThermalMaterialDT), dimension(:), allocatable :: material
-     type(CFDModelDT)                                   :: model
+     type(NodeDT)          , dimension(:), allocatable :: node
+     type(CFDElementDT)    , dimension(:), allocatable :: element
+     type(NormalVelocityDT), dimension(:), allocatable :: normalVelocity
+     type(SourceDT)        , dimension(:), allocatable :: source
+     type(CFDMaterialDT)   , dimension(:), allocatable :: material
+     type(CFDModelDT)                                  :: model
    contains
      procedure, public :: init
      procedure, public :: setTransientValues
@@ -69,15 +69,18 @@ contains
          , nCondition = nNormalVelocity  )
   end subroutine init
 
-  subroutine setTransientValues(this, printStep, t0, errorTol)
+  subroutine setTransientValues(this, printStep, t0, errorTol, fSafe, constant)
     implicit none
     class(Thermal2DApplicationDT), intent(inout) :: this
     integer(ikind)               , intent(in)    :: printStep
     real(rkind)                  , intent(in)    :: t0
     real(rkind)                  , intent(in)    :: errorTol
-    this%model%printStep = printStep
-    this%model%t0 = t0
-    this%model%errorTol = errorTol
+    real(rkind)                  , intent(in)    :: fSafe
+    real(rkind)                  , intent(in)    :: constant
+    call this%model%processInfo%setPrintStep(printStep)
+    call this%model%processInfo%setT0(t0)
+    call this%model%processInfo%setErrorTol(errorTol)
+    call this%model%processInfo%setConstants(2,(/fSafe,constant/))
   end subroutine setTransientValues
 
 end module CFDApplicationM
