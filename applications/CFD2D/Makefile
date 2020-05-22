@@ -9,8 +9,8 @@ COMPILER	:=  ifort
 FFLAGS		:=  -Ofast -qopenmp -free -check bounds -mkl -liomp5 -lpthread -ldl -traceback -module $(OBJECTDIR)
 FFLAGSDebug 	:=  -O0 -fpp -check bounds -traceback -warn nounused -module $(OBJECTDIR)
 
-OBJECTS := $(BINDIR)/CFDElement.o       \
-	$(BINDIR)/CFDMaterial.o         \
+OBJECTS := $(BINDIR)/CFDMaterial.o      \
+	$(BINDIR)/CFDElement.o      	\
 	$(BINDIR)/Print.o               \
 	$(BINDIR)/Results.o             \
 	$(BINDIR)/NormalVelocity.o      \

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-rm $2/EULER.DAT
+rm $2/projectData.dat
 
-cat <<EOT>> EULER.DAT
+cat <<EOT>> projectData.dat
 $1
 EOT
 

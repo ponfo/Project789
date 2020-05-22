@@ -26,6 +26,7 @@ BEGIN TABLE
  HEAT_FLUX : N/m/s {reference}
  HEAT_FLUX_POR_UNIT_AREA : N/m^3/s {reference}
  DENSITY : kg/m^3 {reference}
+ VELOCITY : m/s {reference}
  THERMAL_CONDUCTIVITY : N/s/Kel {reference}
  SPECIFIC_HEAT : N*m/kg/Kel {reference}
 END
@@ -57,6 +58,7 @@ BEGIN SYSTEM(INTERNATIONAL)
  HEAT_FLUX : N/m/s
  HEAT_FLUX_POR_UNIT_AREA : N/m^3/s
  DENSITY : kg/m^3
+ VELOCITY : m/s 
  THERMAL_CONDUCTIVITY : N/s/Kel
  SPECIFIC_HEAT : N*m/kg/Kel
 END

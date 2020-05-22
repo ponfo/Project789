@@ -131,7 +131,7 @@ contains
     if(verbose) print'(A,I0)','PrintStep......................................: ', printStep)
     if(verbose) print'(A,I0)','Initial time...................................: ', t0)
     if(verbose) print'(A,I0)','Error tolerance................................: ', errorTol)
-    if(verbose) print'(A,I0)','Security Factor................................: ', fSafe)
+    if(verbose) print'(A,I0)','Safety Factor..................................: ', fSafe)
     if(verbose) print'(A,I0)','Shock Capturing constant.......................: ', constant)
     
     call debugLog('    Number of Elements.............................: ', nElem)
@@ -152,7 +152,7 @@ contains
     call debugLog('    PrintStep......................................: ', printStep)
     call debugLog('    Initial time...................................: ', t0)
     call debugLog('    Error tolerance................................: ', errorTol)
-    call debugLog('    Security Factor................................: ', fSafe)
+    call debugLog('    Safety Factor..................................: ', fSafe)
     call debugLog('    Shock Capturing constant.......................: ', constant)
     
     cfdAppl = cfdApplication(                  &
@@ -186,15 +186,15 @@ contains
     implicit none
     type(CFDApplicationDT), intent(inout) :: cfdAppl
     integer(ikind) :: i, iMat
-    real(rkind) :: R, gamma, mu, k, V, T, P
+    real(rkind) :: R, gamma, mu, k, Vx, Vy, T, rho
     do i = 1, 7
        read(project,*)
     end do
-    if(verbose) print'(A)', 'Material      R     gamma      mu       k       V      T      P     '
+    if(verbose) print'(A)', 'Material      R     gamma      mu       k       Vx_inf   Vy_inf      T      rho   '
     do i = 1, nMaterial
-       read(project,*) iMat, R, gamma, mu, k, V, T, P
-       cfdAppl%material(iMat) = cfdMaterial(R, gamma, mu, k, V, T, P)
-       if(verbose) print'(4X,I0,7X,2(E10.3,3X))', iMat, R, gamma, mu, k, V, T, P 
+       read(project,*) iMat, R, gamma, mu, k, Vx, Vy, T, rho
+       cfdAppl%material(iMat) = cfdMaterial(R, gamma, mu, k, Vx, Vy, T, rho)
+       if(verbose) print'(4X,I0,7X,2(E10.3,3X))', iMat, R, gamma, mu, k, Vx, Vy, T, rho
     end do
   end subroutine initMaterials
   

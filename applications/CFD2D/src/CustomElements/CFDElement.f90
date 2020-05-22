@@ -339,6 +339,7 @@ contains
           end do
        end do
     end do
+    call this%calculateSystem(processInfo, lhs)
   end subroutine calculateLHS
 
   subroutine calculateRHS(this, processInfo, rhs)

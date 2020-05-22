@@ -1,49 +1,205 @@
-Programa de Navier-Stokes (2D) 
-FSAFE      U       V      MACH   TEMP      RHO    PRESS
-*GenData(5)    *GenData(6)       0.0     *GenData(7)     *GenData(8)    *GenData(9)     0.0
-FMU     FGX     FGY    Q
-*GenData(10)   *GenData(11)   *GenData(12) *GenData(13) 
-FK      FR        FCv      Gama
-*GenData(14)   *GenData(15)   *GenData(16)   *GenData(17)   *GenData(18)
-Cte
-*GenData(19)
-*realformat "%16.6f"
-*intformat "%7i"
-*Set  Cond  FIX_VELOCITY *nodes 
-*set  var NFIXVI(int)=CondNumEntities(int)
-*Set  Cond NORMAL_VELOCITY *elems *Canrepeat
-*set  var NELNORM(int)=CondNumEntities(int) 
-*Set  Cond  FIX_DENSITY *nodes
-*set  var NFIXRHO(int)=CondNumEntities(int) 
-*Set  Cond FIX_TEMPERATURE *nodes
-*set  var NFIXT(int)=CondNumEntities(int)
-*npoin   *nelem *NFIXRHO *NFIXVI  *NELNORM  *NFIXT    
-NODES
-*loop nodes
-  *NodesNum *NodesCoord
-*end
-ELEMENTS
+###########################################################
+                 PROGRAM CFD 2D ANALYSIS
+###########################################################
+
+##################### PROBLEM DATA ########################
+
+Problem Name: *gendata(Problem_Name)
+
+###################### Mesh Data ##########################
+Elements_Number........................: *nelem
+Nodes_Number...........................: *npoin
+Are_Elements_Quadratic.................: *isQuadratic
+*#---------------------------------------------------------
+*set var j=0
+*set var k=0
 *loop elems
-  *elemsnum *elemsConec
-*end 
-Fix Density 
-*Set Cond FIX_DENSITY *nodes
-*loop nodes *OnlyInCond
-     *nodesNum *Cond(1)
-*end nodes
-Inflow Velocity
-*Set Cond FIX_VELOCITY *nodes
-*loop nodes *OnlyInCond
-     *nodesNum *Cond(1) *Cond(1)
-*end nodes
-Normal Velocity
-*Set Cond NORMAL_VELOCITY *elems *Canrepeat
-*loop elems *OnlyInCond
-      *globalnodes
+*#ElemsTypeName
+*if(strcasecmp(ElemsTypeName(),"Triangle")==0)
+*set var j=operation(j+1)
+*endif
+*if(strcasecmp(ElemsTypeName(),"Quadrilateral")==0)
+*set var k=operation(k+1)
+*endif
 *end elems
-Fix Temperature
-*Set Cond FIX_TEMPERATURE *nodes
-*loop nodes *OnlyInCond
-     *nodesNum *Cond(1)
+*#---------------------------------------------------------
+Triangular_Elements_Number.............: *j
+Rectangular_Elements_Number............: *k
+*#---------------------------------------------------------
+Materials_Number.......................: *nmats
+Gauss_Order............................: *GenData(Gauss_Order)
+*#---------------------------------------------------------
+*Set Cond Fix_Velocity *nodes
+*Set var a = condnumentities
+*Set Cond Fix_Density *nodes
+*Set var b = condnumentities
+*Set Cond Fix_Temperature *nodes
+*Set var c = condnumentities
+*#---------------------------------------------------------
+Velocity_Conditions_Number.............: *a
+*#---------------------------------------------------------
+Density_Conditions_Number..............: *b
+*#---------------------------------------------------------
+Temperature_Conditions_Number..........: *c
+*#---------------------------------------------------------
+*Set Cond Normal_Velocity *elems
+Normal_Velocity_Condition_Elements.....: *condnumentities
+*#---------------------------------------------------------
+Source_Number_On_Points................: *Gendata(Source_Number_On_Points,int)
+*#---------------------------------------------------------
+Source_Number_On_Surfaces..............: *Gendata(Source_Number_On_Surfaces,int)
+*#---------------------------------------------------------
+*Set Cond Source_On_Points *nodes
+Points_With_Point_Source...............: *condnumentities
+*#---------------------------------------------------------
+*Set Cond Source_On_Surfaces *elems
+Surfaces_With_Surface_Source...........: *condnumentities
+*#---------------------------------------------------------
+Print_Every_N_Steps....................: *GenData(Print_Every_N_Steps)
+*#---------------------------------------------------------
+Initial_Time...........................: *GenData(Initial_Time)
+*#---------------------------------------------------------
+Error_Tolerance........................: *GenData(Error_Tolerance)
+*#---------------------------------------------------------
+Safety_Factor..........................: *GenData(Safety_Factor)
+*#---------------------------------------------------------
+Shock Capturing constant...............: *GenData(Constant)
+*#---------------------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Coordinates:
+
+  Node   |     X       |       Y        |
+----------------------------------------- 
+*set elems(all)
+*loop nodes
+*format "%5i%10.4e%10.4e"
+*NodesNum       *NodesCoord(1,real)     *NodesCoord(2,real)
 *end nodes
 
+######################## Materials ########################
+
+Materials List:
+
+Material |       R     |   Gamma   |   Mu   |    K    |   Vx_inf |  Vy_inf   |   T    |    Rho   |
+--------------------------------------------------------------------------------------------------
+*loop materials
+*format "%5i%10.4e%10.4e"
+*matnum  *matprop(R)  *matprop(Gamma) *matprop(Mu) *matprop(K) *matprop(Vx) *matprop(Vy) *matprop(T) *matprop(Rho)
+*end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Element List:
+
+      Element  |      Type      |  Material  |   Nodes  |      Conectivities
+-----------------------------------------------------------------------------------
+*Set Cond Source_On_Surfaces *elems
+*loop elems
+*format "%10i%10i%9i%9i%9i"
+*elemsnum         *ElemstypeName  *elemsmat  *ElemsNnode  *elemsconec
+*end elems
+
+################### Sources On Points ######################
+
+Conditions List:
+
+Source   |  Function
+----------------------
+*Set var j = 0
+*Set cond Source_On_Points *nodes
+*for(i=1;i<=Gendata(Source_Number_On_Points,int);i=i+1))
+*set var j=operation(j+1)
+*loop nodes *OnlyInCond
+*if(i==cond(Source_Number_On_Points,real))
+*format "%5i%10s"
+*j *cond(SourceOP)
+*break
+*endif
+*end
+*end for
+*Set cond Source_On_Surfaces
+*for(i=1;i<=Gendata(Source_Number_On_Surfaces,int);i=i+1))
+*set var j=operation(j+1)
+*loop elems
+*if(i==cond(Source_Number_On_Surfaces,real))
+*format "%5i%10s"
+*j *cond(SourceOS) 
+*break
+*endif
+*end
+*end for
+
+###################### Point Sources ######################
+
+Conditions List:
+
+  Node   |  Source
+--------------------------
+*Set Cond Source_On_Points *nodes
+*loop nodes *OnlyInCond
+*format "%5i%5i"
+*NodesNum      *cond(Source_Number_On_Points) 
+*end
+
+###################### Surface Sources #####################
+
+Conditions List:
+
+  Element   |  Source
+--------------------------
+*Set Cond Source_On_Surfaces *elems
+*loop elems *OnlyInCond
+*format "%8i%8i"
+*elemsnum  *cond(Source_Number_On_Surfaces)
+*end
+
+####################### Velocity ######################
+
+Conditions List:
+
+  Node    |    Velocity
+------------------------------
+*Set Cond Fix_Velocity *nodes
+*loop nodes *OnlyInCond
+*format "%5i%10.4e"
+*NodesNum    *cond(Vx) *cond(Vy) 
+*end
+
+####################### Density ######################
+
+Conditions List:
+
+  Node    |    Density
+------------------------------
+*Set Cond Fix_Density *nodes
+*loop nodes *OnlyInCond
+*format "%5i%10.4e"
+*NodesNum           *cond(Density) 
+*end
+
+####################### Temperature ######################
+
+Conditions List:
+
+  Node    |    Temperature
+------------------------------
+*Set Cond Fix_Temperature *nodes
+*loop nodes *OnlyInCond
+*format "%5i%10.4e"
+*NodesNum           *cond(Temperature) 
+*end
+
+####################### Normal Velocity ########################
+
+Conditions List:
+
+ Element |       Nodes      |   Normal Velocity
+------------------------------------------------
+*Set Cond Normal_Velocity *elems *canrepeat
+*loop elems *OnlyInCond
+*format "%5i%7i%7i"
+*elemsnum  *localnodes  *cond(Velocity,real)
+*end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
