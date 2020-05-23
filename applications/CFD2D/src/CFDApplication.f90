@@ -61,7 +61,7 @@ contains
     allocate(this%material(nMaterial))
     call initGeometries(nGauss)
     this%model = cfdModel(                &
-           nDof = 2*nNode                &
+           nDof = 4*nNode                &
          , nnz = nElement*256            &
          , id = 1                        &
          , nNode = nNode                 &

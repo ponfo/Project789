@@ -1,0 +1,38 @@
+NUMBER: 1 CONDITION: Fix_Velocity
+CONDTYPE: over lines
+QUESTION: Vx#UNITS#
+VALUE: 1m/s
+QUESTION: Vy#UNITS#
+VALUE: 1m/s
+END CONDITION
+NUMBER: 2 CONDITION: Fix_Density
+CONDTYPE: over lines
+QUESTION: Density#UNITS#
+VALUE: 1kg/m^3
+END CONDITION
+NUMBER: 3 CONDITION: Fix_Temperature
+CONDTYPE: over lines
+QUESTION: Temperature#UNITS#
+VALUE: 1Kel
+END CONDITION
+NUMBER: 4 CONDITION: Normal_Velocity
+CONDTYPE: over lines
+QUESTION: Velocity#UNITS#
+VALUE: 0m/s
+END CONDITION
+NUMBER: 5 CONDITION: Source_On_Points
+CONDTYPE: over points
+CONDMESHTYPE: over nodes
+QUESTION: Source_Number_On_Points
+VALUE: 1
+QUESTION: SourceOP
+VALUE: 0.0
+END CONDITION
+NUMBER: 6 CONDITION: Source_On_Surfaces
+CONDTYPE: over surfaces
+CONDMESHTYPE: over body elements
+QUESTION: Source_Number_On_Surfaces
+VALUE: 1
+QUESTION: SourceOS
+VALUE: 0.0
+END CONDITION

@@ -47,7 +47,7 @@ module DataInputM
   real(rkind)                  :: constant
   character(100)               :: projectName
   character(100)               :: aux
-  logical       , parameter    :: verbose = .true.
+  logical       , parameter    :: verbose = .false.
   
   interface initFEM2D
      procedure :: initFEM2D
@@ -108,7 +108,7 @@ contains
     read(project,*)  aux, nPointSource
     read(project,*)  aux, nSurfaceSource
     read(project,*)  aux, printStep
-    read(project,*)  aux, t0
+    read(project,*)  aux, t0 
     read(project,*)  aux, errorTol
     read(project,*)  aux, fSafe
     read(project,*)  aux, constant
@@ -130,9 +130,9 @@ contains
     if(verbose) print'(A,I0)','Gauss cuadrature order.........................: ', nGauss
     if(verbose) print'(A,I0)','PrintStep......................................: ', printStep
     if(verbose) print'(A,I0)','Initial time...................................: ', t0
-    if(verbose) print'(A,I0)','Error tolerance................................: ', errorTol
-    if(verbose) print'(A,I0)','Safety Factor..................................: ', fSafe
-    if(verbose) print'(A,I0)','Shock Capturing constant.......................: ', constant
+    if(verbose) print'(A,E14.7)','Error tolerance................................:', errorTol
+    if(verbose) print'(A,E14.7)','Safety Factor..................................:', fSafe
+    if(verbose) print'(A,E14.7)','Shock Capturing constant.......................:', constant
     
     call debugLog('    Number of Elements.............................: ', nElem)
     call debugLog('    Are Elements Quadratic.........................: ', isQuadratic)

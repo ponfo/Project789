@@ -109,15 +109,15 @@ contains
     do iCond = 1, nCond
        condition = model%getCondition(iCond)
        nNode = condition%getnNode()
-       call condition%calculateRHS(model%processInfo, localRHS)
-       do iNode = 1, nNode
-          iNodeID = condition%getNodeID(iNode)
-          model%rhs(iNodeID*4-3) = model%rhs(iNodeID*4-3) + localRHS(iNode*4-3)
-          model%rhs(iNodeID*4-2) = model%rhs(iNodeID*4-2) + localRHS(iNode*4-2)
-          model%rhs(iNodeID*4-1) = model%rhs(iNodeID*4-1) + localRHS(iNode*4-1)
-          model%rhs(iNodeID*4  ) = model%rhs(iNodeID*4  ) + localRHS(iNode*4  )
-       end do
-       deallocate(localRHS)
+       !call condition%calculateRHS(model%processInfo, localRHS)
+       !do iNode = 1, nNode
+       !   iNodeID = condition%getNodeID(iNode)
+       !   model%rhs(iNodeID*4-3) = model%rhs(iNodeID*4-3) + localRHS(iNode*4-3)
+       !   model%rhs(iNodeID*4-2) = model%rhs(iNodeID*4-2) + localRHS(iNode*4-2)
+       !   model%rhs(iNodeID*4-1) = model%rhs(iNodeID*4-1) + localRHS(iNode*4-1)
+       !   model%rhs(iNodeID*4  ) = model%rhs(iNodeID*4  ) + localRHS(iNode*4  )
+       !end do
+       !deallocate(localRHS)
     end do
   end subroutine applyNewmann
 
@@ -132,23 +132,23 @@ contains
        node = model%getNode(i)
        if(node%ptr%dof(1)%isFixed) then
           nodeID = node%ptr%getID()
-          call model%lhs%setDirichlet(nodeID*nDof-3)
-          model%rhs(nodeID*nDof-3) = node%ptr%dof(1)%fixedVal
+          !call model%lhs%setDirichlet(nodeID*nDof-3)
+          !model%rhs(nodeID*nDof-3) = node%ptr%dof(1)%fixedVal
        end if
        if(node%ptr%dof(2)%isFixed) then
           nodeID = node%ptr%getID()
-          call model%lhs%setDirichlet(nodeID*nDof-2)
-          model%rhs(nodeID*nDof-2) = node%ptr%dof(2)%fixedVal
+          !call model%lhs%setDirichlet(nodeID*nDof-2)
+          !model%rhs(nodeID*nDof-2) = node%ptr%dof(2)%fixedVal
        end if
        if(node%ptr%dof(3)%isFixed) then
           nodeID = node%ptr%getID()
-          call model%lhs%setDirichlet(nodeID*nDof-1)
-          model%rhs(nodeID*nDof-1) = node%ptr%dof(3)%fixedVal
+          !call model%lhs%setDirichlet(nodeID*nDof-1)
+          !model%rhs(nodeID*nDof-1) = node%ptr%dof(3)%fixedVal
        end if
        if(node%ptr%dof(4)%isFixed) then
           nodeID = node%ptr%getID()
-          call model%lhs%setDirichlet(nodeID*nDof)
-          model%rhs(nodeID*nDof  ) = node%ptr%dof(4)%fixedVal
+          !call model%lhs%setDirichlet(nodeID*nDof)
+          !model%rhs(nodeID*nDof  ) = node%ptr%dof(4)%fixedVal
        end if
     end do
   end subroutine applyDirichlet

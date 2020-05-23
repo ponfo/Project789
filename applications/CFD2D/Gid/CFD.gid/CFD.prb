@@ -2,9 +2,9 @@ PROBLEM DATA
 BOOK: Setup
 QUESTION: Problem_Name
 VALUE: CFD 2D
-QUESTION: Load_Number_On_Points
+QUESTION: Source_Number_On_Points
 VALUE: 0
-QUESTION: Load_Number_On_Surfaces
+QUESTION: Source_Number_On_Surfaces
 VALUE: 0
 QUESTION: Gauss_Order
 VALUE: 3
@@ -16,7 +16,6 @@ QUESTION: Print_Every_N_Steps
 VALUE: 25
 QUESTION: Safety_Factor
 VALUE: 0.75
-BOOK: SHOCK-CAPTURING
-QUESTION: Constant
+QUESTION: Constant_Shock_Capturing
 VALUE: 0.1
 END PROBLEM DATA

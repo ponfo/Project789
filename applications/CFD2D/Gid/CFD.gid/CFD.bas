@@ -63,7 +63,7 @@ Error_Tolerance........................: *GenData(Error_Tolerance)
 *#---------------------------------------------------------
 Safety_Factor..........................: *GenData(Safety_Factor)
 *#---------------------------------------------------------
-Shock Capturing constant...............: *GenData(Constant)
+Shock_Capturing_constant...............: *GenData(Constant)
 *#---------------------------------------------------------
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -81,11 +81,11 @@ Coordinates:
 
 Materials List:
 
-Material |       R     |   Gamma   |   Mu   |    K    |   Vx_inf |  Vy_inf   |   T    |    Rho   |
+Material |      R     |   Gamma   |   Mu   |    K    |   Vx_inf |  Vy_inf   |   T    |    Rho   |
 --------------------------------------------------------------------------------------------------
 *loop materials
-*format "%5i%10.4e%10.4e"
-*matnum  *matprop(R)  *matprop(Gamma) *matprop(Mu) *matprop(K) *matprop(Vx) *matprop(Vy) *matprop(T) *matprop(Rho)
+*format "%5i%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e"
+*matnum  *matprop(R_Gas) *matprop(Gamma) *matprop(Mu) *matprop(K) *matprop(Vx) *matprop(Vy) *matprop(T) *matprop(Rho) 
 *end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

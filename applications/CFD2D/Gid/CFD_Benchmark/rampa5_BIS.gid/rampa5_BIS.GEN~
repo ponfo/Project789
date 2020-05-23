@@ -1,9 +1,0 @@
- Iold  Maxit  Printit
- 0     100000	500
-FSAFE    U      V    TEMP    RHO
- .8    1020.   0.0   288.3  1.225
- FMU  FGX  FGY
- 0.0  0.0  0.0
-  FK   FR     FCv
- .001  287.   717.5 
-

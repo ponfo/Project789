@@ -13,12 +13,13 @@ END CONDITION
 NUMBER: 3 CONDITION: Fix_Temperature
 CONDTYPE: over lines
 QUESTION: Temperature#UNITS#
-VALUE: 1Cel
+VALUE: 1Kel
 END CONDITION
 NUMBER: 4 CONDITION: Normal_Velocity
 CONDTYPE: over lines
 QUESTION: Velocity#UNITS#
 VALUE: 0m/s
+END CONDITION
 NUMBER: 5 CONDITION: Source_On_Points
 CONDTYPE: over points
 QUESTION: Source_Number_On_Points
