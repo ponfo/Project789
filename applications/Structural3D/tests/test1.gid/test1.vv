@@ -1,18 +1,18 @@
 BeginZE /home/ponfo/Documents/Project789/applications/Structural3D/tests/test1.gid/test1.vv
-   x -14.5799 14.5799
-   y 10.2241 -10.2241
+   x -1.89657 11.7176
+   y 4.47609 -5.98497
    z -30 30
    e 10
-   v 0.502598 0.207338 0.291915
-   r 0.786887
-   m 0.743593 -0.250994 0.619735 0 0.667824 0.324361 -0.669926 0 -0.0328702 0.912026 0.408812 0 0 0 0 1
+   v -0.530116 -0.273575 -0.0862081
+   r -0.797936
+   m 0.83545 0.152476 0.527991 0 0.42763 0.42309 -0.798829 0 -0.345189 0.893166 0.288267 0 0 0 0 1
    c 0 0 0
    pd 0
    pno 0
    pfo 0
    pf 4
    pv 0
-   NowUse 0
+   NowUse 1
    DrawingType 0
    LightVector 90 90 150 0
 EndZE /home/ponfo/Documents/Project789/applications/Structural3D/tests/test1.gid/test1.vv

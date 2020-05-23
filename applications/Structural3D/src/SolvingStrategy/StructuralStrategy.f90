@@ -38,7 +38,7 @@ contains
     allocate(this%scheme, source = SetScheme(directScheme))
     allocate(this%builderAndSolver, source = SetBuilderAndSolver(directBAndS))
     call directBAndS%buildAndSolve(model)
-    !call directScheme%calculatePost(model)
+    call directScheme%calculatePost(model)
   end subroutine buildStrategyAndSolve
   
 end module StructuralStrategyM

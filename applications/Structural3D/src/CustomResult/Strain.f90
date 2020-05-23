@@ -6,12 +6,12 @@ module StrainM
   
   public :: StrainDT
   type StrainDT
-     integer(ikind) , dimension(:)  , allocatable :: triangElemID
-     real(rkind)    , dimension(:,:), allocatable :: triangGPoint
-     real(rkind)    , dimension(:,:), allocatable :: triangEp
-     integer(ikind) , dimension(:)  , allocatable :: quadElemID
-     real(rkind)    , dimension(:,:), allocatable :: quadGPoint
-     real(rkind)    , dimension(:,:), allocatable :: quadEp
+     integer(ikind) , dimension(:)  , allocatable :: tetraElemID
+     real(rkind)    , dimension(:,:), allocatable :: tetraGPoint
+     real(rkind)    , dimension(:,:), allocatable :: tetraEp
+     integer(ikind) , dimension(:)  , allocatable :: hexaElemID
+     real(rkind)    , dimension(:,:), allocatable :: hexaGPoint
+     real(rkind)    , dimension(:,:), allocatable :: hexaEp
   end type StrainDT
 
 end module StrainM

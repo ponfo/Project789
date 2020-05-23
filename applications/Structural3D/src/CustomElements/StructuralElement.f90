@@ -430,57 +430,65 @@ contains
     type(ProcessInfoDT)                                   , intent(inout) :: processInfo
     real(rkind)            , dimension(:,:,:), allocatable, intent(inout) :: resultMat
     integer(ikind)                                                        :: i, iGauss, nNode
-    real(rkind)                                                           :: nsx, nsy !NormalStress
-    real(rkind)                                                           :: shs      !SheatStress
-    real(rkind)                                                           :: epx, epy !Strain
-    real(rkind)                                                           :: bi, ci, xi, eta
-    real(rkind)                                                           :: dNidx, dNidy, kx, ky
-    real(rkind)                                                           :: d11, d12, d21, d22, d33
+    real(rkind)                                                           :: sxy, sxz, syz
+    real(rkind)                                                           :: epx, epy, epz
+    real(rkind)                                                           :: xi, eta
+    real(rkind)                                                           :: dNidx, dNidy, dNidz
+    real(rkind)                                                           :: kx, ky
+    real(rkind)            , dimension(6,6)                               :: d
     real(rkind)            , dimension(:,:,:), allocatable                :: jacobian
+    real(rkind)            , dimension(:,:,:), allocatable                :: jacobianInv
     real(rkind)            , dimension(:)    , allocatable                :: jacobianDet
     type(IntegratorPtrDT)                                                 :: integrator
     type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
-!!$    integrator = this%getIntegrator()
-!!$    nNode = this%getnNode()
-!!$    allocate(nodalPoints(nNode))
-!!$    allocate(resultMat(3,integrator%getIntegTerms(),2))
-!!$    do i = 1, nNode
-!!$       nodalPoints(i) = this%node(i)
-!!$    end do
-!!$    jacobian = this%geometry%jacobianAtGPoints(nodalPoints)
-!!$    jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
-!!$    do iGauss = 1, integrator%getIntegTerms()
-!!$       xi = integrator%getGPoint(iGauss,1)
-!!$       eta = integrator%getGPoint(iGauss,2)
-!!$       nsx = 0._rkind
-!!$       nsy = 0._rkind
-!!$       shs = 0._rkind
-!!$       epx = 0._rkind
-!!$       epy = 0._rkind
-!!$       do i = 1, nNode
-!!$          bi = jacobian(iGauss,2,2)*integrator%getDShapeFunc(iGauss,1,i) &
-!!$               - jacobian(iGauss,1,2)*integrator%getDShapeFunc(iGauss,2,i)
-!!$          ci = jacobian(iGauss,1,1)*integrator%getDShapeFunc(iGauss,2,i) &
-!!$               - jacobian(iGauss,2,1)*integrator%getDShapeFunc(iGauss,1,i)
-!!$          dNidx = bi/jacobianDet(iGauss)
-!!$          dNidy = ci/jacobianDet(iGauss)
-!!$          nsx = nsx + dNidx*this%node(i)%ptr%dof(1)%val
-!!$          nsy = nsy + dNidy*this%node(i)%ptr%dof(2)%val
-!!$          shs = shs + dNidx*this%node(i)%ptr%dof(2)%val + dNidy*this%node(i)%ptr%dof(1)%val
-!!$          epx = epx + dNidx*this%node(i)%ptr%dof(1)%val
-!!$          epy = epy + dNidy*this%node(i)%ptr%dof(2)%val
-!!$       end do
-!!$       d11 = this%material%d11
-!!$       d12 = this%material%d12
-!!$       d21 = this%material%d21
-!!$       d22 = this%material%d22
-!!$       d33 = this%material%d33
-!!$       resultMat(1,iGauss,1) = d11*nsx+d12*nsy
-!!$       resultMat(1,iGauss,2) = d21*nsx+d22*nsy
-!!$       resultMat(2,iGauss,1) = d33*shs
-!!$       resultMat(3,iGauss,1) = epx
-!!$       resultMat(3,iGauss,2) = epy
-!!$    end do
+    integrator = this%getIntegrator()
+    nNode = this%getnNode()
+    allocate(nodalPoints(nNode))
+    allocate(resultMat(3,integrator%getIntegTerms(),3))
+    do i = 1, nNode
+       nodalPoints(i) = this%node(i)
+    end do
+    jacobian = this%geometry%jacobianAtGPoints(nodalPoints)
+    jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
+    allocate(jacobianInv(integrator%getIntegTerms(),3,3))
+    do i = 1, integrator%getIntegTerms()
+       jacobianInv(i,1:3,1:3) = matinv3(jacobian(i,1:3,1:3))
+    end do
+    do iGauss = 1, integrator%getIntegTerms()
+       sxy = 0._rkind
+       sxz = 0._rkind
+       syz = 0._rkind
+       epx = 0._rkind
+       epy = 0._rkind
+       epz = 0._rkind
+       do i = 1, nNode
+          dNidx = jacobianInv(iGauss,1,1)*integrator%getDShapeFunc(iGauss,1,i) &
+               + jacobianInv(iGauss,1,2)*integrator%getDShapeFunc(iGauss,2,i)  &
+               + jacobianInv(iGauss,1,3)*integrator%getDShapeFunc(iGauss,3,i)
+          dNidy = jacobianInv(iGauss,2,1)*integrator%getDShapeFunc(iGauss,1,i) &
+               + jacobianInv(iGauss,2,2)*integrator%getDShapeFunc(iGauss,2,i)  &
+               + jacobianInv(iGauss,2,3)*integrator%getDShapeFunc(iGauss,3,i)
+          dNidz = jacobianInv(iGauss,3,1)*integrator%getDShapeFunc(iGauss,1,i) &
+               + jacobianInv(iGauss,3,2)*integrator%getDShapeFunc(iGauss,2,i)  &
+               + jacobianInv(iGauss,3,3)*integrator%getDShapeFunc(iGauss,3,i)
+          sxy = sxy + dNidx*this%node(i)%ptr%dof(2)%val + dNidy*this%node(i)%ptr%dof(1)%val
+          sxz = sxz + dNidx*this%node(i)%ptr%dof(3)%val + dNidz*this%node(i)%ptr%dof(1)%val
+          syz = syz + dNidy*this%node(i)%ptr%dof(3)%val + dNidz*this%node(i)%ptr%dof(2)%val
+          epx = epx + dNidx*this%node(i)%ptr%dof(1)%val
+          epy = epy + dNidy*this%node(i)%ptr%dof(2)%val
+          epz = epz + dNidz*this%node(i)%ptr%dof(3)%val
+       end do
+       d = this%material%d
+       resultMat(1,iGauss,1) = d(1,1)*epx + d(1,2)*epy + d(1,3)*epz
+       resultMat(1,iGauss,2) = d(2,1)*epx + d(2,2)*epy + d(2,3)*epz
+       resultMat(1,iGauss,3) = d(3,1)*epx + d(3,2)*epy + d(3,3)*epz
+       resultMat(2,iGauss,1) = d(4,4)*sxy
+       resultMat(2,iGauss,2) = d(5,5)*syz
+       resultMat(2,iGauss,3) = d(6,6)*sxz
+       resultMat(3,iGauss,1) = epx
+       resultMat(3,iGauss,2) = epy
+       resultMat(3,iGauss,3) = epz
+    end do
   end subroutine calculateResults
 
 end module StructuralElementM

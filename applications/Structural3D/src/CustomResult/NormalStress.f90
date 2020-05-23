@@ -6,12 +6,12 @@ module NormalStressM
   
   public :: NormalStressDT
   type NormalStressDT
-     integer(ikind) , dimension(:)  , allocatable :: triangElemID
-     real(rkind)    , dimension(:,:), allocatable :: triangGPoint
-     real(rkind)    , dimension(:,:), allocatable :: triangNS
-     integer(ikind) , dimension(:)  , allocatable :: quadElemID
-     real(rkind)    , dimension(:,:), allocatable :: quadGPoint
-     real(rkind)    , dimension(:,:), allocatable :: quadNS
+     integer(ikind) , dimension(:)  , allocatable :: tetraElemID
+     real(rkind)    , dimension(:,:), allocatable :: tetraGPoint
+     real(rkind)    , dimension(:,:), allocatable :: tetraNS
+     integer(ikind) , dimension(:)  , allocatable :: hexaElemID
+     real(rkind)    , dimension(:,:), allocatable :: hexaGPoint
+     real(rkind)    , dimension(:,:), allocatable :: hexaNS
   end type NormalStressDT
 
 end module NormalStressM

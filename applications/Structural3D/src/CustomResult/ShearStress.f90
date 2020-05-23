@@ -6,12 +6,12 @@ module ShearStressM
   
   public :: ShearStressDT
   type ShearStressDT
-     integer(ikind) , dimension(:)  , allocatable :: triangElemID
-     real(rkind)    , dimension(:,:), allocatable :: triangGPoint
-     real(rkind)    , dimension(:  ), allocatable :: triangShS
-     integer(ikind) , dimension(:)  , allocatable :: quadElemID
-     real(rkind)    , dimension(:,:), allocatable :: quadGPoint
-     real(rkind)    , dimension(:  ), allocatable :: quadShS
+     integer(ikind) , dimension(:)  , allocatable :: tetraElemID
+     real(rkind)    , dimension(:,:), allocatable :: tetraGPoint
+     real(rkind)    , dimension(:,:), allocatable :: tetraShS
+     integer(ikind) , dimension(:)  , allocatable :: hexaElemID
+     real(rkind)    , dimension(:,:), allocatable :: hexaGPoint
+     real(rkind)    , dimension(:,:), allocatable :: hexaShS
   end type ShearStressDT
   
 end module ShearStressM
