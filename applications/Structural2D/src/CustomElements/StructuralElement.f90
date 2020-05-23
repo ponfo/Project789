@@ -167,7 +167,7 @@ contains
           do j = 1, integrator%getIntegTerms()
              val1 = val1 + integrator%getWeight(j)*integrator%ptr%shapeFunc(j,i) &
                   *valuedSource(1,j)*jacobianDet(j)
-             val2 = val1 + integrator%getWeight(j)*integrator%ptr%shapeFunc(j,i) &
+             val2 = val2 + integrator%getWeight(j)*integrator%ptr%shapeFunc(j,i) &
                   *valuedSource(2,j)*jacobianDet(j)
           end do
           rhs(i*nDof-1) = rhs(i*nDof-1) + val1
@@ -272,7 +272,7 @@ contains
           do j = 1, integrator%getIntegTerms()
              val1 = val1 + integrator%getWeight(j)*integrator%ptr%shapeFunc(j,i) &
                   *valuedSource(1,j)*jacobianDet(j)
-             val2 = val1 + integrator%getWeight(j)*integrator%ptr%shapeFunc(j,i) &
+             val2 = val2 + integrator%getWeight(j)*integrator%ptr%shapeFunc(j,i) &
                   *valuedSource(2,j)*jacobianDet(j)
           end do
           rhs(i*nDof-1) = rhs(i*nDof-1) + val1

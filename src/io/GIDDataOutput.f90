@@ -5,10 +5,12 @@ module GIDDataOutputM
   public :: printResults, finishProgram, initDataOutput
   interface printResults
      procedure :: printResultsVec1
+     procedure :: printResultsVec2
      procedure :: printResults1DVec2
      procedure :: printResults2DVec1
      procedure :: printResults2DVec2
      procedure :: printResults3DVec3
+     procedure :: printResultsVecOnNodesNDof
   end interface printResults
   interface finishProgram
      procedure :: finishProgram
@@ -42,6 +44,23 @@ contains
     End Do
     write(results,*)   'End Values'
   end subroutine printResultsVec1
+
+  subroutine printResultsVec2(resultName, step, graphType, locationName, resultNumber&
+       , component1, component2)
+    implicit none
+    integer(ikind)                 :: iPoint
+    integer(ikind), intent(in)     :: step, resultNumber
+    real(rkind), intent(in), dimension(resultNumber) :: component1
+    real(rkind), intent(in), dimension(resultNumber) :: component2
+    character(*), intent(in) :: resultName, graphType, locationName
+    write(results,*)   'Result "',trim(resultName),'" "',trim(projectName)&
+         ,'" ',step,' ',trim(graphType),' ',trim(locationName)
+    write(results,*)   'Values'
+    Do iPoint = 1, resultNumber
+       Write(results,*) iPoint, component1(iPoint), component2(iPoint)
+    End Do
+    write(results,*)   'End Values'
+  end subroutine printResultsVec2
   
   subroutine printResults1DVec2(resultName, type, step, graphType, locationName, gaussPoints &
        , resultNumber, elemID, component1, component2)
@@ -204,4 +223,24 @@ contains
     print'(A,I0,A,I0,A,I0)', 'Date: ', date_time(3), "/", date_time(2), "/", date_time(1)
     print'(A,I0,A,I0,A,I0)', 'Hour: ', date_time(5), ":", date_time(6), ":", date_time(7)
   end subroutine finishProgram
+
+  subroutine printResultsVecOnNodesNDof(resultName, step, graphType, locationName, resultNumber&
+       , nDof, component1)
+    implicit none
+    integer(ikind)                 :: iPoint
+    integer(ikind), intent(in)     :: step, resultNumber, nDof
+    real(rkind), intent(in), dimension(:) :: component1
+    character(*), intent(in) :: resultName, graphType, locationName
+    integer(ikind) :: i, count
+    write(results,*)   'Result "',trim(resultName),'" "',trim(projectName)&
+         ,'" ',step,' ',trim(graphType),' ',trim(locationName)
+    write(results,*)   'Values'
+    count = 0
+    Do iPoint = 1, resultNumber
+       count = count + 1
+       write(results,'(I0,*(E16.8))') iPoint, (component1(count*nDof-(nDof-i)),i=1,nDof)
+    End Do
+    write(results,*)   'End Values'
+  end subroutine printResultsVecOnNodesNDof
+  
 end module GIDDataOutputM

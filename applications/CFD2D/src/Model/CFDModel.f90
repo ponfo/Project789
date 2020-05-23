@@ -7,8 +7,6 @@ module CFDModelM
   use ModelM
 
   use ResultsM
-
-  use CFDMaterialM
   
   implicit none
 
@@ -21,7 +19,6 @@ module CFDModelM
      real(rkind), dimension(:), allocatable :: rhs
      real(rkind), dimension(:), allocatable :: dof
      type(ResultsDT)                        :: results
-     type(CFDMaterialDT)                    :: material
    contains
      procedure, public :: init
      procedure, public :: initWithoutSystem
@@ -49,12 +46,12 @@ contains
   subroutine init(this, nDof, nnz, id, nNode, nElement, nCondition)
     implicit none
     class(CFDModelDT), intent(inout) :: this
-    integer(ikind)          , intent(in)    :: nDof
-    integer(ikind)          , intent(in)    :: nnz
-    integer(ikind)          , intent(in)    :: id
-    integer(ikind)          , intent(in)    :: nNode
-    integer(ikind)          , intent(in)    :: nElement
-    integer(ikind)          , intent(in)    :: nCondition
+    integer(ikind)   , intent(in)    :: nDof
+    integer(ikind)   , intent(in)    :: nnz
+    integer(ikind)   , intent(in)    :: id
+    integer(ikind)   , intent(in)    :: nNode
+    integer(ikind)   , intent(in)    :: nElement
+    integer(ikind)   , intent(in)    :: nCondition
     this%lhs  = sparse(nnz, nDof)
     this%mass = sparse(nnz, nDof)
     allocate(this%rhs(nDof))
@@ -66,10 +63,10 @@ contains
   subroutine initWithoutSystem(this, id, nNode, nElement, nCondition)
     implicit none
     class(CFDModelDT), intent(inout) :: this
-    integer(ikind)          , intent(in)    :: id
-    integer(ikind)          , intent(in)    :: nNode
-    integer(ikind)          , intent(in)    :: nElement
-    integer(ikind)          , intent(in)    :: nCondition
+    integer(ikind)   , intent(in)    :: id
+    integer(ikind)   , intent(in)    :: nNode
+    integer(ikind)   , intent(in)    :: nElement
+    integer(ikind)   , intent(in)    :: nCondition
     call this%initModel(1)
     this%mesh(1) = mesh(id, nNode, nElement, nCondition)
   end subroutine initWithoutSystem
@@ -77,8 +74,8 @@ contains
   subroutine initSystem(this, nDof, nnz)
     implicit none
     class(CFDModelDT), intent(inout) :: this
-    integer(ikind)          , intent(in)    :: nDof
-    integer(ikind)          , intent(in)    :: nnz
+    integer(ikind)   , intent(in)    :: nDof
+    integer(ikind)   , intent(in)    :: nnz
     this%lhs  = sparse(nnz, nDof)
     this%mass = sparse(nnz, nDof)
     allocate(this%rhs(nDof))

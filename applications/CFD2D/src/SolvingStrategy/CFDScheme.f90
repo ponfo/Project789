@@ -3,6 +3,8 @@ module CFDSchemeM
   use UtilitiesM
   
   use CFDModelM
+
+  use ElementPtrM
   
   use SchemeM
 
@@ -23,25 +25,49 @@ contains
 
   subroutine calculateOutputs(this, model)
     implicit none
-    class(CFDSchemeDT), intent(inout) :: this
-    class(CFDModelDT) , intent(inout) :: model
-    integer(ikind)                    :: i
-    integer(ikind)                    :: n
-    n = model%getnNode()
-    allocate(model%results%density(n)       , model%results%velocity(n,n) )
-    allocate(model%results%internalEnergy(n), model%results%temperature(n))
-    allocate(model%results%pressure(n)      , model%results%mach(n)       )
-    do i = 1, size(model%dof),4
-       model%results%density(i)        = model%dof(i)
-       model%results%velocity(i,i)     = (/model%dof(i+1),model%dof(i+2)/)/model%dof(i)
-       model%results%internalEnergy(i) = model%dof(i+3)/model%dof(i)
-       model%results%temperature(i)    = &
-            (model%gamma-1)/R*(model%dof(i+3)-0.5*(model%dof(i+1)**2+model%dof(i+2)**2))
-       model%results%pressure(i)       = &
-            (model%gamma-1)*model%dof(i)*(model%dof(i+3)-0.5*(model%dof(i+1)**2+model%dof(i+2)**2))
-       model%results%mach(i)           = sqrt(model%dof(i+1)**2+model%dof(i+2)**2)         &
-            /sqrt(model%gamma*model%R                                                   &
-            *(model%gamma-1)/R*(model%dof(i+3)-0.5*(model%dof(i+1)**2+model%dof(i+2)**2)))
+    class(CFDSchemeDT), intent(inout)          :: this
+    class(CFDModelDT) , intent(inout)          :: model
+    integer(ikind), dimension(:), allocatable  :: counter
+    integer(ikind)                             :: iElem, nNode
+    integer(ikind)                             :: nElem, dim, iNode
+    integer(ikind)                             :: position
+    real(rkind), dimension(:,:,:), allocatable :: localResultMat
+    type(ElementPtrDT)                         :: element
+    dim = model%getnNode()
+    allocate(model%results%velocity(dim,2))
+    allocate(model%results%density(dim))
+    allocate(model%results%mach(dim))
+    allocate(model%results%pressure(dim))
+    allocate(model%results%temperature(dim))
+    allocate(model%results%internalEnergy(dim))
+    allocate(counter(dim))
+    counter = 0
+    nElem = model%getnElement()
+    do iElem = 1, nElem
+       element = model%getElement(iElem)
+       nNode = element%getnNode()
+       call element%calculateResults(model%processInfo, localResultMat)
+       do iNode = 1, nNode
+          position                              = localResultMat(iNode,1,1)
+          model%results%velocity(position,1)     = localResultMat(iNode,2,1)
+          model%results%velocity(position,2)     = localResultMat(iNode,3,1)
+          model%results%density(position)        = localResultMat(iNode,4,1)
+          model%results%mach(position)           = localResultMat(iNode,5,1)
+          model%results%pressure(position)       = localResultMat(iNode,6,1)
+          model%results%temperature(position)    = localResultMat(iNode,7,1)
+          model%results%internalEnergy(position) = localResultMat(iNode,8,1)
+          counter(position) = counter(position) + 1
+       end do
+       deallocate(localResultMat)
+    end do
+    do iNode = 1, dim
+       model%results%velocity(iNode,1)     = model%results%velocity(1,iNode)/counter(iNode)
+       model%results%velocity(iNode,2)     = model%results%velocity(2,iNode)/counter(iNode)
+       model%results%density(iNode)        = model%results%density(iNode)/counter(iNode) 
+       model%results%mach(iNode)           = model%results%mach(iNode)/counter(iNode)
+       model%results%pressure(iNode)       = model%results%pressure(iNode)/counter(iNode) 
+       model%results%temperature(iNode)    = model%results%temperature(iNode)/counter(iNode)
+       model%results%internalEnergy(iNode) = model%results%internalEnergy(iNode)/counter(iNode)
     end do
   end subroutine calculateOutputs
   
@@ -52,3 +78,6 @@ contains
   end subroutine integrator
 
 end module CFDSchemeM
+
+
+

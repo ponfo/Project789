@@ -10,8 +10,12 @@ module NormalVelocityM
   use LeftHandSideM
 
   use IntegratorPtrM
+
+  use ProcessInfoM
   
   use ConditionM
+
+  use CFDMaterialM
 
   implicit none
 
@@ -21,6 +25,7 @@ module NormalVelocityM
   type, extends(ConditionDT) :: NormalVelocityDT
      integer(ikind), dimension(:), allocatable :: nodeIDList
      real(rkind)                               :: velocity
+     class(CFDMaterialDT), pointer             :: material
    contains
      procedure, public :: init
 
@@ -35,24 +40,26 @@ module NormalVelocityM
 
 contains
 
-  type(NormalVelocityDT) function constructor(id, nodeIDList, velocity, node, geometry)
+  type(NormalVelocityDT) function constructor(id, nodeIDList, velocity, node, geometry, material)
     implicit none
     integer(ikind)                           , intent(in) :: id
     integer(ikind)             , dimension(:), intent(in) :: nodeIDList
-    real(rkind)                              , intent(in) :: pressure
+    real(rkind)                              , intent(in) :: velocity
     type(NodePtrDT)            , dimension(:), intent(in) :: node
     class(GeometryDT)          , pointer     , intent(in) :: geometry
-    call constructor%init(id, nodeIDList, pressure, node, geometry)
+    class(CFDMaterialDT), target             , intent(in) :: material
+    call constructor%init(id, nodeIDList, velocity, node, geometry, material)
   end function constructor
 
-  subroutine init(this, id, nodeIDList, velocity, node, geometry)
+  subroutine init(this, id, nodeIDList, velocity, node, geometry, material)
     implicit none
-    class(NormalVelocityDT)                        , intent(inout) :: this
+    class(NormalVelocityDT)                  , intent(inout) :: this
     integer(ikind)                           , intent(in)    :: id
     integer(ikind)             , dimension(:), intent(in)    :: nodeIDList
     real(rkind)                              , intent(in)    :: velocity
     type(NodePtrDT)            , dimension(:), intent(in)    :: node
     class(GeometryDT)          , pointer     , intent(in)    :: geometry
+    class(CFDMaterialDT), target             , intent(in)    :: material
     this%id = id
     this%affectsLHS = .false.
     this%affectsRHS = .true.
@@ -62,24 +69,27 @@ contains
     this%geometry => geometry
   end subroutine init
 
-  subroutine calculateLocalSystem(this, lhs, rhs)
+  subroutine calculateLocalSystem(this, processInfo, lhs, rhs)
     implicit none
-    class(NormalVelocityDT)                                , intent(inout) :: this
+    class(NormalVelocityDT)                          , intent(inout) :: this
+    type(ProcessInfoDT)                                   , intent(inout) :: processInfo
     type(LeftHandSideDT)                             , intent(inout) :: lhs
     real(rkind)         , dimension(:)  , allocatable, intent(inout) :: rhs
-    call this%calculateRHS(rhs)
+    call this%calculateRHS(processInfo, rhs)
   end subroutine calculateLocalSystem
 
-  subroutine calculateLHS(this, lhs)
+  subroutine calculateLHS(this, processInfo, lhs)
     implicit none
     class(NormalVelocityDT)   , intent(inout) :: this
+    type(ProcessInfoDT)       , intent(inout) :: processInfo
     type(LeftHandSideDT), intent(inout) :: lhs
     print*, 'No LHS component in velocity condition'
   end subroutine calculateLHS
   
- subroutine calculateRHS(this, rhs)
+ subroutine calculateRHS(this, processInfo, rhs)
     implicit none
     class(NormalVelocityDT)                             , intent(inout) :: this
+    type(ProcessInfoDT)                                   , intent(inout) :: processInfo
     real(rkind)          , dimension(:)    , allocatable, intent(inout) :: rhs
     integer(ikind)                                                      :: i, j
     integer(ikind)                                                      :: nNode

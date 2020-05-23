@@ -1,0 +1,19 @@
+BeginZE /home/ponfo/Documents/Project789/applications/Structural3D/tests/test1.gid/test1.flavia.vv
+   x -3.66797 14.6878
+   y 6.58539 -7.91411
+   z -30 30
+   e 10
+   v -0.686362 0.0428205 0.061106
+   r -0.723422
+   m 0.988865 0.0296301 -0.145836 0 -0.147192 0.0503462 -0.987826 0 -0.0219271 0.998292 0.0541469 0 0 0 0 1
+   c 0 0 0
+   pd 0
+   pno 0
+   pfo 0
+   pf 4
+   pv 0
+   NowUse 2
+   DrawingType 3
+   LightVector 90 90 150 0
+EndZE /home/ponfo/Documents/Project789/applications/Structural3D/tests/test1.gid/test1.flavia.vv
+

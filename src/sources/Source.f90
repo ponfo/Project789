@@ -42,7 +42,7 @@ contains
     integer(ikind)                                   :: i
     allocate(this%func(nDim))
     do i = 1, nDim
-       this%func = EquationParser(func(i), var)
+       this%func(i) = EquationParser(func(i), var)
     end do
   end subroutine init
 

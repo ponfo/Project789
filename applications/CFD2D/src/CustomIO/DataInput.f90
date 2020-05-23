@@ -7,8 +7,9 @@ module DataInputM
   use NodePtrM
   use GeometryM
   use SourceM
+  use CFDMaterialM
   use CFDElementM
-  use NormalVelocityMM
+  use NormalVelocityM
   use CFDApplicationM
 
   use MeshM
@@ -21,25 +22,29 @@ module DataInputM
   
   integer(ikind), parameter    :: projectData = 1
   integer(ikind), parameter    :: project = 2
-  integer(ikind), parameter    :: functions = 4
   integer(ikind), dimension(8) :: date_time
-  integer(ikind), parameter    :: nDof = 2
+  integer(ikind), parameter    :: nDof = 4
   integer(ikind)               :: nElem
   integer(ikind)               :: nTriangElem
   integer(ikind)               :: nRectElem
   integer(ikind)               :: nPoint
   integer(ikind)               :: iPoint
-  integer(ikind)               :: nPressure
-  integer(ikind)               :: nDirichletX
-  integer(ikind)               :: nDirichletY
+  integer(ikind)               :: nNormalVelocity
+  integer(ikind)               :: nTemperature
+  integer(ikind)               :: nDensity
+  integer(ikind)               :: nVelocity
   integer(ikind)               :: nMaterial
   integer(ikind)               :: nGauss
-  integer(ikind)               :: nConvection
   integer(ikind)               :: isQuadratic
   integer(ikind)               :: nSourceOnPoints
   integer(ikind)               :: nSourceOnSurfaces
   integer(ikind)               :: nPointSource
   integer(ikind)               :: nSurfaceSource
+  integer(ikind)               :: printStep
+  real(rkind)                  :: t0
+  real(rkind)                  :: errorTol
+  real(rkind)                  :: fSafe
+  real(rkind)                  :: constant
   character(100)               :: projectName
   character(100)               :: aux
   logical       , parameter    :: verbose = .true.
@@ -59,9 +64,11 @@ contains
     call readProjectData
     call debugLog('  Reading mesh data')
     call initMesh(cfdAppl)
+    call debugLog('  Reading materials properties')
+    call initMaterials(cfdAppl)
     call debugLog('  Reading elements')
     call initElements(cfdAppl)
-    call debugLog('  Reading point and line Sources')
+    call debugLog('  Reading point and surface Sources')
     call readPointLineSurfaceSources(cfdAppl)
     call debugLog('  Reading Boundary Conditions')
     call readBoundaryConditions(cfdAppl)
@@ -90,49 +97,73 @@ contains
     read(project,*)  aux, isQuadratic
     read(project,*)  aux, nTriangElem
     read(project,*)  aux, nRectElem
+    read(project,*)  aux, nMaterial
     read(project,*)  aux, nGauss    
-    read(project,*)  aux, nDirichletX
-    read(project,*)  aux, nDirichletY
-    read(project,*)  aux, nPressure
+    read(project,*)  aux, nVelocity    
+    read(project,*)  aux, nDensity    
+    read(project,*)  aux, nTemperature
+    read(project,*)  aux, nNormalVelocity
     read(project,*)  aux, nSourceOnPoints
     read(project,*)  aux, nSourceOnSurfaces
     read(project,*)  aux, nPointSource
     read(project,*)  aux, nSurfaceSource
+    read(project,*)  aux, printStep
+    read(project,*)  aux, t0
+    read(project,*)  aux, errorTol
+    read(project,*)  aux, fSafe
+    read(project,*)  aux, constant
     
     if(verbose) print'(A,I0)','Number of Elements.............................: ', nElem
     if(verbose) print'(A,I0)','Are Elements Quadratic.........................: ', isQuadratic
     if(verbose) print'(A,I0)','Number of Triangular elements..................: ', nTriangElem
     if(verbose) print'(A,I0)','Number of Rectangular elements.................: ', nRectElem
     if(verbose) print'(A,I0)','Number of Nodes................................: ', nPoint
-    if(verbose) print'(A,I0)','Number of Dirichlet X conditions...............: ', nDirichletX   
-    if(verbose) print'(A,I0)','Number of Dirichlet Y conditions...............: ', nDirichletY     
-    if(verbose) print'(A,I0)','Number of Pressure conditions..................: ', nPressure 
+    if(verbose) print'(A,I0)','Number of Velocity conditions..................: ', nVelocity
+    if(verbose) print'(A,I0)','Number of Density conditions...................: ', nDensity
+    if(verbose) print'(A,I0)','Number of Temperature conditions...............: ', nTemperature   
+    if(verbose) print'(A,I0)','Number of Normal Velocity conditions...........: ', nNormalVelocity 
     if(verbose) print'(A,I0)','Number of Loads on points......................: ', nSourceOnPoints 
     if(verbose) print'(A,I0)','Number of Loads on surfaces....................: ', nSourceOnSurfaces
     if(verbose) print'(A,I0)','Number of points with pointSource..............: ', nPointSource
     if(verbose) print'(A,I0)','Number of Surfaces with surfaceSource..........: ', nSurfaceSource
+    if(verbose) print'(A,I0)','Number of Materials............................: ', nMaterial
     if(verbose) print'(A,I0)','Gauss cuadrature order.........................: ', nGauss
+    if(verbose) print'(A,I0)','PrintStep......................................: ', printStep
+    if(verbose) print'(A,I0)','Initial time...................................: ', t0
+    if(verbose) print'(A,I0)','Error tolerance................................: ', errorTol
+    if(verbose) print'(A,I0)','Safety Factor..................................: ', fSafe
+    if(verbose) print'(A,I0)','Shock Capturing constant.......................: ', constant
     
     call debugLog('    Number of Elements.............................: ', nElem)
     call debugLog('    Are Elements Quadratic.........................: ', isQuadratic)
     call debugLog('    Number of Triangular elements..................: ', nTriangElem)
     call debugLog('    Number of Rectangular elements.................: ', nRectElem)
     call debugLog('    Number of Nodes................................: ', nPoint)
-    call debugLog('    Number of Dirichlet X conditions...............: ', nDirichletX)    
-    call debugLog('    Number of Dirichlet Y conditions...............: ', nDirichletY)     
-    call debugLog('    Number of Pressure conditions..................: ', nPressure) 
+    call debugLog('    Number of Velocity conditions..........---.....: ', nVelocity)
+    call debugLog('    Number of Density conditions...................: ', nDensity)
+    call debugLog('    Number of Temperature conditions...............: ', nTemperature)    
+    call debugLog('    Number of Pressure conditions..................: ', nNormalVelocity) 
     call debugLog('    Number of Loads on points......................: ', nSourceOnPoints) 
     call debugLog('    Number of Loads on surfaces....................: ', nSourceOnSurfaces)
     call debugLog('    Number of points with pointSource..............: ', nPointSource)
     call debugLog('    Number of Surfaces with surfaceSource..........: ', nSurfaceSource)
+    call debugLog('    Number of Materials............................: ', nMaterial)
     call debugLog('    Gauss cuadrature order.........................: ', nGauss)
+    call debugLog('    PrintStep......................................: ', printStep)
+    call debugLog('    Initial time...................................: ', t0)
+    call debugLog('    Error tolerance................................: ', errorTol)
+    call debugLog('    Safety Factor..................................: ', fSafe)
+    call debugLog('    Shock Capturing constant.......................: ', constant)
     
     cfdAppl = cfdApplication(                  &
            nNode = nPoint                                      &
          , nElement = nTriangElem + nRectElem                  &
          , nNormalVelocity = nNormalVelocity                   &
          , nSource = nSourceOnPoints + nSourceOnSurfaces       &
+         , nMaterial = nMaterial                               &
          , nGauss = nGauss                                     )
+
+    call cfdAppl%setTransientValues(printStep, t0, errorTol, fSafe, constant)
     
     do i = 1, 6
        read(project,*)
@@ -142,12 +173,30 @@ contains
     do i = 1, nPoint
        read(project,*) iPoint, x, y
        if(verbose) print'(3X,I0,3X,E10.3,3X,E10.3,3X,E10.3)', iPoint, x, y
-       cfdAppl%node(iPoint) = node(iPoint, 2, x, y)
-       call cfdAppl%node(iPoint)%assignDof(1, cfdAppl%model%dof(iPoint*nDof-1))
-       call cfdAppl%node(iPoint)%assignDof(2, cfdAppl%model%dof(iPoint*nDof))
+       cfdAppl%node(iPoint) = node(iPoint, 4, x, y)
+       call cfdAppl%node(iPoint)%assignDof(1, cfdAppl%model%dof(iPoint*nDof-3))
+       call cfdAppl%node(iPoint)%assignDof(2, cfdAppl%model%dof(iPoint*nDof-2))
+       call cfdAppl%node(iPoint)%assignDof(3, cfdAppl%model%dof(iPoint*nDof-1))
+       call cfdAppl%node(iPoint)%assignDof(4, cfdAppl%model%dof(iPoint*nDof))
        call cfdAppl%model%addNode(iPoint, cfdAppl%node(iPoint))
     end do
   end subroutine initMesh
+
+  subroutine initMaterials(cfdAppl)
+    implicit none
+    type(CFDApplicationDT), intent(inout) :: cfdAppl
+    integer(ikind) :: i, iMat
+    real(rkind) :: R, gamma, mu, k, Vx, Vy, T, rho
+    do i = 1, 7
+       read(project,*)
+    end do
+    if(verbose) print'(A)', 'Material      R     gamma      mu       k       Vx_inf   Vy_inf      T      rho   '
+    do i = 1, nMaterial
+       read(project,*) iMat, R, gamma, mu, k, Vx, Vy, T, rho
+       cfdAppl%material(iMat) = cfdMaterial(R, gamma, mu, k, Vx, Vy, T, rho)
+       if(verbose) print'(4X,I0,7X,2(E10.3,3X))', iMat, R, gamma, mu, k, Vx, Vy, T, rho
+    end do
+  end subroutine initMaterials
   
   subroutine initElements(cfdAppl)
     type(CFDApplicationDT), intent(inout) :: cfdAppl
@@ -158,7 +207,7 @@ contains
     do i = 1, 7
        read(project,*)
     end do
-    if(verbose) print'(A)', 'Element  |      Type      |  nNodes  |  connectivities'
+    if(verbose) print'(A)', 'Element  |      Type      |  material index |  nNodes  |  connectivities'
     do i = 1, nElem
        read(project,*) iElem, type, iMat, nNode, (Conectivities(j),j=1,nNode)
        if(verbose) print'(I5,A15,I18,I14,5X,*(I5,X))', iElem, type, iMat, nNode, (Conectivities(j),j=1,nNode)
@@ -175,9 +224,9 @@ contains
   subroutine readPointLineSurfaceSources(cfdAppl)
     implicit none
     type(CFDApplicationDT), intent(inout) :: cfdAppl
-    integer(ikind)                              :: i, countSource, auxInt
-    integer(ikind)                              :: iNode, iElem, iSource
-    character(150), dimension(2)                :: func
+    integer(ikind)                        :: i, countSource, auxInt
+    integer(ikind)                        :: iNode, iElem, iSource
+    character(150), dimension(2)          :: func
     do i = 1, 7
        read(project,*)
     end do
@@ -212,33 +261,43 @@ contains
 
   subroutine readBoundaryConditions(cfdAppl)
     implicit none
-    type(CFDApplicationDT), intent(inout)  :: cfdAppl
+    type(CFDApplicationDT), intent(inout)        :: cfdAppl
     integer(ikind)                               :: i, j, id, elemID, nPointID
     integer(ikind)                               :: iPoint, conditionCounter
     integer(ikind), dimension(:), allocatable    :: pointID
-    real(rkind)                                  :: value
-    real(rkind)                                  :: coef, temp
-    type(CFDElementDT)                    :: element
+    real(rkind)                                  :: value, valuex, valuey
+    type(CFDElementDT)                           :: element
     type(NodePtrDT)  , dimension(:), allocatable :: node
     do i = 1, 7
        read(project,*)
     end do
-    if(verbose) print'(/,A)', 'Dirichlet X conditions'
-    if(verbose) print'(A)', 'Node    Value'
-    do i = 1, nDirichletX
-       read(Project,*) id, value
-       if(verbose) print'(I0,5X,E10.3)', id, value
-       call cfdAppl%node(id)%fixDof(1, value)
+    if(verbose) print'(/,A)', 'Velocity conditions'
+    if(verbose) print'(A)', 'Node    Valuex    valuey'
+    do i = 1, nVelocity
+       read(Project,*) id, valuex, valuey
+       if(verbose) print'(I0,5X,E10.3)', id, valuex, valuey
+       call cfdAppl%node(id)%fixDof(1, valuex)
+       call cfdAppl%node(id)%fixDof(2, valuey)
     end do
     do i = 1, 7
        read(project,*)
     end do
-    if(verbose) print'(/,A)', 'Dirichlet Y conditions'
+    if(verbose) print'(/,A)', 'Density conditions'
     if(verbose) print'(A)', 'Node    Value'
-    do i = 1, nDirichletY
+    do i = 1, nDensity
        read(Project,*) id, value
        if(verbose) print'(I0,5X,E10.3)', id, value
-       call cfdAppl%node(id)%fixDof(2, value)
+       call cfdAppl%node(id)%fixDof(3, value)
+    end do
+    do i = 1, 7
+       read(project,*)
+    end do
+    if(verbose) print'(/,A)', 'Temperature conditions'
+    if(verbose) print'(A)', 'Node    Value'
+    do i = 1, nTemperature
+       read(Project,*) id, value
+       if(verbose) print'(I0,5X,E10.3)', id, value
+       call cfdAppl%node(id)%fixDof(4, value)
     end do
     do i = 1, 7
        read(project,*)
@@ -251,9 +310,9 @@ contains
     allocate(pointID(nPointID))
     allocate(node(nPointID))
     conditionCounter = 0
-    if(verbose) print'(/,A)', 'Pressure On Lines conditions'
+    if(verbose) print'(/,A)', 'Normal Velocity conditions'
     if(verbose) print'(A)', 'Elem    Nodes     Value'
-    do i = 1, nPressure
+    do i = 1, nNormalVelocity
        conditionCounter = conditionCounter + 1
        read(Project,*) elemID, (pointID(j),j=1,nPointID), value
        if(verbose) print*, elemID, (pointID(j),j=1,nPointID), value
@@ -261,9 +320,9 @@ contains
        do j = 1, nPointID
           node(j) = element%node(pointID(j))
        end do
-       cfdAppl%pressure(i) = &
-            pressure(i, pointID, value, node, element%geometry, element%material)
-       call cfdAppl%model%addCondition(conditionCounter, cfdAppl%pressure(i))
+       cfdAppl%normalVelocity(i) = &
+            normalVelocity(i, pointID, value, node, element%geometry, element%material)
+       call cfdAppl%model%addCondition(conditionCounter, cfdAppl%normalVelocity(i))
     end do
     close(project)
   end subroutine readBoundaryConditions

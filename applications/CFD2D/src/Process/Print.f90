@@ -34,14 +34,14 @@ contains
        , temperature         &
        , velocity            )
     implicit none
-    class(PrintDT)           , intent(inout) :: this
-    real(rkind), dimension(:), intent(inout) :: velocity
-    real(rkind), dimension(:), intent(inout) :: density
-    real(rkind), dimension(:), intent(inout) :: internalEnergy
-    real(rkind), dimension(:), intent(inout) :: mach
-    real(rkind), dimension(:), intent(inout) :: pressure
-    real(rkind), dimension(:), intent(inout) :: Temperature
-    integer(ikind)           , intent(inout) :: step
+    class(PrintDT)             , intent(inout) :: this
+    real(rkind), dimension(:,:), intent(inout) :: velocity
+    real(rkind), dimension(:)  , intent(inout) :: density
+    real(rkind), dimension(:)  , intent(inout) :: internalEnergy
+    real(rkind), dimension(:)  , intent(inout) :: mach
+    real(rkind), dimension(:)  , intent(inout) :: pressure
+    real(rkind), dimension(:)  , intent(inout) :: Temperature
+    integer(ikind)             , intent(inout) :: step
     call printResults(resultName = 'Density'          &
          , step         = step                        &
          , graphType    = 'Scalar'                    &
