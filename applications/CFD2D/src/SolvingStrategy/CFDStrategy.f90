@@ -56,16 +56,22 @@ contains
     error       = errorTol+1
     printStep   = model%processInfo%getPrintStep()
     call model%processInfo%setStep(step1)
+    print*, 'Build and Solve'
     call builAndSolve%buildAndSolve(model)
+    print*, 'Scheme'
     call scheme%calculateOutputs(model)
     !::::::::::::::::::::::::::::::::::::::::::::::
     dt    = model%processInfo%getDt()
-    inverseMatrix = inverse(model%mass)
+    print*, 'inverse'
+    !call model%mass%printNonZeros()
+    inverseMatrix = inverseLumped(model%mass)
     allocate(this%process, source = WriteOutput)
+    print*, 'Init output'
     call WriteOutput%initPrint()
+    print*, 'Init iterations'
+    call model%processInfo%setStep(step1)
     !::::::::::::::::::::::::::::::::::::::::::::::
     do while(error .ge. errorTol)
-       call model%processInfo%setStep(step1)
        navierStokes2D = SetNavierStokes2D(model%dof, model%lhs&
             , model%rhs, inverseMatrix, rk4                   )
        if (step1 == step2) then
@@ -79,16 +85,29 @@ contains
        call navierStokes2D%integrate(dt)
        model%dof = navierStokes2D%getState()
        t         = t + dt
+       step1 = step1 + 1
+       call model%processInfo%setStep(step1)
        call builAndSolve%buildAndSolve(model)
        call scheme%calculateOutputs(model)
        rhs  = (model%rhs-model%lhs*model%dof)
        error = sqrt(dot_product(rhs, rhs))
-       step1 = step1 + 1
     end do
     !:::::::::::::::::::::::::::::::::::::::::::::
     call scheme%calculateOutputs(model)
     write(*,*) 't final = ', t, 'error = ', error 
     write(*,*) '*** Finished Integration ***'
   end subroutine buildStrategyAndSolve
-  
+
+  type(Sparse) function inverseLumped(matrix)
+    implicit none
+    class(Sparse), intent(inout) :: matrix
+    logical                      :: sortRows = .false.
+    integer(ikind) :: i
+    inverseLumped = Sparse(nnz = matrix%getn(), rows = matrix%getn())
+    do i = 1, matrix%getn()
+       call inverseLumped%append(1._rkind/matrix%get(i,i),i,i)
+    end do
+    call inverseLumped%makeCRS(sortRows)
+  end function inverseLumped
+    
 end module CFDStrategyM

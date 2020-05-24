@@ -1,5 +1,4 @@
 PROBLEM DATA
-BOOK: Setup
 QUESTION: Problem_Name
 VALUE: CFD 2D
 QUESTION: Source_Number_On_Points
@@ -12,10 +11,12 @@ QUESTION: Initial_Time
 VALUE: 0.0
 QUESTION: Error_Tolerance
 VALUE: 0.000005
+QUESTION: Max_Iterations
+VALUE: 10000
 QUESTION: Print_Every_N_Steps
 VALUE: 25
 QUESTION: Safety_Factor
-VALUE: 0.75
+VALUE: 0.015
 QUESTION: Constant_Shock_Capturing
-VALUE: 0.1
+VALUE: 0.9
 END PROBLEM DATA

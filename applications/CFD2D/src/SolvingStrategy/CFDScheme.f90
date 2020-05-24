@@ -34,13 +34,29 @@ contains
     real(rkind), dimension(:,:,:), allocatable :: localResultMat
     type(ElementPtrDT)                         :: element
     dim = model%getnNode()
-    allocate(model%results%velocity(dim,2))
-    allocate(model%results%density(dim))
-    allocate(model%results%mach(dim))
-    allocate(model%results%pressure(dim))
-    allocate(model%results%temperature(dim))
-    allocate(model%results%internalEnergy(dim))
-    allocate(counter(dim))
+    if (allocated(model%results%velocity)) then
+       deallocate(model%results%velocity)
+       deallocate(model%results%density)
+       deallocate(model%results%mach)
+       deallocate(model%results%pressure)
+       deallocate(model%results%temperature)
+       deallocate(model%results%internalEnergy)
+       allocate(model%results%velocity(dim,2))
+       allocate(model%results%density(dim))
+       allocate(model%results%mach(dim))
+       allocate(model%results%pressure(dim))
+       allocate(model%results%temperature(dim))
+       allocate(model%results%internalEnergy(dim))
+       allocate(counter(dim))
+    else
+       allocate(model%results%velocity(dim,2))
+       allocate(model%results%density(dim))
+       allocate(model%results%mach(dim))
+       allocate(model%results%pressure(dim))
+       allocate(model%results%temperature(dim))
+       allocate(model%results%internalEnergy(dim))
+       allocate(counter(dim))
+    end if
     counter = 0
     nElem = model%getnElement()
     do iElem = 1, nElem
@@ -61,14 +77,15 @@ contains
        deallocate(localResultMat)
     end do
     do iNode = 1, dim
-       model%results%velocity(iNode,1)     = model%results%velocity(1,iNode)/counter(iNode)
-       model%results%velocity(iNode,2)     = model%results%velocity(2,iNode)/counter(iNode)
+       model%results%velocity(iNode,1)     = model%results%velocity(iNode,1)/counter(iNode)
+       model%results%velocity(iNode,2)     = model%results%velocity(iNode,2)/counter(iNode)
        model%results%density(iNode)        = model%results%density(iNode)/counter(iNode) 
        model%results%mach(iNode)           = model%results%mach(iNode)/counter(iNode)
        model%results%pressure(iNode)       = model%results%pressure(iNode)/counter(iNode) 
        model%results%temperature(iNode)    = model%results%temperature(iNode)/counter(iNode)
        model%results%internalEnergy(iNode) = model%results%internalEnergy(iNode)/counter(iNode)
     end do
+    deallocate(counter)
   end subroutine calculateOutputs
   
   subroutine integrator(this, dt)

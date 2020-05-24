@@ -1,6 +1,7 @@
 module CFDBuilderAndSolverM
 
   use UtilitiesM
+  use SparseKit
   use DebuggerM
 
   use SparseKit
@@ -54,6 +55,10 @@ contains
     real(rkind), dimension(:)  , allocatable :: localRHS
     real(rkind)                              :: adder
     type(ElementPtrDT)                       :: element
+    if (model%processInfo%getStep() .ne. 0) then
+       call model%lhs%free()
+       model%lhs = Sparse(nnz = model%getnElement()*256, rows = model%getnNode())
+    end if
     nElem = model%getnElement()
     nDof = 4
     do iElem = 1, nElem
@@ -68,16 +73,18 @@ contains
                 adder = 0._rkind
                 do jDof = 1, nDof
                    call model%LHS%append(                                                          &
-                          val = localLHS%stiffness(iNode*nDof-(nDof-iDof),jNode*nDof-(nDof-jDof))  &
+                        val = localLHS%stiffness(iNode*nDof-(nDof-iDof),jNode*nDof-(nDof-jDof))  &
                         , row = iNodeID*nDof-(nDof-iDof)                                          &
                         , col = jNodeID*nDof-(nDof-jDof)                                          )
-                        adder = adder                                                             &
+                   adder = adder                                                             &
                         + localLHS%mass(iNode*nDof-(nDof-iDof),jNode*nDof-(nDof-jDof))  
                 end do
-                call model%mass%append(                                                            &
-                        val = adder                                                               &
-                        , row = iNodeID*nDof-(nDof-iDof)                                          &
-                        , col = iNodeID*nDof-(nDof-iDof)                                          )
+                if (model%processInfo%getStep() .eq. 0) then
+                   call model%mass%append(                                                    &
+                        val = adder                                                          &
+                        , row = iNodeID*nDof-(nDof-iDof)                                     &
+                        , col = iNodeID*nDof-(nDof-iDof)                                     )
+                end if
              end do
           end do
           model%rhs(iNodeID*nDof-3) = model%rhs(iNodeID*nDof-3) + localRHS(iNode*nDof-3)
@@ -88,8 +95,10 @@ contains
        call localLHS%free()
        deallocate(localRHS)
     end do
-    call model%lhs%makeCRS()
-    call model%mass%makeCRS()
+    if (model%processInfo%getStep() .eq. 0) then
+       call model%lhs%makeCRS()
+       call model%mass%makeCRS()
+    end if
   end subroutine assembleSystem
 
   subroutine applyBC(model)

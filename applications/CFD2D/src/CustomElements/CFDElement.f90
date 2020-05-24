@@ -166,7 +166,7 @@ contains
              lhs%mass(ii+1,jj+2)   = &
                   lhs%mass(ii+1,jj+2)   + (integrator%getWeight(k)*jacobianDet(k)*2&
                   *integrator%getShapeFunc(k,i)*integrator%getShapeFunc(k,j))          
-             lhs%mass(ii+1,jj+32)  = &
+             lhs%mass(ii+1,jj+2)  = &
                   lhs%mass(ii+1,jj+3) + (integrator%getWeight(k)*jacobianDet(k)*2&
                   *integrator%getShapeFunc(k,i)*integrator%getShapeFunc(k,j))
 
@@ -444,7 +444,7 @@ contains
     class(CFDElementDT)                                   , intent(inout) :: this
     type(ProcessInfoDT)                                   , intent(inout) :: processInfo
     real(rkind)            , dimension(:,:,:), allocatable, intent(inout) :: resultMat
-    integer(ikind)                                                        :: i, j , nNode, iNode
+    integer(ikind)                                                        :: i, j , nNode
     real(rkind)                                                           :: rho, rhoVx
     real(rkind)                                                           :: rhoE, rhoVy
     real(rkind)            , dimension(:,:,:), allocatable                :: jacobian 
@@ -472,14 +472,14 @@ contains
           rhoVy = rhoVy + integrator%getShapeFunc(j,i)*jacobianDet(j)*this%node(i)%ptr%dof(3)%val
           rhoE  = rhoE  + integrator%getShapeFunc(j,i)*jacobianDet(j)*this%node(i)%ptr%dof(4)%val
        end do
-       resultMat(iNode,1,1) = this%node(i)%ptr%Id 
-       resultMat(iNode,2,1) = rhoVx/rho
-       resultMat(iNode,3,1) = rhoVy/rho
-       resultMat(iNode,4,1) = rho
-       resultMat(iNode,5,1) = sqrt((rhoVx/rho)**2+(rhoVx/rho)**2)/this%material%Vc
-       resultMat(iNode,6,1) = (this%material%gamma-1)*rho*((rhoE/rho)-(0.5*((rhoVx/rho)**2+(rhoVx/rho)**2)))
-       resultMat(iNode,7,1) = (this%material%gamma-1)/this%material%R*((rhoE/rho)-(0.5*((rhoVx/rho)**2+(rhoVx/rho)**2)))
-       resultMat(iNode,8,1) = rhoE/rho
+       resultMat(i,1,1) = this%node(i)%ptr%Id 
+       resultMat(i,2,1) = rhoVx/rho
+       resultMat(i,3,1) = rhoVy/rho
+       resultMat(i,4,1) = rho
+       resultMat(i,5,1) = sqrt((rhoVx/rho)**2+(rhoVx/rho)**2)/this%material%Vc
+       resultMat(i,6,1) = (this%material%gamma-1)*rho*((rhoE/rho)-(0.5*((rhoVx/rho)**2+(rhoVx/rho)**2)))
+       resultMat(i,7,1) = (this%material%gamma-1)/this%material%R*((rhoE/rho)-(0.5*((rhoVx/rho)**2+(rhoVx/rho)**2)))
+       resultMat(i,8,1) = rhoE/rho
     end do
   end subroutine calculateResults
   
