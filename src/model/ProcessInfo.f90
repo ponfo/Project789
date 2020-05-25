@@ -15,6 +15,7 @@ module ProcessInfoM
      real(rkind)   , allocatable :: printStep
      real(rkind)   , allocatable :: constants(:)
      integer(ikind), allocatable :: step
+     integer(ikind), allocatable :: maxIter
    contains
      procedure, public :: setTime
      procedure, public :: setDT
@@ -24,6 +25,7 @@ module ProcessInfoM
      procedure, public :: setT0
      procedure, public :: setConstants
      procedure, public :: setStep
+     procedure, public :: setMaxIter
      procedure, public :: getTime
      procedure, public :: getDT
      procedure, public :: getErrorTol
@@ -33,6 +35,7 @@ module ProcessInfoM
      procedure         :: getOneConstant
      procedure         :: getAllConstants
      procedure, public :: getStep
+     procedure, public :: getMaxIter
   end type ProcessInfoDT
 
 contains
@@ -105,6 +108,14 @@ contains
     if(.not.allocated(this%step)) allocate(this%step)
     this%step = step
   end subroutine setStep
+
+  subroutine setMaxIter(this, maxIter)
+    implicit none
+    class(ProcessInfoDT), intent(inout) :: this
+    integer(ikind)      , intent(in)    :: maxIter
+    if(.not.allocated(this%maxIter)) allocate(this%maxIter)
+    this%maxIter = maxIter
+  end subroutine setMaxIter
   
   real(rkind) pure function getTime(this)
     implicit none
@@ -155,6 +166,12 @@ contains
     class(ProcessInfoDT), intent(in) :: this
     getStep = this%step
   end function getStep
+
+  integer(ikind) pure function getMaxIter(this)
+    implicit none
+    class(ProcessInfoDT), intent(in) :: this
+    getMaxIter = this%maxIter
+  end function getMaxIter
   
 end module ProcessInfoM
      

@@ -83,11 +83,11 @@ Coordinates:
 
 Materials List:
 
-Material |      R     |   Gamma   |   Mu   |    K    |   Vx_inf |  Vy_inf   |   T    |    Rho   |     Mach   |    Cv     |
---------------------------------------------------------------------------------------------------------------------------
+Material |      R     |   Gamma   |   Mu   |    K    |   Vx_inf |  Vy_inf   |   T    |    Rho   |     Mach   |    Cv     |      P    |
+--------------------------------------------------------------------------------------------------------------------------------------
 *loop materials
 *format "%5i%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e"
-*matnum  *matprop(R_Gas) *matprop(Gamma) *matprop(Mu) *matprop(K) *matprop(Vx) *matprop(Vy) *matprop(T) *matprop(Rho) *matprop(Mach) *matprop(Cv)
+*matnum  *matprop(R_Gas) *matprop(Gamma) *matprop(Mu) *matprop(K) *matprop(Vx) *matprop(Vy) *matprop(T) *matprop(Rho) *matprop(Mach) *matprop(Cv) *matprop(P)
 *end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -156,18 +156,6 @@ Conditions List:
 *elemsnum  *cond(Source_Number_On_Surfaces)
 *end
 
-####################### Velocity ######################
-
-Conditions List:
-
-  Node    |    Velocity
-------------------------------
-*Set Cond Fix_Velocity *nodes
-*loop nodes *OnlyInCond
-*format "%5i%10.4e"
-*NodesNum    *cond(Vx,int) *cond(Vy,int) 
-*end
-
 ####################### Density ######################
 
 Conditions List:
@@ -178,6 +166,18 @@ Conditions List:
 *loop nodes *OnlyInCond
 *format "%5i%10.4e"
 *NodesNum           *cond(Density,int) 
+*end
+
+####################### Velocity ######################
+
+Conditions List:
+
+  Node    |    Velocity
+------------------------------
+*Set Cond Fix_Velocity *nodes
+*loop nodes *OnlyInCond
+*format "%5i%10.4e"
+*NodesNum    *cond(Vx,int) *cond(Vy,int) 
 *end
 
 ####################### Temperature ######################

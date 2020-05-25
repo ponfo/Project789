@@ -1,0 +1,46 @@
+22:39:31  Initiating Program
+22:39:31    Reading project data
+22:39:31      Project name: cuña
+22:39:31    Reading mesh data
+22:39:31      Number of Elements.............................: 7004
+22:39:31      Are Elements Quadratic.........................: 0
+22:39:31      Number of Triangular elements..................: 7004
+22:39:31      Number of Rectangular elements.................: 0
+22:39:31      Number of Nodes................................: 3605
+22:39:31      Number of Velocity conditions..........---.....: 31
+22:39:31      Number of Density conditions...................: 31
+22:39:31      Number of Temperature conditions...............: 31
+22:39:31      Number of Pressure conditions..................: 125
+22:39:31      Number of Loads on points......................: 0
+22:39:31      Number of Loads on surfaces....................: 0
+22:39:31      Number of points with pointSource..............: 0
+22:39:31      Number of Surfaces with surfaceSource..........: 0
+22:39:31      Number of Materials............................: 1
+22:39:31      Gauss cuadrature order.........................: 3
+22:39:31      PrintStep......................................: 200
+22:39:31      Initial time...................................:   0.00000000E+00
+22:39:31      Error tolerance................................:   0.50000000E-05
+22:39:31      Max Iterations.................................: 22000
+22:39:31      Safety Factor..................................:   0.15000000E-01
+22:39:31      Shock Capturing constant.......................:   0.11111111E+01
+22:39:31          Allocated weights: 4
+22:39:31          Allocated gPoints: 8
+22:39:31          Allocated weights: 3
+22:39:31          Allocated gPoints: 3
+22:39:31          Allocated weights: 4
+22:39:31          Allocated gPoints: 8
+22:39:31          Allocated weights: 3
+22:39:31          Allocated gPoints: 3
+22:39:31          Allocated weights: 9
+22:39:31          Allocated gPoints: 18
+22:39:31          Allocated weights: 3
+22:39:31          Allocated gPoints: 3
+22:39:31          Allocated weights: 9
+22:39:31          Allocated gPoints: 18
+22:39:31          Allocated weights: 3
+22:39:31          Allocated gPoints: 3
+22:39:32    Reading materials properties
+22:39:32    Reading elements
+22:39:32    Reading point and surface Sources
+22:39:32    Reading Boundary Conditions
+22:39:32  End loading data

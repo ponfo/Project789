@@ -43,6 +43,7 @@ contains
     real(rkind)                            :: dt
     real(rkind)                            :: error
     real(rkind)                            :: errorTol
+    integer(ikind)                         :: maxIter
     integer(ikind)                         :: step1
     integer(ikind)                         :: step2
     integer(ikind)                         :: printStep
@@ -53,25 +54,26 @@ contains
     step2       = 0
     t           = model%processInfo%getT0()
     errorTol    = model%processInfo%getErrorTol()
+    maxIter     = model%processInfo%getMaxIter()
     error       = errorTol+1
     printStep   = model%processInfo%getPrintStep()
     call model%processInfo%setStep(step1)
-    print*, 'Build and Solve'
+    print*, '====> Build and Solve'
     call builAndSolve%buildAndSolve(model)
-    print*, 'Scheme'
+    print*, '====> Scheme'
     call scheme%calculateOutputs(model)
     !::::::::::::::::::::::::::::::::::::::::::::::
     dt    = model%processInfo%getDt()
-    print*, 'inverse'
+    print*, '====> Inverse'
     !call model%mass%printNonZeros()
     inverseMatrix = inverseLumped(model%mass)
     allocate(this%process, source = WriteOutput)
-    print*, 'Init output'
+    print*, '====> Init output'
     call WriteOutput%initPrint()
-    print*, 'Init iterations'
+    print*, '====> Init iterations'
     call model%processInfo%setStep(step1)
     !::::::::::::::::::::::::::::::::::::::::::::::
-    do while(error .ge. errorTol)
+    do while(error .ge. errorTol .or. step1 .le. maxIter)
        navierStokes2D = SetNavierStokes2D(model%dof, model%lhs&
             , model%rhs, inverseMatrix, rk4                   )
        if (step1 == step2) then

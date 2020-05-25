@@ -3,8 +3,6 @@ module CFDSchemeM
   use UtilitiesM
   
   use CFDModelM
-
-  use ElementPtrM
   
   use SchemeM
 
@@ -27,12 +25,9 @@ contains
     implicit none
     class(CFDSchemeDT), intent(inout)          :: this
     class(CFDModelDT) , intent(inout)          :: model
-    integer(ikind), dimension(:), allocatable  :: counter
-    integer(ikind)                             :: iElem, nNode
-    integer(ikind)                             :: nElem, dim, iNode
-    integer(ikind)                             :: position
-    real(rkind), dimension(:,:,:), allocatable :: localResultMat
-    type(ElementPtrDT)                         :: element
+    integer(ikind)                             :: dim, iNode
+    real(rkind)                                :: rho, Vx, Vy, T, P, E, M
+    real(rkind)                                :: R, Cv, Vc, gamma
     dim = model%getnNode()
     if (allocated(model%results%velocity)) then
        deallocate(model%results%velocity)
@@ -47,7 +42,6 @@ contains
        allocate(model%results%pressure(dim))
        allocate(model%results%temperature(dim))
        allocate(model%results%internalEnergy(dim))
-       allocate(counter(dim))
     else
        allocate(model%results%velocity(dim,2))
        allocate(model%results%density(dim))
@@ -55,37 +49,27 @@ contains
        allocate(model%results%pressure(dim))
        allocate(model%results%temperature(dim))
        allocate(model%results%internalEnergy(dim))
-       allocate(counter(dim))
     end if
-    counter = 0
-    nElem = model%getnElement()
-    do iElem = 1, nElem
-       element = model%getElement(iElem)
-       nNode = element%getnNode()
-       call element%calculateResults(model%processInfo, localResultMat)
-       do iNode = 1, nNode
-          position                              = localResultMat(iNode,1,1)
-          model%results%velocity(position,1)     = localResultMat(iNode,2,1)
-          model%results%velocity(position,2)     = localResultMat(iNode,3,1)
-          model%results%density(position)        = localResultMat(iNode,4,1)
-          model%results%mach(position)           = localResultMat(iNode,5,1)
-          model%results%pressure(position)       = localResultMat(iNode,6,1)
-          model%results%temperature(position)    = localResultMat(iNode,7,1)
-          model%results%internalEnergy(position) = localResultMat(iNode,8,1)
-          counter(position) = counter(position) + 1
-       end do
-       deallocate(localResultMat)
+    R     = model%processInfo%getConstants(3)
+    Cv    = model%processInfo%getConstants(4)
+    Vc    = model%processInfo%getConstants(5)
+    gamma = model%processInfo%getConstants(6)
+    do iNode = 1, model%getnNode()
+       rho = model%dof(iNode*4-3)
+       Vx  = model%dof(iNode*4-2)/model%dof(iNode*4-3)
+       Vy  = model%dof(iNode*4-1)/model%dof(iNode*4-3)
+       E   = model%dof(iNode*4  )/model%dof(iNode*4-3)
+       T   = (E-0.5d0*(Vx**2+Vy**2))/Cv
+       M   = sqrt(Vx**2+Vy**2)/Vc
+       P   = rho*R*T
+       model%results%density(iNode)        = rho
+       model%results%velocity(iNode,1)     = Vx
+       model%results%velocity(iNode,2)     = Vy
+       model%results%internalEnergy(iNode) = E
+       model%results%temperature(iNode)    = T
+       model%results%mach(iNode)           = M
+       model%results%pressure(iNode)       = P
     end do
-    do iNode = 1, dim
-       model%results%velocity(iNode,1)     = model%results%velocity(iNode,1)/counter(iNode)
-       model%results%velocity(iNode,2)     = model%results%velocity(iNode,2)/counter(iNode)
-       model%results%density(iNode)        = model%results%density(iNode)/counter(iNode) 
-       model%results%mach(iNode)           = model%results%mach(iNode)/counter(iNode)
-       model%results%pressure(iNode)       = model%results%pressure(iNode)/counter(iNode) 
-       model%results%temperature(iNode)    = model%results%temperature(iNode)/counter(iNode)
-       model%results%internalEnergy(iNode) = model%results%internalEnergy(iNode)/counter(iNode)
-    end do
-    deallocate(counter)
   end subroutine calculateOutputs
   
   subroutine integrator(this, dt)

@@ -43,8 +43,21 @@ module DataInputM
   integer(ikind)               :: printStep
   real(rkind)                  :: t0
   real(rkind)                  :: errorTol
+  integer(ikind)               :: maxIter
   real(rkind)                  :: fSafe
   real(rkind)                  :: constant
+  real(rkind)                  :: R
+  real(rkind)                  :: gamma
+  real(rkind)                  :: mu
+  real(rkind)                  :: k
+  real(rkind)                  :: rho
+  real(rkind)                  :: Vx
+  real(rkind)                  :: Vy
+  real(rkind)                  :: Vc
+  real(rkind)                  :: T
+  real(rkind)                  :: P
+  real(rkind)                  :: mach
+  real(rkind)                  :: Cv
   character(100)               :: projectName
   character(100)               :: aux
   logical       , parameter    :: verbose = .false.
@@ -109,9 +122,11 @@ contains
     read(project,*)  aux, nSurfaceSource
     read(project,*)  aux, printStep
     read(project,*)  aux, t0 
-    read(project,*)  aux, errorTol
+    read(project,*)  aux, errorTol 
+    read(project,*)  aux, maxIter
     read(project,*)  aux, fSafe
     read(project,*)  aux, constant
+    constant = 1.d0/constant
     
     if(verbose) print'(A,I0)','Number of Elements.............................: ', nElem
     if(verbose) print'(A,I0)','Are Elements Quadratic.........................: ', isQuadratic
@@ -131,6 +146,7 @@ contains
     if(verbose) print'(A,I0)','PrintStep......................................: ', printStep
     if(verbose) print'(A,I0)','Initial time...................................: ', t0
     if(verbose) print'(A,E14.7)','Error tolerance................................:', errorTol
+    if(verbose) print'(A,I0)','Max Iterations.................................:', maxIter
     if(verbose) print'(A,E14.7)','Safety Factor..................................:', fSafe
     if(verbose) print'(A,E14.7)','Shock Capturing constant.......................:', constant
     
@@ -152,6 +168,7 @@ contains
     call debugLog('    PrintStep......................................: ', printStep)
     call debugLog('    Initial time...................................: ', t0)
     call debugLog('    Error tolerance................................: ', errorTol)
+    call debugLog('    Max Iterations.................................: ', maxIter)
     call debugLog('    Safety Factor..................................: ', fSafe)
     call debugLog('    Shock Capturing constant.......................: ', constant)
     
@@ -162,9 +179,6 @@ contains
          , nSource = nSourceOnPoints + nSourceOnSurfaces       &
          , nMaterial = nMaterial                               &
          , nGauss = nGauss                                     )
-
-    call cfdAppl%setTransientValues(printStep, t0, errorTol, fSafe, constant)
-    
     do i = 1, 6
        read(project,*)
     end do
@@ -186,15 +200,23 @@ contains
     implicit none
     type(CFDApplicationDT), intent(inout) :: cfdAppl
     integer(ikind) :: i, iMat
-    real(rkind) :: R, gamma, mu, k, Vx, Vy, T, rho
     do i = 1, 7
        read(project,*)
     end do
-    if(verbose) print'(A)', 'Material      R     gamma      mu       k       Vx_inf   Vy_inf      T      rho   '
+    if(verbose) print'(A)', 'Material    R    gamma     mu      k     Vx_inf   Vy_inf     T     rho      Mach       Cv        P     '
     do i = 1, nMaterial
-       read(project,*) iMat, R, gamma, mu, k, Vx, Vy, T, rho
-       cfdAppl%material(iMat) = cfdMaterial(R, gamma, mu, k, Vx, Vy, T, rho)
-       if(verbose) print'(4X,I0,7X,2(E10.3,3X))', iMat, R, gamma, mu, k, Vx, Vy, T, rho
+       read(project,*) iMat, R, gamma, mu, k, Vx, Vy, T, rho, mach, Cv, P
+       if (T == 0.d0) T = P/(rho*R)
+       if (P == 0.d0) P = rho*R*T
+       if (rho == 0.d0) rho = P/(R*T)
+       if ((Vx**2+Vy**2) == 0.d0) then
+          Vx = sqrt(gamma*R*T)*mach
+          Vy = 0.d0
+       end if
+       Vc = sqrt(gamma*R*T)
+       call cfdAppl%setTransientValues(printStep, t0, errorTol, maxIter, fSafe, constant, R, Cv, Vc, gamma)
+       cfdAppl%material(iMat) = cfdMaterial(R, gamma, mu, k, Vx, Vy, T, rho, mach, Cv, P, Vc)
+       if(verbose) print'(4X,I0,7X,2(E10.3,3X))', iMat, R, gamma, mu, k, Vx, Vy, T, rho, mach, Cv, P
     end do
   end subroutine initMaterials
   
@@ -265,20 +287,9 @@ contains
     integer(ikind)                               :: i, j, id, elemID, nPointID
     integer(ikind)                               :: iPoint, conditionCounter
     integer(ikind), dimension(:), allocatable    :: pointID
-    real(rkind)                                  :: value, valuex, valuey
+    integer(ikind)                               :: value, valuex, valuey
     type(CFDElementDT)                           :: element
     type(NodePtrDT)  , dimension(:), allocatable :: node
-    do i = 1, 7
-       read(project,*)
-    end do
-    if(verbose) print'(/,A)', 'Velocity conditions'
-    if(verbose) print'(A)', 'Node    Valuex    valuey'
-    do i = 1, nVelocity
-       read(Project,*) id, valuex, valuey
-       if(verbose) print'(I0,5X,E10.3)', id, valuex, valuey
-       call cfdAppl%node(id)%fixDof(1, valuex)
-       call cfdAppl%node(id)%fixDof(2, valuey)
-    end do
     do i = 1, 7
        read(project,*)
     end do
@@ -287,7 +298,18 @@ contains
     do i = 1, nDensity
        read(Project,*) id, value
        if(verbose) print'(I0,5X,E10.3)', id, value
-       call cfdAppl%node(id)%fixDof(3, value)
+       call cfdAppl%node(id)%fixDof(1, rho)
+    end do
+    do i = 1, 7
+       read(project,*)
+    end do
+    if(verbose) print'(/,A)', 'Velocity conditions'
+    if(verbose) print'(A)', 'Node    Valuex    valuey'
+    do i = 1, nVelocity
+       read(Project,*) id, valuex, valuey
+       if(verbose) print'(I0,5X,E10.3)', id, valuex, valuey
+       call cfdAppl%node(id)%fixDof(2, rho*Vx)
+       call cfdAppl%node(id)%fixDof(3, rho*Vy)
     end do
     do i = 1, 7
        read(project,*)
@@ -297,7 +319,7 @@ contains
     do i = 1, nTemperature
        read(Project,*) id, value
        if(verbose) print'(I0,5X,E10.3)', id, value
-       call cfdAppl%node(id)%fixDof(4, value)
+       call cfdAppl%node(id)%fixDof(4, rho*(P/((gamma-1.d0)*rho)+0.5d0*(Vx**2.d0+Vy**2.d0)))
     end do
     do i = 1, 7
        read(project,*)

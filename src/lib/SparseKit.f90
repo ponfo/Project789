@@ -279,6 +279,8 @@ contains
     !sum up duplicates
     call this%handleDuplicates()
     !Allocate A and AJ with nnz
+    if(allocated(this%A)) deallocate(this%A)
+    if(allocated(this%AJ)) deallocate(this%AJ)
     allocate(this%A(this%counter), this%AJ(this%counter))
     do i = 1, this%counter
        this%A(i) = auxA(i)
