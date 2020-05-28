@@ -69,7 +69,7 @@ contains
          , nCondition = nNormalVelocity  )
   end subroutine init
 
-  subroutine setTransientValues(this, printStep, t0, errorTol, maxIter, fSafe, constant, R, Cv, Vc, gamma)
+  subroutine setTransientValues(this, printStep, t0, errorTol, maxIter, fSafe, constant, R, Cv, Vc, gamma, Vx, Vy, T, P, rho, mach)
     implicit none
     class(CFDApplicationDT), intent(inout)  :: this
     integer(ikind)          , intent(in)    :: printStep
@@ -82,14 +82,21 @@ contains
     real(rkind)             , intent(in)    :: Cv
     real(rkind)             , intent(in)    :: Vc
     real(rkind)             , intent(in)    :: gamma
+    real(rkind)             , intent(in)    :: Vx
+    real(rkind)             , intent(in)    :: Vy
+    real(rkind)             , intent(in)    :: T
+    real(rkind)             , intent(in)    :: P
+    real(rkind)             , intent(in)    :: rho
+    real(rkind)             , intent(in)    :: mach
     real(rkind), dimension(:), allocatable  :: vector
     allocate(vector(6))
-    vector = (/fSafe, constant, R, Cv, Vc, gamma/)
+    vector = (/fSafe, constant, R, Cv, Vc, gamma&
+         , Vx, Vy, T, P, rho, mach/)
     call this%model%processInfo%setPrintStep(printStep)
     call this%model%processInfo%setT0(t0)
     call this%model%processInfo%setErrorTol(errorTol)
     call this%model%processInfo%setMaxIter(maxIter)
-    call this%model%processInfo%setConstants(6, vector)
+    call this%model%processInfo%setConstants(12, vector)
   end subroutine setTransientValues
 
 end module CFDApplicationM

@@ -70,6 +70,7 @@ contains
        model%results%mach(iNode)           = M
        model%results%pressure(iNode)       = P
     end do
+    print*, 'Mach max = ', maxval(model%results%mach)
   end subroutine calculateOutputs
   
   subroutine integrator(this, dt)

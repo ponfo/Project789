@@ -214,7 +214,8 @@ contains
           Vy = 0.d0
        end if
        Vc = sqrt(gamma*R*T)
-       call cfdAppl%setTransientValues(printStep, t0, errorTol, maxIter, fSafe, constant, R, Cv, Vc, gamma)
+       call cfdAppl%setTransientValues(printStep, t0, errorTol, maxIter, fSafe, constant, R, Cv, Vc, gamma&
+            , Vx, Vy, T, P, rho, mach)
        cfdAppl%material(iMat) = cfdMaterial(R, gamma, mu, k, Vx, Vy, T, rho, mach, Cv, P, Vc)
        if(verbose) print'(4X,I0,7X,2(E10.3,3X))', iMat, R, gamma, mu, k, Vx, Vy, T, rho, mach, Cv, P
     end do

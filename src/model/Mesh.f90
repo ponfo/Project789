@@ -160,7 +160,7 @@ contains
     integer(ikind), intent(in)    :: id
     this%condition(id)%ptr => null()
   end subroutine removeCondition
-
+  
   subroutine free(this)
     implicit none
     class(MeshDT), intent(inout) :: this

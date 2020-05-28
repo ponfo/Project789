@@ -23,7 +23,9 @@ module ProcessInfoM
      procedure, public :: setErrorTol
      procedure, public :: setPrintStep
      procedure, public :: setT0
-     procedure, public :: setConstants
+     generic  , public :: setConstants => setAllConstants, setOneConstant
+     procedure, public :: setAllConstants
+     procedure, public :: setOneConstant
      procedure, public :: setStep
      procedure, public :: setMaxIter
      procedure, public :: getTime
@@ -92,15 +94,24 @@ contains
     this%errorTol = errorTol
   end subroutine setErrorTol
 
-  subroutine setConstants(this, n, values)
+  subroutine setAllConstants(this, n, values)
     implicit none
     class(ProcessInfoDT)                  , intent(inout) :: this
     real(rkind), dimension(:), allocatable, intent(in)    :: values
     integer(ikind)                        , intent(in)    :: n
+    if (allocated(this%constants)) deallocate(this%constants)
     allocate(this%constants(n))
     this%constants = values
-  end subroutine setConstants
+  end subroutine setAllConstants
 
+  subroutine setOneConstant(this, i, value)
+    implicit none
+    class(ProcessInfoDT)                  , intent(inout) :: this
+    real(rkind)                           , intent(in)    :: value
+    integer(ikind)                        , intent(in)    :: i
+    this%constants(i) = value
+  end subroutine setOneConstant
+  
   subroutine setStep(this, step)
     implicit none
     class(ProcessInfoDT), intent(inout) :: this

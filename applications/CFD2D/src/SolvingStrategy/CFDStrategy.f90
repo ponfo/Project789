@@ -14,6 +14,7 @@ module CFDStrategyM
   use SchemeM
   use NavierStokes2DM
   use RK4M
+  use AdamsB4M
   use BuilderAndSolverM
 
   implicit none
@@ -37,6 +38,7 @@ contains
     type(Sparse)                           :: inverseMatrix
     type(NavierStokes2DDT)                 :: navierStokes2D
     type(RK4DT)                            :: rk4
+    type(AdamsB4DT)                        :: adamsB4
     type(PrintDT)                          :: writeOutput
     real(rkind), dimension(:), allocatable :: rhs
     real(rkind)                            :: t
@@ -58,14 +60,11 @@ contains
     error       = errorTol+1
     printStep   = model%processInfo%getPrintStep()
     call model%processInfo%setStep(step1)
-    print*, '====> Build and Solve'
     call builAndSolve%buildAndSolve(model)
-    print*, '====> Scheme'
     call scheme%calculateOutputs(model)
     !::::::::::::::::::::::::::::::::::::::::::::::
     dt    = model%processInfo%getDt()
-    print*, '====> Inverse'
-    !call model%mass%printNonZeros()
+    print*, '====> dt =',dt
     inverseMatrix = inverseLumped(model%mass)
     allocate(this%process, source = WriteOutput)
     print*, '====> Init output'
@@ -73,9 +72,16 @@ contains
     print*, '====> Init iterations'
     call model%processInfo%setStep(step1)
     !::::::::::::::::::::::::::::::::::::::::::::::
-    do while(error .ge. errorTol .or. step1 .le. maxIter)
-       navierStokes2D = SetNavierStokes2D(model%dof, model%lhs&
-            , model%rhs, inverseMatrix, rk4                   )
+    do while(error .gt. errorTol .and. step1 .lt. maxIter)
+       if (step1 .le. 3) then
+          print*, '====> RK4, step:', step1
+          navierStokes2D = SetNavierStokes2D(model%dof, model%lhs&
+               , model%rhs, inverseMatrix, rk4                   )
+       else
+          print*, '====> AdamsB4, step:', step1
+          navierStokes2D = SetNavierStokes2D(model%dof, model%lhs&
+               , model%rhs, inverseMatrix, adamsB4               )
+       end if
        if (step1 == step2) then
           call writeOutput%print(step1, model%results%density          &
                , model%results%internalEnergy, model%results%mach       &
@@ -91,6 +97,8 @@ contains
        call model%processInfo%setStep(step1)
        call builAndSolve%buildAndSolve(model)
        call scheme%calculateOutputs(model)
+       dt    = model%processInfo%getDt()
+       print*, '====> dt =',dt
        rhs  = (model%rhs-model%lhs*model%dof)
        error = sqrt(dot_product(rhs, rhs))
     end do
@@ -99,17 +107,5 @@ contains
     write(*,*) 't final = ', t, 'error = ', error 
     write(*,*) '*** Finished Integration ***'
   end subroutine buildStrategyAndSolve
-
-  type(Sparse) function inverseLumped(matrix)
-    implicit none
-    class(Sparse), intent(inout) :: matrix
-    logical                      :: sortRows = .false.
-    integer(ikind) :: i
-    inverseLumped = Sparse(nnz = matrix%getn(), rows = matrix%getn())
-    do i = 1, matrix%getn()
-       call inverseLumped%append(1._rkind/matrix%get(i,i),i,i)
-    end do
-    call inverseLumped%makeCRS(sortRows)
-  end function inverseLumped
     
 end module CFDStrategyM

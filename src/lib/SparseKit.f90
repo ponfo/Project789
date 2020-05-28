@@ -65,7 +65,7 @@ module SparseKit
   
   private
   public :: Sparse, operator(*), operator(+), operator(-), transpose&
-       , norm, trace, id, inverse
+       , norm, trace, id, inverse, inverseLumped
   
   type Triplet
      real(rkind)   , dimension(:), allocatable :: A
@@ -151,6 +151,10 @@ module SparseKit
   interface inverse
      module procedure inverse
   end interface inverse
+
+  interface inverseLumped
+     module procedure inverseLumped
+  end interface inverseLumped
   
   !***********************************************
   !*          LOCAL PRIVATE VARIABLES            *
@@ -1073,13 +1077,25 @@ contains
              call inverse%append( val = solution(j) , row = i, col = j)
           end if
        end do
-       !write(*,*) 'Inverse =>', (100*i/A%getn()),'%'
+       write(*,*) 'Inverse =>', (100*i/A%getn()),'%'
     end do
     deallocate(vector,solution)
     call inverse%makeCRS(sortRows)
     print'(a)', 'Inverse ok'
     return
   end function inverse
+
+  type(Sparse) function inverseLumped(matrix)
+    implicit none
+    class(Sparse), intent(inout) :: matrix
+    logical                      :: sortRows = .false.
+    integer(ikind) :: i
+    inverseLumped = Sparse(nnz = matrix%getn(), rows = matrix%getn())
+    do i = 1, matrix%getn()
+       call inverseLumped%append(1._rkind/matrix%get(i,i),i,i)
+    end do
+    call inverseLumped%makeCRS(sortRows)
+  end function inverseLumped
   
 end module SparseKit
 

@@ -21,7 +21,7 @@ module CFDElementM
   use SourcePtrM
 
   use ElementM
-  
+
   use CFDMaterialM
 
   implicit none
@@ -36,9 +36,9 @@ module CFDElementM
      procedure, public  :: calculateLHS
      procedure, public  :: calculateRHS
      procedure, public  :: calculateLocalSystem
-     procedure, public  :: calculateSystem
      procedure, public  :: calculateResults
-     procedure, public  :: calculateDT
+     procedure, public  :: calculateDt
+     procedure, public  :: calculateTauNu
      procedure, private :: setupIntegration
      procedure, private :: getValuedSource
   end type CFDElementDT
@@ -51,6 +51,7 @@ module CFDElementM
   type(Triangle2D6NodeDT)     , target, save :: myTriangle2D6Node
   type(Quadrilateral2D4NodeDT), target, save :: myQuadrilateral2D4Node
   type(Quadrilateral2D8NodeDT), target, save :: myQuadrilateral2D8Node
+  real(rkind), dimension(:,:,:), allocatable, save :: localResultMat
 
 contains
 
@@ -105,7 +106,6 @@ contains
     real(rkind)                                                           :: val1, val2
     real(rkind)                                                           :: val3, val4
     real(rkind)            , dimension(:,:)  , allocatable                :: valuedSource
-    real(rkind)                                                           :: dt
     type(IntegratorPtrDT)                                                 :: integrator
     type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
     nNode = this%getnNode()
@@ -233,11 +233,9 @@ contains
        end do
        deallocate(valuedSource)
     end if
+    call this%calculateDt(processInfo)
     deallocate(jacobian)
     deallocate(jacobianDet)
-    call this%calculateSystem(processInfo, lhs)
-    call this%calculateDT(processInfo, dt)
-    call processInfo%setMinimumDT(dt)
   end subroutine calculateLocalSystem
 
   subroutine calculateLHS(this, processInfo, lhs)
@@ -339,7 +337,6 @@ contains
           end do
        end do
     end do
-    call this%calculateSystem(processInfo, lhs)
   end subroutine calculateLHS
 
   subroutine calculateRHS(this, processInfo, rhs)
@@ -444,762 +441,669 @@ contains
     class(CFDElementDT)                                   , intent(inout) :: this
     type(ProcessInfoDT)                                   , intent(inout) :: processInfo
     real(rkind)            , dimension(:,:,:), allocatable, intent(inout) :: resultMat
-    integer(ikind)                                                        :: i, j , nNode
-    real(rkind)                                                           :: rho, rhoVx
-    real(rkind)                                                           :: rhoE, rhoVy
-    real(rkind)            , dimension(:,:,:), allocatable                :: jacobian 
-    real(rkind)            , dimension(:)    , allocatable                :: jacobianDet
-    type(IntegratorPtrDT)                                                 :: integrator
-    type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
-    integrator = this%getIntegrator()
-    nNode = this%getnNode()
-    allocate(nodalPoints(nNode))
-    allocate(resultMat(nNode,8,1))
-    do i = 1, nNode
-       nodalPoints(i) = this%node(i)
-    end do
-    jacobian = this%geometry%jacobianAtGPoints(nodalPoints)
-    jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
-    resultMat = 0._rkind
-    do i = 1, nNode
-          rho   = 0._rkind
-          rhoVx = 0._rkind
-          rhoVy = 0._rkind
-          rhoE  = 0._rkind
-       do j = 1, integrator%getIntegTerms()
-          rho   = rho   + integrator%getShapeFunc(j,i)*jacobianDet(j)*this%node(i)%ptr%dof(1)%val
-          rhoVx = rhoVx + integrator%getShapeFunc(j,i)*jacobianDet(j)*this%node(i)%ptr%dof(2)%val
-          rhoVy = rhoVy + integrator%getShapeFunc(j,i)*jacobianDet(j)*this%node(i)%ptr%dof(3)%val
-          rhoE  = rhoE  + integrator%getShapeFunc(j,i)*jacobianDet(j)*this%node(i)%ptr%dof(4)%val
-       end do
-       resultMat(i,1,1) = this%node(i)%ptr%Id 
-       resultMat(i,2,1) = rhoVx/rho
-       resultMat(i,3,1) = rhoVy/rho
-       resultMat(i,4,1) = rho
-       resultMat(i,5,1) = sqrt((rhoVx/rho)**2+(rhoVx/rho)**2)/this%material%Vc
-       resultMat(i,6,1) = (this%material%gamma-1)*rho*((rhoE/rho)-(0.5*((rhoVx/rho)**2+(rhoVx/rho)**2)))
-       resultMat(i,7,1) = (this%material%gamma-1)/this%material%R*((rhoE/rho)-(0.5*((rhoVx/rho)**2+(rhoVx/rho)**2)))
-       resultMat(i,8,1) = rhoE/rho
-    end do
-  end subroutine calculateResults
-  
-  subroutine calculateSystem(this, processInfo, lhs)
-    implicit none
-    class(CFDElementDT)                                   , intent(inout) :: this
-    type(ProcessInfoDT)                                   , intent(inout) :: processInfo
-    type(LeftHandSideDT)                                  , intent(inout) :: lhs
-    real(rkind)            , dimension(:,:,:), allocatable                :: resultMat
     integer(ikind)                                                        :: i, j, ii, jj, k
     integer(ikind)                                                        :: nNode, nDof
     real(rkind)            , dimension(:,:,:), allocatable                :: jacobian
-    real(rkind)            , dimension(4,4)                               :: A1, A2, K11, K12, K21, K22
-    real(rkind)            , dimension(:,:)  , allocatable                :: inverse
+    real(rkind)            , dimension(:,:)  , allocatable                :: auxMatrix
     real(rkind)            , dimension(:)    , allocatable                :: jacobianDet
     type(IntegratorPtrDT)                                                 :: integrator
     type(NodePtrDT)        , dimension(:)    , allocatable                :: nodalPoints
-    real(rkind)                                                           :: gamma, mu, R, v(2), E, kFluid
-    real(rkind)                                                           :: mu_a, tau
-    nNode = this%getnNode()
-    nDof = this%node(1)%getnDof()
-    integrator = this%getIntegrator()
-    allocate(nodalPoints(nNode))
-    allocate(inverse(nNode*nDof,nNode*nDof))
-    allocate(resultMat(nNode*nDof, nNode*nDof, 11))
-    do i = 1, nNode
-       nodalPoints(i) = this%node(i)
-    end do
-    jacobian = this%geometry%jacobianAtGPoints(nodalPoints)
-    jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
-    resultMat = 0.d0
-    do i = 1, nNode
-       do j = 1, nNode
-          ii   = nDof*i-3
-          jj   = nDof*j-3
-          do k = 1, integrator%getIntegTerms()
-             ! N * dN/dx
-             resultMat(ii  ,jj  ,1) = resultMat(ii  ,jj  ,1) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))          
-             resultMat(ii  ,jj+1,1) = resultMat(ii  ,jj+1,1) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))           
-             resultMat(ii  ,jj+2,1) = resultMat(ii  ,jj+2,1) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))           
-             resultMat(ii  ,jj+3,1) = resultMat(ii  ,jj+3,1) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k)) 
+    if (processInfo%getStep()==0) then
+       nNode = this%getnNode()
+       nDof = this%node(1)%getnDof()
+       integrator = this%getIntegrator()
+       allocate(nodalPoints(nNode))
+       if (allocated(localResultMat)) deallocate(localResultMat)
+       allocate(localResultMat(nNode*nDof, nNode*nDof, 6))
+       do i = 1, nNode
+          nodalPoints(i) = this%node(i)
+       end do
+       jacobian = this%geometry%jacobianAtGPoints(nodalPoints)
+       jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
+       localResultMat = 0.d0
+       do i = 1, nNode
+          do j = 1, nNode
+             ii   = nDof*i-3
+             jj   = nDof*j-3
+             do k = 1, integrator%getIntegTerms()
+                ! N * dN/dx
+                localResultMat(ii  ,jj  ,1) = localResultMat(ii  ,jj  ,1) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))          
+                localResultMat(ii  ,jj+1,1) = localResultMat(ii  ,jj+1,1) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))           
+                localResultMat(ii  ,jj+2,1) = localResultMat(ii  ,jj+2,1) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))           
+                localResultMat(ii  ,jj+3,1) = localResultMat(ii  ,jj+3,1) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k)) 
 
-             resultMat(ii+1,jj  ,1) = resultMat(ii+1,jj  ,1) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))          
-             resultMat(ii+1,jj+1,1) = resultMat(ii+1,jj+1,1) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))           
-             resultMat(ii+1,jj+2,1) = resultMat(ii+1,jj+2,1) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))           
-             resultMat(ii+1,jj+3,1) = resultMat(ii+1,jj+3,1) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k)) 
+                localResultMat(ii+1,jj  ,1) = localResultMat(ii+1,jj  ,1) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))          
+                localResultMat(ii+1,jj+1,1) = localResultMat(ii+1,jj+1,1) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))           
+                localResultMat(ii+1,jj+2,1) = localResultMat(ii+1,jj+2,1) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))           
+                localResultMat(ii+1,jj+3,1) = localResultMat(ii+1,jj+3,1) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k)) 
 
-             resultMat(ii+2,jj  ,1) = resultMat(ii+2,jj  ,1) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))           
-             resultMat(ii+2,jj+1,1) = resultMat(ii+2,jj+1,1) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))           
-             resultMat(ii+2,jj+2,1) = resultMat(ii+2,jj+2,1) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))          
-             resultMat(ii+2,jj+3,1) = resultMat(ii+2,jj+3,1) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k)) 
+                localResultMat(ii+2,jj  ,1) = localResultMat(ii+2,jj  ,1) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))           
+                localResultMat(ii+2,jj+1,1) = localResultMat(ii+2,jj+1,1) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))           
+                localResultMat(ii+2,jj+2,1) = localResultMat(ii+2,jj+2,1) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))          
+                localResultMat(ii+2,jj+3,1) = localResultMat(ii+2,jj+3,1) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k)) 
 
-             resultMat(ii+3,jj  ,1) = resultMat(ii+3,jj  ,1) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))           
-             resultMat(ii+3,jj+1,1) = resultMat(ii+3,jj+1,1) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))          
-             resultMat(ii+3,jj+2,1) = resultMat(ii+3,jj+2,1) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))           
-             resultMat(ii+3,jj+3,1) = resultMat(ii+3,jj+3,1) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k)) 
+                localResultMat(ii+3,jj  ,1) = localResultMat(ii+3,jj  ,1) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))           
+                localResultMat(ii+3,jj+1,1) = localResultMat(ii+3,jj+1,1) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))          
+                localResultMat(ii+3,jj+2,1) = localResultMat(ii+3,jj+2,1) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k))           
+                localResultMat(ii+3,jj+3,1) = localResultMat(ii+3,jj+3,1) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))/jacobianDet(k)) 
 
-             !====================================================================
-             ! N * dN/dy
-             resultMat(ii  ,jj  ,2) = resultMat(ii  ,jj  ,2) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
-             resultMat(ii  ,jj+1,2) = resultMat(ii  ,jj+1,2) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
-             resultMat(ii  ,jj+2,2) = resultMat(ii  ,jj+2,2) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
-             resultMat(ii  ,jj+3,2) = resultMat(ii  ,jj+3,2) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k)) 
+                !====================================================================
+                ! N * dN/dy
+                localResultMat(ii  ,jj  ,2) = localResultMat(ii  ,jj  ,2) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
+                localResultMat(ii  ,jj+1,2) = localResultMat(ii  ,jj+1,2) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
+                localResultMat(ii  ,jj+2,2) = localResultMat(ii  ,jj+2,2) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
+                localResultMat(ii  ,jj+3,2) = localResultMat(ii  ,jj+3,2) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k)) 
 
-             resultMat(ii+1,jj  ,2) = resultMat(ii+1,jj  ,2) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))          
-             resultMat(ii+1,jj+1,2) = resultMat(ii+1,jj+1,2) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
-             resultMat(ii+1,jj+2,2) = resultMat(ii+1,jj+2,2) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
-             resultMat(ii+1,jj+3,2) = resultMat(ii+1,jj+3,2) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k)) 
+                localResultMat(ii+1,jj  ,2) = localResultMat(ii+1,jj  ,2) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))          
+                localResultMat(ii+1,jj+1,2) = localResultMat(ii+1,jj+1,2) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
+                localResultMat(ii+1,jj+2,2) = localResultMat(ii+1,jj+2,2) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
+                localResultMat(ii+1,jj+3,2) = localResultMat(ii+1,jj+3,2) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k)) 
 
-             resultMat(ii+2,jj  ,2) = resultMat(ii+2,jj  ,2) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
-             resultMat(ii+2,jj+1,2) = resultMat(ii+2,jj+1,2) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
-             resultMat(ii+2,jj+2,2) = resultMat(ii+2,jj+2,2) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))          
-             resultMat(ii+2,jj+3,2) = resultMat(ii+2,jj+3,2) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k)) 
+                localResultMat(ii+2,jj  ,2) = localResultMat(ii+2,jj  ,2) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
+                localResultMat(ii+2,jj+1,2) = localResultMat(ii+2,jj+1,2) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
+                localResultMat(ii+2,jj+2,2) = localResultMat(ii+2,jj+2,2) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))          
+                localResultMat(ii+2,jj+3,2) = localResultMat(ii+2,jj+3,2) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k)) 
 
-             resultMat(ii+3,jj  ,2) = resultMat(ii+3,jj  ,2) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
-             resultMat(ii+3,jj+1,2) = resultMat(ii+3,jj+1,2) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))          
-             resultMat(ii+3,jj+2,2) = resultMat(ii+3,jj+2,2) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
-             resultMat(ii+3,jj+3,2) = resultMat(ii+3,jj+3,2) &
-                  +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k)) 
+                localResultMat(ii+3,jj  ,2) = localResultMat(ii+3,jj  ,2) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
+                localResultMat(ii+3,jj+1,2) = localResultMat(ii+3,jj+1,2) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))          
+                localResultMat(ii+3,jj+2,2) = localResultMat(ii+3,jj+2,2) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
+                localResultMat(ii+3,jj+3,2) = localResultMat(ii+3,jj+3,2) &
+                     +(integrator%getWeight(k)*integrator%getShapeFunc(k,i)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k)) 
 
-             !====================================================================
-             ! dN/dx**2
-             resultMat(ii  ,jj  ,3) = resultMat(ii  ,jj  ,3) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)           
-             resultMat(ii  ,jj+1,3) = resultMat(ii  ,jj+1,3) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)           
-             resultMat(ii  ,jj+2,3) = resultMat(ii  ,jj+2,3) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)           
-             resultMat(ii  ,jj+3,3) = resultMat(ii  ,jj+3,3) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2) 
+                !====================================================================
+                ! dN/dx**2
+                localResultMat(ii  ,jj  ,3) = localResultMat(ii  ,jj  ,3) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)           
+                localResultMat(ii  ,jj+1,3) = localResultMat(ii  ,jj+1,3) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)           
+                localResultMat(ii  ,jj+2,3) = localResultMat(ii  ,jj+2,3) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)           
+                localResultMat(ii  ,jj+3,3) = localResultMat(ii  ,jj+3,3) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2) 
 
-             resultMat(ii+1,jj  ,3) = resultMat(ii+1,jj  ,3) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)          
-             resultMat(ii+1,jj+1,3) = resultMat(ii+1,jj+1,3) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)           
-             resultMat(ii+1,jj+2,3) = resultMat(ii+1,jj+2,3) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)           
-             resultMat(ii+1,jj+3,3) = resultMat(ii+1,jj+3,3) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2) 
+                localResultMat(ii+1,jj  ,3) = localResultMat(ii+1,jj  ,3) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)          
+                localResultMat(ii+1,jj+1,3) = localResultMat(ii+1,jj+1,3) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)           
+                localResultMat(ii+1,jj+2,3) = localResultMat(ii+1,jj+2,3) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)           
+                localResultMat(ii+1,jj+3,3) = localResultMat(ii+1,jj+3,3) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2) 
 
-             resultMat(ii+2,jj  ,3) = resultMat(ii+2,jj  ,3) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)           
-             resultMat(ii+2,jj+1,3) = resultMat(ii+2,jj+1,3) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)           
-             resultMat(ii+2,jj+2,3) = resultMat(ii+2,jj+2,3) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)          
-             resultMat(ii+2,jj+3,3) = resultMat(ii+2,jj+3,3) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2) 
+                localResultMat(ii+2,jj  ,3) = localResultMat(ii+2,jj  ,3) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)           
+                localResultMat(ii+2,jj+1,3) = localResultMat(ii+2,jj+1,3) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)           
+                localResultMat(ii+2,jj+2,3) = localResultMat(ii+2,jj+2,3) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)          
+                localResultMat(ii+2,jj+3,3) = localResultMat(ii+2,jj+3,3) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2) 
 
-             resultMat(ii+3,jj  ,3) = resultMat(ii+3,jj  ,3) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)           
-             resultMat(ii+3,jj+1,3) = resultMat(ii+3,jj+1,3) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)          
-             resultMat(ii+3,jj+2,3) = resultMat(ii+3,jj+2,3) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)           
-             resultMat(ii+3,jj+3,3) = resultMat(ii+3,jj+3,3) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2) 
+                localResultMat(ii+3,jj  ,3) = localResultMat(ii+3,jj  ,3) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)           
+                localResultMat(ii+3,jj+1,3) = localResultMat(ii+3,jj+1,3) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)          
+                localResultMat(ii+3,jj+2,3) = localResultMat(ii+3,jj+2,3) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2)           
+                localResultMat(ii+3,jj+3,3) = localResultMat(ii+3,jj+3,3) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))**2/jacobianDet(k)**2) 
 
-             !====================================================================
-             ! dN/dy**2
-             resultMat(ii  ,jj  ,4) = resultMat(ii  ,jj  ,4) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)
-             resultMat(ii  ,jj+1,4) = resultMat(ii  ,jj+1,4) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)
-             resultMat(ii  ,jj+2,4) = resultMat(ii  ,jj+2,4) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)
-             resultMat(ii  ,jj+3,4) = resultMat(ii  ,jj+3,4) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2) 
+                !====================================================================
+                ! dN/dy**2
+                localResultMat(ii  ,jj  ,4) = localResultMat(ii  ,jj  ,4) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)
+                localResultMat(ii  ,jj+1,4) = localResultMat(ii  ,jj+1,4) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)
+                localResultMat(ii  ,jj+2,4) = localResultMat(ii  ,jj+2,4) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)
+                localResultMat(ii  ,jj+3,4) = localResultMat(ii  ,jj+3,4) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2) 
 
-             resultMat(ii+1,jj  ,4) = resultMat(ii+1,jj  ,4) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)          
-             resultMat(ii+1,jj+1,4) = resultMat(ii+1,jj+1,4) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)           
-             resultMat(ii+1,jj+2,4) = resultMat(ii+1,jj+2,4) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)           
-             resultMat(ii+1,jj+3,4) = resultMat(ii+1,jj+3,4) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2) 
+                localResultMat(ii+1,jj  ,4) = localResultMat(ii+1,jj  ,4) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)          
+                localResultMat(ii+1,jj+1,4) = localResultMat(ii+1,jj+1,4) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)           
+                localResultMat(ii+1,jj+2,4) = localResultMat(ii+1,jj+2,4) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)           
+                localResultMat(ii+1,jj+3,4) = localResultMat(ii+1,jj+3,4) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2) 
 
-             resultMat(ii+2,jj  ,4) = resultMat(ii+2,jj  ,4) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)           
-             resultMat(ii+2,jj+1,4) = resultMat(ii+2,jj+1,4) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)           
-             resultMat(ii+2,jj+2,4) = resultMat(ii+2,jj+2,4) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)          
-             resultMat(ii+2,jj+3,4) = resultMat(ii+2,jj+3,4) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2) 
+                localResultMat(ii+2,jj  ,4) = localResultMat(ii+2,jj  ,4) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)           
+                localResultMat(ii+2,jj+1,4) = localResultMat(ii+2,jj+1,4) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)           
+                localResultMat(ii+2,jj+2,4) = localResultMat(ii+2,jj+2,4) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)          
+                localResultMat(ii+2,jj+3,4) = localResultMat(ii+2,jj+3,4) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2) 
 
-             resultMat(ii+3,jj  ,4) = resultMat(ii+3,jj  ,4) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)           
-             resultMat(ii+3,jj+1,4) = resultMat(ii+3,jj+1,4) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)          
-             resultMat(ii+3,jj+2,4) = resultMat(ii+3,jj+2,4) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)           
-             resultMat(ii+3,jj+3,4) = resultMat(ii+3,jj+3,4) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2) 
+                localResultMat(ii+3,jj  ,4) = localResultMat(ii+3,jj  ,4) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)           
+                localResultMat(ii+3,jj+1,4) = localResultMat(ii+3,jj+1,4) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)          
+                localResultMat(ii+3,jj+2,4) = localResultMat(ii+3,jj+2,4) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2)           
+                localResultMat(ii+3,jj+3,4) = localResultMat(ii+3,jj+3,4) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))**2/jacobianDet(k)**2) 
 
-             !====================================================================
-             ! dN/dx * dN/dy
-             resultMat(ii  ,jj  ,5) = resultMat(ii  ,jj  ,5) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
-             *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
-             resultMat(ii  ,jj+1,5) = resultMat(ii  ,jj+1,5) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
-             *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
-             resultMat(ii  ,jj+2,5) = resultMat(ii  ,jj+2,5) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
-             *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
-             resultMat(ii  ,jj+3,5) = resultMat(ii  ,jj+3,5) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
-             *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k)) 
+                !====================================================================
+                ! dN/dx * dN/dy
+                localResultMat(ii  ,jj  ,5) = localResultMat(ii  ,jj  ,5) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
+                localResultMat(ii  ,jj+1,5) = localResultMat(ii  ,jj+1,5) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
+                localResultMat(ii  ,jj+2,5) = localResultMat(ii  ,jj+2,5) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
+                localResultMat(ii  ,jj+3,5) = localResultMat(ii  ,jj+3,5) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k)) 
 
-             resultMat(ii+1,jj  ,5) = resultMat(ii+1,jj  ,5) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
-             *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))          
-             resultMat(ii+1,jj+1,5) = resultMat(ii+1,jj+1,5) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
-             *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
-             resultMat(ii+1,jj+2,5) = resultMat(ii+1,jj+2,5) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
-             *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
-             resultMat(ii+1,jj+3,5) = resultMat(ii+1,jj+3,5) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
-             *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k)) 
+                localResultMat(ii+1,jj  ,5) = localResultMat(ii+1,jj  ,5) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))          
+                localResultMat(ii+1,jj+1,5) = localResultMat(ii+1,jj+1,5) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
+                localResultMat(ii+1,jj+2,5) = localResultMat(ii+1,jj+2,5) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
+                localResultMat(ii+1,jj+3,5) = localResultMat(ii+1,jj+3,5) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k)) 
 
-             resultMat(ii+2,jj  ,5) = resultMat(ii+2,jj  ,5) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
-             *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
-             resultMat(ii+2,jj+1,5) = resultMat(ii+2,jj+1,5) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
-             *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
-             resultMat(ii+2,jj+2,5) = resultMat(ii+2,jj+2,5) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
-             *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))          
-             resultMat(ii+2,jj+3,5) = resultMat(ii+2,jj+3,5) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
-             *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k)) 
+                localResultMat(ii+2,jj  ,5) = localResultMat(ii+2,jj  ,5) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
+                localResultMat(ii+2,jj+1,5) = localResultMat(ii+2,jj+1,5) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
+                localResultMat(ii+2,jj+2,5) = localResultMat(ii+2,jj+2,5) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))          
+                localResultMat(ii+2,jj+3,5) = localResultMat(ii+2,jj+3,5) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k)) 
 
-             resultMat(ii+3,jj  ,5) = resultMat(ii+3,jj  ,5) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
-             *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
-             resultMat(ii+3,jj+1,5) = resultMat(ii+3,jj+1,5) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
-             *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))          
-             resultMat(ii+3,jj+2,5) = resultMat(ii+3,jj+2,5) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
-             *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
-             resultMat(ii+3,jj+3,5) = resultMat(ii+3,jj+3,5) &
-                  +(integrator%getWeight(k)&
-                  *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
-                  - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
-             *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
-                  - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))
+                localResultMat(ii+3,jj  ,5) = localResultMat(ii+3,jj  ,5) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
+                localResultMat(ii+3,jj+1,5) = localResultMat(ii+3,jj+1,5) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))          
+                localResultMat(ii+3,jj+2,5) = localResultMat(ii+3,jj+2,5) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))           
+                localResultMat(ii+3,jj+3,5) = localResultMat(ii+3,jj+3,5) &
+                     +(integrator%getWeight(k)&
+                     *(jacobian(k,2,2)*integrator%getDShapeFunc(k,1,i) &
+                     - jacobian(k,1,2)*integrator%getDShapeFunc(k,2,i))&
+                     *(jacobian(k,1,1)*integrator%getDShapeFunc(k,2,j) &
+                     - jacobian(k,2,1)*integrator%getDShapeFunc(k,1,j))/jacobianDet(k))
+             end do
           end do
        end do
-    end do
-    gamma  = this%material%gamma
-    mu     = this%material%mu
-    R      = this%material%R
-    kFluid = this%material%k
-    do i = 1, nNode
-       v(1) = (this%node(i)%ptr%dof(2)%val/this%node(i)%ptr%dof(1)%val)
-       v(2) = (this%node(i)%ptr%dof(3)%val/this%node(i)%ptr%dof(1)%val)
-       E    = (this%node(i)%ptr%dof(4)%val/this%node(i)%ptr%dof(1)%val)
-       A1  = MA1(v,gamma,E)
-       A2  = MA2(v,gamma,E)
-       K11 = MK11(v,mu,R,gamma,E,kFluid)
-       K12 = MK12(v,mu,R,gamma,E,kFluid)
-       K21 = MK21(v,mu,R,gamma,E,kFluid)
-       K22 = MK22(v,mu,R,gamma,E,kFluid)
-       do j = 1, nNode
-          ii   = nDof*i-3
-          jj   = nDof*j-3
-          resultMat(ii:ii+3,jj:jj+3,6 ) = resultMat(ii:ii+3,jj:jj+3,6 ) +  A1(:,:)
-          resultMat(ii:ii+3,jj:jj+3,7 ) = resultMat(ii:ii+3,jj:jj+3,7 ) +  A2(:,:)
-          resultMat(ii:ii+3,jj:jj+3,8 ) = resultMat(ii:ii+3,jj:jj+3,8 ) + K11(:,:)
-          resultMat(ii:ii+3,jj:jj+3,9 ) = resultMat(ii:ii+3,jj:jj+3,9 ) + K12(:,:)
-          resultMat(ii:ii+3,jj:jj+3,10) = resultMat(ii:ii+3,jj:jj+3,10) + K21(:,:)
-          resultMat(ii:ii+3,jj:jj+3,11) = resultMat(ii:ii+3,jj:jj+3,11) + K22(:,:)
-          
-       end do
-    end do
-    inverse = 0._rkind
-    do i = 1, nNode*nDof
-       do j = 1, nNode*nDof
-          inverse(i,i) = inverse(i,i) + inverse(i,j)
-       end do
-       inverse(i,i) = 1._rkind/inverse(i,i)
-    end do
-    tau  = calculateTau()
-    mu_a = calculateMu_a()
-    lhs%stiffness =                      matmul(resultMat(:,:,1),resultMat(:,:,6))  &
-         +                              matmul(resultMat(:,:,2),resultMat(:,:,7))   &
-         + tau*(matmul(resultMat(:,:,3),matmul(resultMat(:,:,6),resultMat(:,:,6)))  &
-         +      matmul(resultMat(:,:,5),matmul(resultMat(:,:,6),resultMat(:,:,7)))  &
-         +      matmul(resultMat(:,:,5),matmul(resultMat(:,:,7),resultMat(:,:,6)))  &
-         +      matmul(resultMat(:,:,4),matmul(resultMat(:,:,7),resultMat(:,:,7)))  &
-         -      matmul(inverse         ,(matmul(resultMat(:,:,1),resultMat(:,:,6))  &
-         +                              matmul(resultMat(:,:,2),resultMat(:,:,7)))))&
-         + mu_a*(resultMat(:,:,3)+resultMat(:,:,4)+2._rkind*resultMat(:,:,5))       &
-         +                              matmul(resultMat(:,:,3),resultMat(:,:,8))   &
-         +                              matmul(resultMat(:,:,5),resultMat(:,:,9))   &
-         +                              matmul(resultMat(:,:,5),resultMat(:,:,10))  &
-         +                              matmul(resultMat(:,:,4),resultMat(:,:,11))          
-  end subroutine calculateSystem
+    end if
+    call this%calculateTauNu(processInfo, auxMatrix)
+    localResultMat(1:5,1:5,6) = auxMatrix(:,:)
+    resultMat = localResultMat
+    call this%calculateDt(processInfo)
+  end subroutine calculateResults
 
-  subroutine calculateDT(this, processInfo, dt)
+  subroutine calculateDt(this, processInfo)
     implicit none
-    class(CFDElementDT)          , intent(inout) :: this
-    type(ProcessInfoDT)          , intent(inout) :: processInfo
-    real(rkind), dimension(:,:,:), allocatable   :: jacobian
-    real(rkind), dimension(:)    , allocatable   :: jacobianDet
-    type(IntegratorPtrDT)                        :: integrator
-    real(rkind)                  , intent(inout) :: dt
-    integer(ikind)                               :: i, j, nNode, nDof
-    real(rkind)                                  :: area, dt_min, alpha, deltaTU   
-    real(rkind)                                  :: val1, val2, V, dt_elem, deltaTC    
-    real(rkind)                                  :: Vx, Vy, Vxmax, Vymax, fSafe, cota 
-    type(NodePtrDT), dimension(:), allocatable   :: nodalPoints
-    fSafe = processInfo%getConstants(1)
+    class(CFDElementDT), intent(inout)         :: this
+    class(ProcessInfoDT), intent(inout)        :: processInfo
+    integer(ikind)                             :: i, j, nNode, nodeID, nDof, nCond, iCond
+    integer(ikind)                             :: iNode, iNodeID , nElem, iElem
+    type(NodePtrDT)                            :: node
+    real(rkind), dimension(:,:,:), allocatable :: jacobian
+    real(rkind), dimension(:)    , allocatable :: jacobianDet, constants, dof
+    type(IntegratorPtrDT)                      :: integrator
+    real(rkind)                                :: dt_min, alpha, deltaTU, dt, rho, val3   
+    real(rkind)                                :: V, dt_elem, deltaTC    
+    real(rkind)                                :: Vx, Vy, Vxmax, Vymax, fSafe, cota 
+    type(NodePtrDT), dimension(:), allocatable :: nodalPoints
+    constants = processInfo%getConstants()
+    nNode = this%getnNode()
+    fSafe = constants(1)
+    dof = constants(13:size(constants))
     dt_min = 1.d20
     Vxmax = 0.d0
     Vymax = 0.d0
-    nNode = this%getnNode()
-    nDof = this%node(1)%getnDof()
     integrator = this%getIntegrator()
     allocate(nodalPoints(nNode))
     do i = 1, nNode
-       nodalPoints(i) = this%node(i)
+       nodalPoints(i) = this%getNode(i)
     end do
     jacobian = this%geometry%jacobianAtGPoints(nodalPoints)
     jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
-    area = this%geometry%getLenght(nodalPoints)
     do i = 1, nNode
-       val1 = 0._rkind
-       val2 = 0._rkind
+       Vx  = 0.d0
+       Vy  = 0.d0
+       rho = 0.d0
+       nodeID = this%getNodeID(i)
        do j = 1, integrator%getIntegTerms()
-          val1 = val1 + integrator%getWeight(j)*integrator%ptr%shapeFunc(j,i) &
-               *this%node(i)%ptr%dof(2)%val/this%node(i)%ptr%dof(1)%val*jacobianDet(j)
-          val2 = val1 + integrator%getWeight(j)*integrator%ptr%shapeFunc(j,i) &
-               *this%node(i)%ptr%dof(3)%val/this%node(i)%ptr%dof(1)%val*jacobianDet(j)
+          Vx = rho + integrator%getWeight(j)*integrator%ptr%shapeFunc(j,i) &
+               *dof(nodeID*4-2)*jacobianDet(j)
+          Vy = rho + integrator%getWeight(j)*integrator%ptr%shapeFunc(j,i) &
+               *dof(nodeID*4-1)*jacobianDet(j)
+          rho = rho + integrator%getWeight(j)*integrator%ptr%shapeFunc(j,i) &
+               *dof(nodeID*4-3)*jacobianDet(j)
        end do
-       Vx = Vx + val1
-       Vy = Vy + val2
+       if (rho .ne. 0.d0) then
+          Vx  = Vx/rho
+          Vy  = Vy/rho
+       end if
+       if (Vx .gt. Vxmax) Vxmax = Vx
+       if (Vy .gt. Vymax) Vymax = Vy
     end do
-    if (Vx .gt. Vxmax) Vxmax = Vx
-    if (Vy .gt. Vymax) Vymax = Vy
-    V       = sqrt((Vxmax**2+Vymax**2))
+    V       = sqrt((Vxmax**2+Vymax**2))*0.5d0
     alpha   = min(V*sqrt(jacobianDet(1))/(2._rkind*0.001d0)/3._rkind,1._rkind)
     deltaTU = 1._rkind/(4._rkind*0.001d0/sqrt(jacobianDet(1))**2._rkind+alpha*V/sqrt(jacobianDet(1)))
     deltaTC = 1._rkind/(4._rkind*0.001d0/sqrt(jacobianDet(1))**2._rkind)
     dt_elem  = fsafe/(1._rkind/deltaTC+1._rkind/deltaTU)
     dt = dt_elem
     IF (dt_elem .LT. dt_min) dt_min = dt_elem
-    cota = 10.d0*dt_min
-    !EL VALOR 10 ESTA PUESTO A OJO #MODIFICAR SI ES NECESARIO#
+    cota = dt_min
     if(dt > cota) dt = cota
-  end subroutine calculateDT
+    call processInfo%setMinimumDt(dt)
+  end subroutine calculateDt
 
-  function calculateTau()
+  subroutine calculateTauNu(this, processInfo, matrix)
     implicit none
-    real(rkind) :: calculateTau
-    calculateTau = 0.00005
-  end function calculateTau
-
-  function calculateMu_a()
-    implicit none
-    real(rkind) :: calculateMu_a
-    calculateMu_a = 0.00005
-  end function calculateMu_a
-  
-  function MA1(v,gamma,E)
-    implicit none
-    real(rkind), dimension(4,4) :: MA1
-    real(rkind), dimension(2)   :: v
-    real(rkind)                 :: gamma
-    real(rkind)                 :: E
-    MA1(1,1) = 0._rkind
-    MA1(1,2) = 1._rkind
-    MA1(1,3) = 0._rkind
-    MA1(1,4) = 0._rkind
-    
-    MA1(2,1) = (((gamma-1._rkind)/2._rkind)*(v(1)**2+v(2)**2))-v(1)**2
-    MA1(2,2) = (3._rkind-gamma)*v(1)
-    MA1(2,3) = -(gamma-1._rkind)*v(2)
-    MA1(2,4) = (gamma-1._rkind)
-    
-    MA1(3,1) = -v(1)*v(2)
-    MA1(3,2) = v(2)
-    MA1(3,3) = v(1)
-    MA1(3,4) = 0._rkind
-    
-    MA1(4,1) = (((gamma-1._rkind)*(v(1)**2+v(2)**2))-(gamma*E))*v(1)
-    MA1(4,2) = (gamma*E)-((gamma-1._rkind)*(v(1)**2+v(2)**2)/2._rkind)&
-         -((gamma-1._rkind)*v(1)*v(2))
-    MA1(4,3) = -(gamma-1._rkind)*v(1)*v(2)
-    MA1(4,4) = gamma*v(1)
-  end function MA1
-
-  function MA2(v,gamma,E)
-    implicit none
-    real(rkind), dimension(4,4) :: MA2
-    real(rkind), dimension(2)   :: v
-    real(rkind)                 :: gamma
-    real(rkind)                 :: E
-    MA2(1,1) = 0._rkind
-    MA2(1,2) = 0._rkind
-    MA2(1,3) = 1._rkind
-    MA2(1,4) = 0._rkind
-    
-    MA2(2,1) = -v(1)*v(2)
-    MA2(2,2) = v(2)
-    MA2(2,3) = v(1)
-    MA2(2,4) = 0._rkind
-    
-    MA2(3,1) = (((gamma-1._rkind)/2._rkind)*(v(1)**2+v(2)**2))-v(2)**2
-    MA2(3,2) = -(gamma-1._rkind)*v(1)
-    MA2(3,3) = (3._rkind-gamma)*v(2)
-    MA2(3,4) = (gamma-1._rkind)
-    
-    MA2(4,1) = (((gamma-1._rkind)*(v(1)**2+v(2)**2))-(gamma*E))*v(2)
-    MA2(4,2) = -(gamma-1._rkind)*v(1)*v(2)
-    MA2(4,3) = (gamma*E)-((gamma-1._rkind)*(v(1)**2+v(2)**2)/2._rkind)&
-         -((gamma-1._rkind)*v(2)**2)
-    MA2(4,4) = gamma*v(2)
-  end function MA2
-
-  function MK11(v,mu,R,gamma,E,k)
-    implicit none
-    real(rkind), dimension(4,4) :: MK11
-    real(rkind), dimension(2)   :: v
-    real(rkind)                 :: mu
-    real(rkind)                 :: Cv
-    real(rkind)                 :: E
-    real(rkind)                 :: k
-    real(rkind)                 :: R
-    real(rkind)                 :: gamma 
-    Cv = R/(gamma-1)
-    MK11(1,1) = 0._rkind
-    MK11(1,2) = 0._rkind
-    MK11(1,3) = 0._rkind 
-    MK11(1,4) = 0._rkind
-    
-    MK11(2,1) = -(4._rkind/3._rkind)*mu*v(1)
-    MK11(2,2) = (4._rkind/3._rkind)*mu
-    MK11(2,3) = 0._rkind
-    MK11(2,4) = 0._rkind
-    
-    MK11(3,1) = -mu*v(2)
-    MK11(3,2) = 0._rkind
-    MK11(3,3) = mu
-    MK11(3,4) = 0._rkind
-    
-    MK11(4,1) = ((k/Cv)*(((v(1)**2+v(2)**2)/2._rkind)    &
-         -(E-((v(1)**2+v(2)**2)/2._rkind))))              &
-         -(mu*(v(1)**2+v(2)**2))-(mu*v(1)*v(1)/3._rkind)
-    MK11(4,2) = ((mu/3._rkind)+mu-(k/Cv))*v(1)
-    MK11(4,3) = (mu-(k/Cv))*v(2)
-    MK11(4,4) = (k/Cv)
-  end function MK11
-
-  function MK12(v,mu,R,gamma,E,k)
-    implicit none
-    real(rkind), dimension(4,4) :: MK12
-    real(rkind), dimension(2)   :: v
-    real(rkind)                 :: mu
-    real(rkind)                 :: Cv
-    real(rkind)                 :: E
-    real(rkind)                 :: k
-    real(rkind)                 :: R
-    real(rkind)                 :: gamma 
-    Cv = R/(gamma-1)
-    MK12(1,1) = 0._rkind
-    MK12(1,2) = 0._rkind
-    MK12(1,3) = 0._rkind
-    MK12(1,4) = 0._rkind
-    
-    MK12(2,1) = 2._rkind*mu*v(2)/3._rkind
-    MK12(2,2) = 0._rkind
-    MK12(2,3) = -2._rkind*mu/3._rkind
-    MK12(2,4) = 0._rkind
-    
-    MK12(3,1) = -mu*v(1)
-    MK12(3,2) = mu
-    MK12(3,3) = 0._rkind
-    MK12(3,4) = 0._rkind
-    
-    MK12(4,1) = -mu*v(1)*v(2)/3._rkind
-    MK12(4,2) = mu*v(2)
-    MK12(4,3) = -2._rkind*mu*v(1)/3._rkind
-    MK12(4,4) = 0._rkind
-  end function MK12
-
-  function MK21(v,mu,R,gamma,E,k)
-    implicit none
-    real(rkind), dimension(4,4) :: MK21
-    real(rkind), dimension(2)   :: v
-    real(rkind)                 :: mu
-    real(rkind)                 :: Cv
-    real(rkind)                 :: E
-    real(rkind)                 :: k
-    real(rkind)                 :: R
-    real(rkind)                 :: gamma 
-    Cv = R/(gamma-1)
-    MK21(1,1) = 0._rkind
-    MK21(1,2) = 0._rkind
-    MK21(1,3) = 0._rkind
-    MK21(1,4) = 0._rkind
-    
-    MK21(2,1) = -mu*v(2)
-    MK21(2,2) = 0._rkind
-    MK21(2,3) = mu
-    MK21(2,4) = 0._rkind
-    
-    MK21(3,1) = (2._rkind*mu*v(1)/3._rkind)-(2._rkind*mu/3._rkind)
-    MK21(3,2) = 0._rkind
-    MK21(3,3) = 0._rkind
-    MK21(3,4) = 0._rkind
-    
-    MK21(4,1) = -mu*v(1)*v(2)/3._rkind
-    MK21(4,2) = -2._rkind*mu*v(2)/3._rkind
-    MK21(4,3) = mu*v(1)
-    MK21(4,4) = 0._rkind
-  end function MK21
-
-  function MK22(v,mu,R,gamma,E,k)
-    implicit none
-    real(rkind), dimension(4,4) :: MK22
-    real(rkind), dimension(2)   :: v
-    real(rkind)                 :: mu
-    real(rkind)                 :: Cv
-    real(rkind)                 :: E
-    real(rkind)                 :: k
-    real(rkind)                 :: R
-    real(rkind)                 :: gamma 
-    Cv = R/(gamma-1)
-    MK22(1,1) = 0._rkind
-    MK22(1,2) = 0._rkind
-    MK22(1,3) = 0._rkind
-    MK22(1,4) = 0._rkind
-    
-    MK22(2,1) = -mu*v(1)
-    MK22(2,2) = mu
-    MK22(2,3) = 0._rkind
-    MK22(2,4) = 0._rkind
-    
-    MK22(3,1) = -(4._rkind/3._rkind)*mu*v(2)
-    MK22(3,2) = 0._rkind
-    MK22(3,3) = (4._rkind/3._rkind)*mu
-    MK22(3,4) = 0._rkind
-    
-    MK22(4,1) = ((k/Cv)*(((v(1)**2+v(2)**2)/2._rkind)    &
-         -(E-((v(1)**2+v(2)**2)/2._rkind))))              &
-         -(mu*(v(1)**2+v(2)**2))-(mu*v(2)*v(2)/3._rkind)
-    MK22(4,2) = (mu-(k/Cv))*v(1)
-    MK22(4,3) = ((mu/3._rkind)+mu-(k/Cv))*v(2)
-    MK22(4,4) = (k/Cv)
-  end function MK22
+    class(CFDElementDT), intent(inout)         :: this
+    class(ProcessInfoDT), intent(inout)        :: processInfo
+    real(rkind), dimension(:,:), allocatable, intent(inout) :: matrix
+    integer(ikind)                             :: i, j, nNode, nodeID, nDof, nCond, iCond
+    integer(ikind)                             :: iNode, iNodeID , nElem, iElem
+    type(NodePtrDT)                            :: node
+    real(rkind), dimension(:,:,:), allocatable :: jacobian
+    real(rkind), dimension(:)    , allocatable :: jacobianDet, constants, dof
+    type(IntegratorPtrDT)                      :: integrator
+    type(NodePtrDT), dimension(:), allocatable :: nodalPoints
+    real(rkind)                                :: rho, H_JGN, H_RGN, H_RGNE, val3, val4, nu  
+    real(rkind)                                :: val1, val2, V, deltaTC, dRho, dV, dT, dtime
+    real(rkind)                                :: dxRho, dxV, dxT, dyRho, dyV, dyT, T, Tinf, dNidy
+    real(rkind)                                :: Vx, Vy, Vxmax, Vymax, gamma, cota, Cv, Vc, dNidx
+    real(rkind)                                :: VxT, VyT, VxJ, VyJ, VxV, VyV, fmu, smu, bi, ci 
+    real(rkind)                                :: cte, Rhoinf, Tau, T_SUGN1, T_SUGN2, T_SUGN3
+    real(rkind)                                :: term1, term2, TR1, Tau_SUNG3, Tau_SUNG3_E
+    real(rkind)                                :: H_RGN1, H_RGN2, resumen
+    constants = processInfo%getConstants()
+    nNode = this%getnNode()
+    if (allocated(nodalPoints)) deallocate(nodalPoints)
+    allocate(nodalPoints(nNode))
+    if (allocated(matrix)) deallocate(matrix)
+    allocate(matrix(5,5))
+    matrix = 0.d0
+    cte = constants(2)
+    Cv = constants(4)
+    Vc = constants(5)
+    dtime = processInfo%getDt()
+    Tinf = this%material%T_inf
+    Rhoinf = this%material%Rho
+    dof = constants(13:size(constants))
+    gamma = constants(6)
+    Tau = 0.d0
+    H_RGNE = 1.D-10
+    H_RGN  = 1.D-10
+    H_JGN  = 1.D-10
+    integrator = this%getIntegrator()
+    do i = 1, nNode
+       nodalPoints(i) = this%getNode(i)
+    end do
+    jacobian = this%geometry%jacobianAtGPoints(nodalPoints)
+    jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
+    rho = 0.d0
+    Vx  = 0.d0
+    Vy  = 0.d0
+    T   = 0.d0
+    do i = 1, nNode
+       val1 = 0._rkind
+       val2 = 0._rkind
+       val3 = 0._rkind
+       val4 = 0._rkind
+       nodeID = this%getNodeID(i)
+       do j = 1, integrator%getIntegTerms()
+          val1 = val1 + integrator%getWeight(j)*integrator%ptr%shapeFunc(j,i) &
+               *dof(nodeID*4-3)*jacobianDet(j)
+          val2 = val2 + integrator%getWeight(j)*integrator%ptr%shapeFunc(j,i) &
+               *dof(nodeID*4-2)*jacobianDet(j)
+          val3 = val3 + integrator%getWeight(j)*integrator%ptr%shapeFunc(j,i) &
+               *dof(nodeID*4-1)*jacobianDet(j)
+          val4 = val4 + integrator%getWeight(j)*integrator%ptr%shapeFunc(j,i) &
+               *dof(nodeID*4)*jacobianDet(j)
+       end do
+       rho = rho + val1
+       Vx  = Vx  + val2
+       Vy  = Vy  + val3
+       T   = T   + val4
+    end do
+    if (rho .ne. 0.d0) then
+       rho = rho/nNode
+       Vx  = Vx/(rho*nNode)
+       Vy  = Vy/(rho*nNode)
+       T   = ((T/(rho*nNode))-0.5d0*(Vx**2+Vy**2))/Cv
+    end if
+    V = sqrt((Vx**2+Vy**2))
+    dxRho = 0._rkind
+    dxT   = 0._rkind
+    dxV   = 0._rkind
+    dyRho = 0._rkind
+    dyT   = 0._rkind
+    dyV   = 0._rkind
+    do i = 1, nNode
+       nodeID = this%getNodeID(i)
+       do j = 1, integrator%getIntegTerms()
+          bi = jacobian(j,2,2)*integrator%getDShapeFunc(j,1,i) &
+               - jacobian(j,1,2)*integrator%getDShapeFunc(j,2,i)
+          ci = jacobian(j,1,1)*integrator%getDShapeFunc(j,2,i) &
+               - jacobian(j,2,1)*integrator%getDShapeFunc(j,1,i)
+          dNidx = bi/jacobianDet(j)
+          dNidy = ci/jacobianDet(j)
+          dxRho = dxRho + dNidx*rho
+          dxT   = dxT   + dNidy*T
+          dxV   = dxV   + dNidx*V
+          dyRho = dyRho + dNidy*rho
+          dyT   = dyT   + dNidx*T
+          dyV   = dyV   + dNidy*V
+       end do
+    end do
+    dRho =sqrt(dxRho**2+dyRho**2)+1.d-20
+    dT   =sqrt(dxT**2+dyT**2)+1.d-20
+    dV   = sqrt(dxV**2+dyV**2)+1.d-20
+    if (dT .ne. 0.d0) then
+       VxT = dxT/dT
+       VyT = dyT/dT
+    else
+       VxT = dxT
+       VyT = dyT
+    end if
+    if (dRho .ne. 0.d0) then
+       VxJ = dxRho/dRho
+       VyJ = dyRho/dRho
+    else
+       VxJ = dxRho
+       VyJ = dyRho
+    end if
+    if (dV .ne. 0.d0) then
+       VxV = dxV/dV
+       VyV = dyV/dV
+    else
+       VxV = dxV
+       VyV = dyV
+    end if
+    smu = 110.d0
+    fmu = 0.41685d0*(abs(T)/Tinf)**1.5d0*(Tinf+smu)/(abs(T)+smu)
+    term1  = 0._rkind
+    term2  = 0._rkind
+    H_RGN1 = 0._rkind
+    H_RGN2 = 0._rkind
+    do j = 1, nNode
+       nodeID = this%getNodeID(j)
+       do i = 1, integrator%getIntegTerms()
+          bi = jacobian(i,2,2)*integrator%getDShapeFunc(i,1,j) &
+               - jacobian(i,1,2)*integrator%getDShapeFunc(i,2,j)
+          ci = jacobian(i,1,1)*integrator%getDShapeFunc(i,2,j) &
+               - jacobian(i,2,1)*integrator%getDShapeFunc(i,1,j)
+          dNidx  = bi/jacobianDet(i)
+          dNidy  = ci/jacobianDet(i)
+          term1  = abs(dNidx*Vx  + dNidy*Vy)
+          term2  = abs(dNidx*VxJ + dNidy*VyJ)
+          H_RGN1 = abs(dNidx*VxT + dNidy*VyT)
+          H_RGN2 = abs(dNidx*VxV + dNidy*VyV)
+       end do
+       Tau    = Tau+term1+term2*Vc
+       H_RGNE = H_RGNE+H_RGN1
+       H_RGN  = H_RGN+H_RGN2
+       H_JGN  = H_JGN+term2
+    end do
+    if (Tau .ne. 0.d0) then
+       Tau = 1.d0/Tau
+    end if
+    if (H_RGNE .ne. 0.d0) then
+       H_RGNE = 2.d0/H_RGNE
+    end if
+    if (H_RGN .ne. 0.d0) then
+       H_RGN  = 2.d0/H_RGN
+    end if
+    if (H_RGN .gt. 1.d3) H_RGN=0.d0
+    if (H_JGN .ne. 0.d0) then
+       H_JGN=2.D0/H_JGN
+    end if
+    if (H_JGN .gt. 1.d10) H_JGN=0.d0
+    if (Rho == 0.d0) then
+       TR1 = 0.d0
+    else
+       TR1 = dRho*H_JGN/Rho
+    end if
+    nu  = (sqrt(abs(TR1))+TR1**2)*Vc*2*(H_JGN/2.d0)
+    if (Tau .ne. 0.d0) then
+       resumen = ((1.d0/Tau)**2.d0 +(2.d0/dtime)**2.d0)**(-0.5d0)
+    end if
+    T_SUGN1 = Resumen
+    T_SUGN2 = Resumen
+    T_SUGN3 = Resumen
+    if (fmu.ne.0.d0) then
+       TAU_SUNG3   = H_RGN**2.d0/(4.d0*fmu/Rhoinf)
+       TAU_SUNG3_E = H_RGNE**2.d0/(4.d0*fmu/Rhoinf)
+       T_SUGN2     = (((1.d0/Tau)**2.d0 +(2.d0/dtime)**2.d0)&
+            +1.d0/TAU_SUNG3**2.d0)**(-0.5d0)
+       T_SUGN3     = (((1.d0/Tau)**2.d0 +(2.d0/dtime)**2.d0)&
+            +1.d0/TAU_SUNG3_E**2.d0)**(-0.5d0)
+    end if
+    matrix(1,1) = T_SUGN1
+    matrix(2,2) = T_SUGN2
+    matrix(3,3) = T_SUGN2
+    matrix(4,4) = T_SUGN3
+    matrix(5,1) = nu*cte
+  end subroutine calculateTauNu
   
 end module CFDElementM
