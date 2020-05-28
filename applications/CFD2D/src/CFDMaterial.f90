@@ -17,6 +17,8 @@ module CFDMaterialM
      real(rkind) :: T_inf
      real(rkind) :: rho
      real(rkind) :: P_inf
+     real(rkind) :: Cv
+     real(rkind) :: mach
      real(rkind) :: Vc
    contains
      procedure :: init
@@ -28,7 +30,7 @@ module CFDMaterialM
   
 contains
   
-  type(CFDMaterialDT) function constructor(R, gamma, mu, k, Vx, Vy, T, rho)
+  type(CFDMaterialDT) function constructor(R, gamma, mu, k, Vx, Vy, T, rho, mach, Cv, P, Vc)
     implicit none
     real(rkind), intent(in) :: R
     real(rkind), intent(in) :: gamma
@@ -38,10 +40,14 @@ contains
     real(rkind), intent(in) :: Vy
     real(rkind), intent(in) :: T
     real(rkind), intent(in) :: rho
-    call constructor%init(R, gamma, mu, k, Vx, Vy, T, rho)
+    real(rkind), intent(in) :: mach
+    real(rkind), intent(in) :: Cv
+    real(rkind), intent(in) :: P
+    real(rkind), intent(in) :: Vc
+    call constructor%init(R, gamma, mu, k, Vx, Vy, T, rho, mach, Cv, P, Vc)
   end function constructor
 
-  subroutine init(this, R, gamma, mu, k, Vx, Vy, T, rho)
+  subroutine init(this, R, gamma, mu, k, Vx, Vy, T, rho, mach, Cv, P, Vc)
     implicit none
     class(CFDMaterialDT), intent(inout) :: this
     real(rkind)         , intent(in)    :: R
@@ -52,6 +58,10 @@ contains
     real(rkind)         , intent(in)    :: Vy
     real(rkind)         , intent(in)    :: T
     real(rkind)         , intent(in)    :: rho
+    real(rkind)         , intent(in)    :: mach
+    real(rkind)         , intent(in)    :: Cv
+    real(rkind)         , intent(in)    :: P
+    real(rkind)         , intent(in)    :: Vc
     this%R      = R
     this%gamma  = gamma
     this%mu     = mu
@@ -60,8 +70,10 @@ contains
     this%Vy_inf = Vy
     this%T_inf  = T
     this%rho    = rho
-    this%P_inf  = rho*R*T
-    this%Vc     = sqrt(gamma*R*T)
+    this%mach   = mach
+    this%P_inf  = P
+    this%Cv     = Cv
+    this%Vc     = Vc
   end subroutine init
   
 end module CFDMaterialM

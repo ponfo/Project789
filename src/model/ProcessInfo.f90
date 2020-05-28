@@ -15,6 +15,7 @@ module ProcessInfoM
      real(rkind)   , allocatable :: printStep
      real(rkind)   , allocatable :: constants(:)
      integer(ikind), allocatable :: step
+     integer(ikind), allocatable :: maxIter
    contains
      procedure, public :: setTime
      procedure, public :: setDT
@@ -22,8 +23,11 @@ module ProcessInfoM
      procedure, public :: setErrorTol
      procedure, public :: setPrintStep
      procedure, public :: setT0
-     procedure, public :: setConstants
+     generic  , public :: setConstants => setAllConstants, setOneConstant
+     procedure, public :: setAllConstants
+     procedure, public :: setOneConstant
      procedure, public :: setStep
+     procedure, public :: setMaxIter
      procedure, public :: getTime
      procedure, public :: getDT
      procedure, public :: getErrorTol
@@ -33,6 +37,7 @@ module ProcessInfoM
      procedure         :: getOneConstant
      procedure         :: getAllConstants
      procedure, public :: getStep
+     procedure, public :: getMaxIter
   end type ProcessInfoDT
 
 contains
@@ -89,15 +94,24 @@ contains
     this%errorTol = errorTol
   end subroutine setErrorTol
 
-  subroutine setConstants(this, n, values)
+  subroutine setAllConstants(this, n, values)
     implicit none
     class(ProcessInfoDT)                  , intent(inout) :: this
     real(rkind), dimension(:), allocatable, intent(in)    :: values
     integer(ikind)                        , intent(in)    :: n
+    if (allocated(this%constants)) deallocate(this%constants)
     allocate(this%constants(n))
     this%constants = values
-  end subroutine setConstants
+  end subroutine setAllConstants
 
+  subroutine setOneConstant(this, i, value)
+    implicit none
+    class(ProcessInfoDT)                  , intent(inout) :: this
+    real(rkind)                           , intent(in)    :: value
+    integer(ikind)                        , intent(in)    :: i
+    this%constants(i) = value
+  end subroutine setOneConstant
+  
   subroutine setStep(this, step)
     implicit none
     class(ProcessInfoDT), intent(inout) :: this
@@ -105,6 +119,14 @@ contains
     if(.not.allocated(this%step)) allocate(this%step)
     this%step = step
   end subroutine setStep
+
+  subroutine setMaxIter(this, maxIter)
+    implicit none
+    class(ProcessInfoDT), intent(inout) :: this
+    integer(ikind)      , intent(in)    :: maxIter
+    if(.not.allocated(this%maxIter)) allocate(this%maxIter)
+    this%maxIter = maxIter
+  end subroutine setMaxIter
   
   real(rkind) pure function getTime(this)
     implicit none
@@ -155,6 +177,12 @@ contains
     class(ProcessInfoDT), intent(in) :: this
     getStep = this%step
   end function getStep
+
+  integer(ikind) pure function getMaxIter(this)
+    implicit none
+    class(ProcessInfoDT), intent(in) :: this
+    getMaxIter = this%maxIter
+  end function getMaxIter
   
 end module ProcessInfoM
      

@@ -24,7 +24,8 @@ module NormalVelocityM
 
   type, extends(ConditionDT) :: NormalVelocityDT
      integer(ikind), dimension(:), allocatable :: nodeIDList
-     real(rkind)                               :: velocity
+     real(rkind)                               :: velocityX
+     real(rkind)                               :: velocityY
      class(CFDMaterialDT), pointer             :: material
    contains
      procedure, public :: init
@@ -44,7 +45,7 @@ contains
     implicit none
     integer(ikind)                           , intent(in) :: id
     integer(ikind)             , dimension(:), intent(in) :: nodeIDList
-    real(rkind)                              , intent(in) :: velocity
+    integer(ikind)                           , intent(in) :: velocity
     type(NodePtrDT)            , dimension(:), intent(in) :: node
     class(GeometryDT)          , pointer     , intent(in) :: geometry
     class(CFDMaterialDT), target             , intent(in) :: material
@@ -56,7 +57,7 @@ contains
     class(NormalVelocityDT)                  , intent(inout) :: this
     integer(ikind)                           , intent(in)    :: id
     integer(ikind)             , dimension(:), intent(in)    :: nodeIDList
-    real(rkind)                              , intent(in)    :: velocity
+    integer(ikind)                           , intent(in)    :: velocity
     type(NodePtrDT)            , dimension(:), intent(in)    :: node
     class(GeometryDT)          , pointer     , intent(in)    :: geometry
     class(CFDMaterialDT), target             , intent(in)    :: material
@@ -64,7 +65,6 @@ contains
     this%affectsLHS = .false.
     this%affectsRHS = .true.
     this%nodeIDList = nodeIDList
-    this%velocity = velocity
     this%node = node
     this%geometry => geometry
   end subroutine init
@@ -72,7 +72,7 @@ contains
   subroutine calculateLocalSystem(this, processInfo, lhs, rhs)
     implicit none
     class(NormalVelocityDT)                          , intent(inout) :: this
-    type(ProcessInfoDT)                                   , intent(inout) :: processInfo
+    type(ProcessInfoDT)                              , intent(inout) :: processInfo
     type(LeftHandSideDT)                             , intent(inout) :: lhs
     real(rkind)         , dimension(:)  , allocatable, intent(inout) :: rhs
     call this%calculateRHS(processInfo, rhs)
@@ -83,17 +83,17 @@ contains
     class(NormalVelocityDT)   , intent(inout) :: this
     type(ProcessInfoDT)       , intent(inout) :: processInfo
     type(LeftHandSideDT), intent(inout) :: lhs
-    print*, 'No LHS component in velocity condition'
+    print*, 'No LHS component in normal velocity condition'
   end subroutine calculateLHS
   
  subroutine calculateRHS(this, processInfo, rhs)
     implicit none
     class(NormalVelocityDT)                             , intent(inout) :: this
-    type(ProcessInfoDT)                                   , intent(inout) :: processInfo
+    type(ProcessInfoDT)                                 , intent(inout) :: processInfo
     real(rkind)          , dimension(:)    , allocatable, intent(inout) :: rhs
     integer(ikind)                                                      :: i, j
     integer(ikind)                                                      :: nNode
-    real(rkind)                                                         :: velocityx, velocityy
+    real(rkind)                                                         :: nx, ny
     real(rkind)                                                         :: int1, int2
     real(rkind)          , dimension(:,:,:), allocatable                :: jacobian
     real(rkind)          , dimension(:)    , allocatable                :: jacobianDet
@@ -114,12 +114,12 @@ contains
        int1 = 0._rkind
        int2 = 0._rkind
        do j = 1, integrator%getIntegTerms()
-          velocityx = this%velocity*jacobian(j,1,2)/jacobianDet(j)
-          velocityy = this%velocity*(-jacobian(j,1,1))/jacobianDet(j)
+          nx = jacobian(j,1,2)/jacobianDet(j)
+          ny = (jacobian(j,1,1))/jacobianDet(j)
           int1 = int1 + integrator%getWeight(j)*integrator%getShapeFunc(j,i)  &
-               * velocityx*jacobianDet(j)
+               * nx*jacobianDet(j)
           int2 = int2 + integrator%getWeight(j)*integrator%getShapeFunc(j,i)  &
-               * velocityy*jacobianDet(j)
+               * ny*jacobianDet(j)
        end do
        rhs(2*i-1) = rhs(2*i-1) - int1
        rhs(2*i)   = rhs(2*i)   - int2

@@ -34,6 +34,7 @@ contains
        allocate(k3, source = this)
        allocate(k4, source = this)
        if (this%step .eq. 0) then
+          if (allocated(this%values)) deallocate(this%values)
           allocate(this%values(3,size(this%state)))
           this%values = 0.d0
           k1 = this%t(this%state)

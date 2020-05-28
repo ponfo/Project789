@@ -61,6 +61,8 @@ Initial_Time...........................: *GenData(Initial_Time)
 *#---------------------------------------------------------
 Error_Tolerance........................: *GenData(Error_Tolerance)
 *#---------------------------------------------------------
+Max_Iterations.........................: *GenData(Max_Iterations)
+*#---------------------------------------------------------
 Safety_Factor..........................: *GenData(Safety_Factor)
 *#---------------------------------------------------------
 Shock_Capturing_constant...............: *GenData(Constant)
@@ -81,11 +83,11 @@ Coordinates:
 
 Materials List:
 
-Material |      R     |   Gamma   |   Mu   |    K    |   Vx_inf |  Vy_inf   |   T    |    Rho   |
---------------------------------------------------------------------------------------------------
+Material |      R     |   Gamma   |   Mu   |    K    |   Vx_inf |  Vy_inf   |   T    |    Rho   |     Mach   |    Cv     |      P    |
+--------------------------------------------------------------------------------------------------------------------------------------
 *loop materials
 *format "%5i%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e"
-*matnum  *matprop(R_Gas) *matprop(Gamma) *matprop(Mu) *matprop(K) *matprop(Vx) *matprop(Vy) *matprop(T) *matprop(Rho) 
+*matnum  *matprop(R_Gas) *matprop(Gamma) *matprop(Mu) *matprop(K) *matprop(Vx) *matprop(Vy) *matprop(T) *matprop(Rho) *matprop(Mach) *matprop(Cv) *matprop(P)
 *end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -154,18 +156,6 @@ Conditions List:
 *elemsnum  *cond(Source_Number_On_Surfaces)
 *end
 
-####################### Velocity ######################
-
-Conditions List:
-
-  Node    |    Velocity
-------------------------------
-*Set Cond Fix_Velocity *nodes
-*loop nodes *OnlyInCond
-*format "%5i%10.4e"
-*NodesNum    *cond(Vx) *cond(Vy) 
-*end
-
 ####################### Density ######################
 
 Conditions List:
@@ -175,7 +165,19 @@ Conditions List:
 *Set Cond Fix_Density *nodes
 *loop nodes *OnlyInCond
 *format "%5i%10.4e"
-*NodesNum           *cond(Density) 
+*NodesNum           *cond(Density,int) 
+*end
+
+####################### Velocity ######################
+
+Conditions List:
+
+  Node    |    Velocity
+------------------------------
+*Set Cond Fix_Velocity *nodes
+*loop nodes *OnlyInCond
+*format "%5i%10.4e"
+*NodesNum    *cond(Vx,int) *cond(Vy,int) 
 *end
 
 ####################### Temperature ######################
@@ -187,7 +189,7 @@ Conditions List:
 *Set Cond Fix_Temperature *nodes
 *loop nodes *OnlyInCond
 *format "%5i%10.4e"
-*NodesNum           *cond(Temperature) 
+*NodesNum           *cond(Temperature,int) 
 *end
 
 ####################### Normal Velocity ########################
@@ -199,7 +201,7 @@ Conditions List:
 *Set Cond Normal_Velocity *elems *canrepeat
 *loop elems *OnlyInCond
 *format "%5i%7i%7i"
-*elemsnum  *localnodes  *cond(Velocity,real)
+*elemsnum  *localnodes  *cond(Velocity,int)
 *end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
