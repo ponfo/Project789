@@ -23,11 +23,11 @@ contains
 
   subroutine calculateOutputs(this, model)
     implicit none
-    class(CFDSchemeDT), intent(inout)          :: this
-    class(CFDModelDT) , intent(inout)          :: model
-    integer(ikind)                             :: dim, iNode
-    real(rkind)                                :: rho, Vx, Vy, T, P, E, M
-    real(rkind)                                :: R, Cv, Vc, gamma
+    class(CFDSchemeDT), intent(inout) :: this
+    class(CFDModelDT) , intent(inout) :: model
+    integer(ikind)                    :: dim, iNode
+    real(rkind)                       :: rho, Vx, Vy, T, P, E, M
+    real(rkind)                       :: R, Cv, Vc, gamma
     dim = model%getnNode()
     if (allocated(model%results%velocity)) then
        deallocate(model%results%velocity)
@@ -50,15 +50,23 @@ contains
        allocate(model%results%temperature(dim))
        allocate(model%results%internalEnergy(dim))
     end if
+    model%results%density(:)        = 0.d0
+    model%results%velocity(:,1)     = 0.d0
+    model%results%velocity(:,2)     = 0.d0
+    model%results%internalEnergy(:) = 0.d0
+    model%results%temperature(:)    = 0.d0
+    model%results%mach(:)           = 0.d0
+    model%results%pressure(:)       = 0.d0
     R     = model%processInfo%getConstants(3)
     Cv    = model%processInfo%getConstants(4)
     Vc    = model%processInfo%getConstants(5)
     gamma = model%processInfo%getConstants(6)
+    !$OMP PARALLEL DO PRIVATE(iNode,rho,Vx,Vy,E,T,M,P)
     do iNode = 1, model%getnNode()
-       rho = model%dof(iNode*4-3)
-       Vx  = model%dof(iNode*4-2)/model%dof(iNode*4-3)
-       Vy  = model%dof(iNode*4-1)/model%dof(iNode*4-3)
-       E   = model%dof(iNode*4  )/model%dof(iNode*4-3)
+       rho = model%dof(1,iNode)
+       Vx  = model%dof(2,iNode)/model%dof(1,iNode)
+       Vy  = model%dof(3,iNode)/model%dof(1,iNode)
+       E   = model%dof(4,iNode)/model%dof(1,iNode)
        T   = (E-0.5d0*(Vx**2+Vy**2))/Cv
        M   = sqrt(Vx**2+Vy**2)/Vc
        P   = rho*R*T
@@ -70,7 +78,7 @@ contains
        model%results%mach(iNode)           = M
        model%results%pressure(iNode)       = P
     end do
-    print*, 'Mach max = ', maxval(model%results%mach)
+    !$OMP END PARALLEL DO
   end subroutine calculateOutputs
   
   subroutine integrator(this, dt)
