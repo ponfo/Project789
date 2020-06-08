@@ -188,10 +188,10 @@ contains
        read(project,*) iPoint, x, y
        if(verbose) print'(3X,I0,3X,E10.3,3X,E10.3,3X,E10.3)', iPoint, x, y
        cfdAppl%node(iPoint) = node(iPoint, 4, x, y)
-       call cfdAppl%node(iPoint)%assignDof(1, cfdAppl%model%dof(iPoint*nDof-3))
-       call cfdAppl%node(iPoint)%assignDof(2, cfdAppl%model%dof(iPoint*nDof-2))
-       call cfdAppl%node(iPoint)%assignDof(3, cfdAppl%model%dof(iPoint*nDof-1))
-       call cfdAppl%node(iPoint)%assignDof(4, cfdAppl%model%dof(iPoint*nDof))
+       call cfdAppl%node(iPoint)%assignDof(1,cfdAppl%model%dof(1,iPoint))
+       call cfdAppl%node(iPoint)%assignDof(2,cfdAppl%model%dof(2,iPoint))
+       call cfdAppl%node(iPoint)%assignDof(3,cfdAppl%model%dof(3,iPoint))
+       call cfdAppl%node(iPoint)%assignDof(4,cfdAppl%model%dof(4,iPoint))
        call cfdAppl%model%addNode(iPoint, cfdAppl%node(iPoint))
     end do
   end subroutine initMesh
@@ -209,11 +209,11 @@ contains
        if (T == 0.d0) T = P/(rho*R)
        if (P == 0.d0) P = rho*R*T
        if (rho == 0.d0) rho = P/(R*T)
+       Vc = sqrt(gamma*R*T)
        if ((Vx**2+Vy**2) == 0.d0) then
-          Vx = sqrt(gamma*R*T)*mach
+          Vx = Vc*mach
           Vy = 0.d0
        end if
-       Vc = sqrt(gamma*R*T)
        call cfdAppl%setTransientValues(printStep, t0, errorTol, maxIter, fSafe, constant, R, Cv, Vc, gamma&
             , Vx, Vy, T, P, rho, mach)
        cfdAppl%material(iMat) = cfdMaterial(R, gamma, mu, k, Vx, Vy, T, rho, mach, Cv, P, Vc)
@@ -334,17 +334,17 @@ contains
     allocate(node(nPointID))
     conditionCounter = 0
     if(verbose) print'(/,A)', 'Normal Velocity conditions'
-    if(verbose) print'(A)', 'Elem    Nodes     Value'
+    if(verbose) print'(A)', 'Elem    Nodes '
     do i = 1, nNormalVelocity
        conditionCounter = conditionCounter + 1
-       read(Project,*) elemID, (pointID(j),j=1,nPointID), value
-       if(verbose) print*, elemID, (pointID(j),j=1,nPointID), value
+       read(Project,*) elemID, (pointID(j),j=1,nPointID)
+       if(verbose) print*, elemID, (pointID(j),j=1,nPointID)
        element = cfdAppl%element(elemID)
        do j = 1, nPointID
           node(j) = element%node(pointID(j))
        end do
        cfdAppl%normalVelocity(i) = &
-            normalVelocity(i, pointID, value, node, element%geometry, element%material)
+            normalVelocity(i, pointID, node, element%geometry)
        call cfdAppl%model%addCondition(conditionCounter, cfdAppl%normalVelocity(i))
     end do
     close(project)

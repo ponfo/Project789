@@ -15,8 +15,6 @@ module NormalVelocityM
   
   use ConditionM
 
-  use CFDMaterialM
-
   implicit none
 
   private
@@ -24,9 +22,6 @@ module NormalVelocityM
 
   type, extends(ConditionDT) :: NormalVelocityDT
      integer(ikind), dimension(:), allocatable :: nodeIDList
-     real(rkind)                               :: velocityX
-     real(rkind)                               :: velocityY
-     class(CFDMaterialDT), pointer             :: material
    contains
      procedure, public :: init
 
@@ -41,26 +36,22 @@ module NormalVelocityM
 
 contains
 
-  type(NormalVelocityDT) function constructor(id, nodeIDList, velocity, node, geometry, material)
+  type(NormalVelocityDT) function constructor(id, nodeIDList, node, geometry)
     implicit none
     integer(ikind)                           , intent(in) :: id
     integer(ikind)             , dimension(:), intent(in) :: nodeIDList
-    integer(ikind)                           , intent(in) :: velocity
     type(NodePtrDT)            , dimension(:), intent(in) :: node
     class(GeometryDT)          , pointer     , intent(in) :: geometry
-    class(CFDMaterialDT), target             , intent(in) :: material
-    call constructor%init(id, nodeIDList, velocity, node, geometry, material)
+    call constructor%init(id, nodeIDList, node, geometry)
   end function constructor
 
-  subroutine init(this, id, nodeIDList, velocity, node, geometry, material)
+  subroutine init(this, id, nodeIDList, node, geometry)
     implicit none
     class(NormalVelocityDT)                  , intent(inout) :: this
     integer(ikind)                           , intent(in)    :: id
     integer(ikind)             , dimension(:), intent(in)    :: nodeIDList
-    integer(ikind)                           , intent(in)    :: velocity
     type(NodePtrDT)            , dimension(:), intent(in)    :: node
     class(GeometryDT)          , pointer     , intent(in)    :: geometry
-    class(CFDMaterialDT), target             , intent(in)    :: material
     this%id = id
     this%affectsLHS = .false.
     this%affectsRHS = .true.
@@ -114,15 +105,13 @@ contains
        int1 = 0._rkind
        int2 = 0._rkind
        do j = 1, integrator%getIntegTerms()
-          nx = jacobian(j,1,2)/jacobianDet(j)
-          ny = (jacobian(j,1,1))/jacobianDet(j)
-          int1 = int1 + integrator%getWeight(j)*integrator%getShapeFunc(j,i)  &
-               * nx*jacobianDet(j)
-          int2 = int2 + integrator%getWeight(j)*integrator%getShapeFunc(j,i)  &
-               * ny*jacobianDet(j)
+          nx = jacobian(j,1,1)/jacobianDet(j)
+          ny = jacobian(j,1,2)/jacobianDet(j)
+          int1 = int1 + integrator%getWeight(j)*integrator%getShapeFunc(j,i)*nx
+          int2 = int2 + integrator%getWeight(j)*integrator%getShapeFunc(j,i)*ny
        end do
-       rhs(2*i-1) = rhs(2*i-1) - int1
-       rhs(2*i)   = rhs(2*i)   - int2
+       rhs(2*i-1) = rhs(2*i-1) + int1
+       rhs(2*i)   = rhs(2*i)   + int2
     end do
   end subroutine calculateRHS
 

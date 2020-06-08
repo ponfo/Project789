@@ -1,4 +1,5 @@
 module CFDModelM
+  
   use UtilitiesM
 
   use SparseKit
@@ -14,11 +15,9 @@ module CFDModelM
   public :: CFDModelDT, cfdModel
 
   type, extends(modelDT) :: CFDModelDT
-     type(Sparse)                           :: lhs
-     type(Sparse)                           :: mass
-     real(rkind), dimension(:), allocatable :: rhs
-     real(rkind), dimension(:), allocatable :: dof
-     type(ResultsDT)                        :: results
+     real(rkind), dimension(:,:), allocatable :: rhs
+     real(rkind), dimension(:,:), allocatable :: dof
+     type(ResultsDT)                          :: results
    contains
      procedure, public :: init
      procedure, public :: initWithoutSystem
@@ -52,10 +51,8 @@ contains
     integer(ikind)   , intent(in)    :: nNode
     integer(ikind)   , intent(in)    :: nElement
     integer(ikind)   , intent(in)    :: nCondition
-    this%lhs  = sparse(nnz, nDof)
-    this%mass = sparse(nnz, nDof)
-    allocate(this%rhs(nDof))
-    allocate(this%dof(nDof))
+    allocate(this%rhs(nDof,nNode))
+    allocate(this%dof(nDof,nNode))
     call this%initModel(1) !una sola malla en el modelo
     this%mesh(1) = mesh(id, nNode, nElement, nCondition)
   end subroutine init
@@ -71,22 +68,19 @@ contains
     this%mesh(1) = mesh(id, nNode, nElement, nCondition)
   end subroutine initWithoutSystem
 
-  subroutine initSystem(this, nDof, nnz)
+  subroutine initSystem(this, nDof, nnz, nNode)
     implicit none
     class(CFDModelDT), intent(inout) :: this
     integer(ikind)   , intent(in)    :: nDof
     integer(ikind)   , intent(in)    :: nnz
-    this%lhs  = sparse(nnz, nDof)
-    this%mass = sparse(nnz, nDof)
-    allocate(this%rhs(nDof))
-    allocate(this%dof(nDof))
+    integer(ikind)   , intent(in)    :: nNode
+    allocate(this%rhs(nDof, nNode))
+    allocate(this%dof(nDof, nNode))
   end subroutine initSystem
   
   subroutine freeSystem(this)
     implicit none
     class(CFDModelDT), intent(inout) :: this
-    call this%lhs%free()
-    call this%mass%free()
     if(allocated(this%rhs)) deallocate(this%rhs)
   end subroutine freeSystem
   

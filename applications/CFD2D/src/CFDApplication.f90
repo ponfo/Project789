@@ -1,4 +1,5 @@
 module CFDApplicationM
+  
   use UtilitiesM
   use DebuggerM
 
@@ -48,12 +49,12 @@ contains
   subroutine init(this, nNode, nElement, nNormalVelocity, nSource, nMaterial, nGauss)
     implicit none
     class(CFDApplicationDT), intent(inout) :: this
-    integer(ikind)                  , intent(in)    :: nNode
-    integer(ikind)                  , intent(in)    :: nElement
-    integer(ikind)                  , intent(in)    :: nNormalVelocity
-    integer(ikind)                  , intent(in)    :: nSource
-    integer(ikind)                  , intent(in)    :: nMaterial
-    integer(ikind)                  , intent(in)    :: nGauss
+    integer(ikind)         , intent(in)    :: nNode
+    integer(ikind)         , intent(in)    :: nElement
+    integer(ikind)         , intent(in)    :: nNormalVelocity
+    integer(ikind)         , intent(in)    :: nSource
+    integer(ikind)         , intent(in)    :: nMaterial
+    integer(ikind)         , intent(in)    :: nGauss
     allocate(this%node(nNode))
     allocate(this%element(nElement))
     allocate(this%normalVelocity(nNormalVelocity))
@@ -61,7 +62,7 @@ contains
     allocate(this%material(nMaterial))
     call initGeometries(nGauss)
     this%model = cfdModel(                &
-           nDof = 4*nNode                &
+           nDof =   4                    &
          , nnz = nElement*256            &
          , id = 1                        &
          , nNode = nNode                 &
@@ -69,7 +70,8 @@ contains
          , nCondition = nNormalVelocity  )
   end subroutine init
 
-  subroutine setTransientValues(this, printStep, t0, errorTol, maxIter, fSafe, constant, R, Cv, Vc, gamma, Vx, Vy, T, P, rho, mach)
+  subroutine setTransientValues(this, printStep, t0, errorTol, maxIter&
+       , fSafe, constant, R, Cv, Vc, gamma, Vx, Vy, T, P, rho, mach)
     implicit none
     class(CFDApplicationDT), intent(inout)  :: this
     integer(ikind)          , intent(in)    :: printStep
@@ -89,7 +91,7 @@ contains
     real(rkind)             , intent(in)    :: rho
     real(rkind)             , intent(in)    :: mach
     real(rkind), dimension(:), allocatable  :: vector
-    allocate(vector(6))
+    allocate(vector(7))
     vector = (/fSafe, constant, R, Cv, Vc, gamma&
          , Vx, Vy, T, P, rho, mach/)
     call this%model%processInfo%setPrintStep(printStep)

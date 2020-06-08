@@ -87,7 +87,7 @@ Material |      R     |   Gamma   |   Mu   |    K    |   Vx_inf |  Vy_inf   |   
 --------------------------------------------------------------------------------------------------------------------------------------
 *loop materials
 *format "%5i%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e"
-*matnum  *matprop(R_Gas) *matprop(Gamma) *matprop(Mu) *matprop(K) *matprop(Vx) *matprop(Vy) *matprop(T) *matprop(Rho) *matprop(Mach) *matprop(Cv) *matprop(P)
+*matnum  *matprop(R_Gas)  *matprop(Gamma)  *matprop(Mu)  *matprop(K)  *matprop(Vx)  *matprop(Vy)  *matprop(T)  *matprop(Rho)  *matprop(Mach)  *matprop(Cv)  *matprop(P)
 *end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -165,7 +165,7 @@ Conditions List:
 *Set Cond Fix_Density *nodes
 *loop nodes *OnlyInCond
 *format "%5i%10.4e"
-*NodesNum           *cond(Density,int) 
+*NodesNum           *cond(Density) 
 *end
 
 ####################### Velocity ######################
@@ -177,7 +177,7 @@ Conditions List:
 *Set Cond Fix_Velocity *nodes
 *loop nodes *OnlyInCond
 *format "%5i%10.4e"
-*NodesNum    *cond(Vx,int) *cond(Vy,int) 
+*NodesNum    *cond(Vx) *cond(Vy) 
 *end
 
 ####################### Temperature ######################
@@ -189,7 +189,7 @@ Conditions List:
 *Set Cond Fix_Temperature *nodes
 *loop nodes *OnlyInCond
 *format "%5i%10.4e"
-*NodesNum           *cond(Temperature,int) 
+*NodesNum           *cond(Temperature) 
 *end
 
 ####################### Normal Velocity ########################
@@ -201,7 +201,7 @@ Conditions List:
 *Set Cond Normal_Velocity *elems *canrepeat
 *loop elems *OnlyInCond
 *format "%5i%7i%7i"
-*elemsnum  *localnodes  *cond(Velocity,int)
+*elemsnum  *localnodes 
 *end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

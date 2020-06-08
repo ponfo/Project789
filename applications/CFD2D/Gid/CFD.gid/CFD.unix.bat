@@ -7,3 +7,5 @@ $1
 EOT
 
 $3/../../main $2/$1
+
+# OutputFile: log.dat

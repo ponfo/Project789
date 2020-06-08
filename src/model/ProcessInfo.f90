@@ -8,14 +8,19 @@ module ProcessInfoM
   public :: ProcessInfoDT
 
   type :: ProcessInfoDT
-     real(rkind)   , allocatable :: t
-     real(rkind)   , allocatable :: dt
-     real(rkind)   , allocatable :: t0
-     real(rkind)   , allocatable :: errorTol
-     real(rkind)   , allocatable :: printStep
-     real(rkind)   , allocatable :: constants(:)
-     integer(ikind), allocatable :: step
-     integer(ikind), allocatable :: maxIter
+     real(rkind), dimension(:,:) , allocatable :: mat
+     real(rkind), dimension(:,:) , allocatable :: mat2
+     real(rkind), dimension(:)   , allocatable :: vect 
+     real(rkind), dimension(:)   , allocatable :: vect2
+     real(rkind)                 , allocatable :: t
+     real(rkind)                 , allocatable :: dt
+     real(rkind)                 , allocatable :: t0
+     real(rkind)                 , allocatable :: errorTol
+     real(rkind)                 , allocatable :: printStep
+     real(rkind)                 , allocatable :: constants(:)
+     integer(ikind)              , allocatable :: step
+     integer(ikind)              , allocatable :: maxIter
+     integer(ikind), dimension(:), allocatable :: process
    contains
      procedure, public :: setTime
      procedure, public :: setDT
@@ -23,21 +28,26 @@ module ProcessInfoM
      procedure, public :: setErrorTol
      procedure, public :: setPrintStep
      procedure, public :: setT0
-     generic  , public :: setConstants => setAllConstants, setOneConstant
+     generic  , public :: setConstants => setOneConstant, setAllConstants
      procedure, public :: setAllConstants
      procedure, public :: setOneConstant
      procedure, public :: setStep
      procedure, public :: setMaxIter
+     procedure, public :: initProcess
+     generic  , public :: setProcess   => setOneProcess, setAllProcess
+     procedure, public :: setOneProcess 
+     procedure, public :: setAllProcess
      procedure, public :: getTime
      procedure, public :: getDT
      procedure, public :: getErrorTol
      procedure, public :: getPrintStep
      procedure, public :: getT0
      generic  , public :: getConstants => getOneConstant, getAllConstants
-     procedure         :: getOneConstant
-     procedure         :: getAllConstants
+     procedure, public :: getOneConstant
+     procedure, public :: getAllConstants
      procedure, public :: getStep
      procedure, public :: getMaxIter
+     procedure, public :: getProcess
   end type ProcessInfoDT
 
 contains
@@ -127,6 +137,29 @@ contains
     if(.not.allocated(this%maxIter)) allocate(this%maxIter)
     this%maxIter = maxIter
   end subroutine setMaxIter
+
+  subroutine initProcess(this, nProcess)
+    implicit none
+    class(ProcessInfoDT), intent(inout) :: this
+    integer(ikind)      , intent(in)    :: nProcess
+    allocate(this%process(nProcess))
+    this%process = 0
+  end subroutine initProcess
+
+  subroutine setOneProcess(this, i, val)
+    implicit none
+    class(ProcessInfoDT), intent(inout) :: this
+    integer(ikind), intent(in)          :: i
+    integer(ikind), intent(in)          :: val
+    this%process(i) = val
+  end subroutine setOneProcess
+
+  subroutine setAllProcess(this, val)
+    implicit none
+    class(ProcessInfoDT), intent(inout) :: this
+    integer(ikind), dimension(size(this%process)), intent(in) :: val
+    this%process = val
+  end subroutine setAllProcess
   
   real(rkind) pure function getTime(this)
     implicit none
@@ -183,6 +216,13 @@ contains
     class(ProcessInfoDT), intent(in) :: this
     getMaxIter = this%maxIter
   end function getMaxIter
+
+  integer(ikind) pure function getProcess(this, i)
+    implicit none
+    class(ProcessInfoDT), intent(in) :: this
+    integer(ikind)      , intent(in) :: i
+    getProcess = this%process(i)
+  end function getProcess
   
 end module ProcessInfoM
      

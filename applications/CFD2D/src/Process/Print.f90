@@ -26,13 +26,8 @@ contains
     call initDataOutput()
   end subroutine initPrint
   
-  subroutine print(this, step&
-       , density             &
-       , internalEnergy      &
-       , mach                &
-       , pressure            &
-       , temperature         &
-       , velocity            )
+  subroutine print(this, step, density, internalEnergy&
+       , mach, pressure, temperature, velocity        )
     implicit none
     class(PrintDT)             , intent(inout) :: this
     real(rkind), dimension(:,:), intent(inout) :: velocity
