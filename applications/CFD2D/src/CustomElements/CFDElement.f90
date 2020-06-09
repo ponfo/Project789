@@ -112,7 +112,7 @@ contains
     real(rkind)                                               :: A1AiUi_theta(4), A2AiUi_theta(4)        
     nNode = this%getnNode()
     nDof  = 4
-    allocate(nodalPoints(nNode), dNx(nNode), dNy(nNode), U(4,nNode))
+    allocate(nodalPoints(nNode), dNx(nNode), dNy(nNode), U(nDof,nNode))
     lhs = leftHandSide(0, 0, nNode*nDof)
     do i = 1, nNode
        nodalPoints(i) = this%getNode(i)
@@ -143,7 +143,7 @@ contains
        end do
        Ux = Ux + U(:,i)*dNx(i)
        Uy = Uy + U(:,i)*dNy(i)
-    end do
+    end do    
     do k = 1, integrator%getIntegTerms()
        do i = 1, nNode
           iNodeID = this%getNodeID(i)
@@ -400,7 +400,6 @@ contains
     real(rkind)                                                   :: v1, v2, V_sq, e, rho
     if (processInfo%getProcess(1) == 1) then
        nNode = this%getnNode()
-       nDof = 4
        allocate(nodalPoints(nNode))
        do i = 1, nNode
           nodalPoints(i) = this%node(i)
@@ -413,12 +412,12 @@ contains
           do j = 1, nNode
              do k = 1, integrator%getIntegTerms()
                 adder = adder + (integrator%getWeight(k)*jacobianDet(k)&
-                     *integrator%getShapeFunc(k,i)*integrator%getShapeFunc(k,j)) 
+                     *integrator%getShapeFunc(k,i)*integrator%getShapeFunc(k,j))
              end do
           end do
           iNodeID = this%getNodeID(i)
           processInfo%vect(iNodeID) = processInfo%vect(iNodeID) + adder
-       end do
+       end do       
        deallocate(nodalPoints, jacobian, jacobianDet)
     end if
     if (processInfo%getProcess(2) == 1) then
@@ -427,7 +426,7 @@ contains
     if (processInfo%getProcess(3) == 1) then
        nNode = this%getnNode()
        nDof  = 4
-       allocate(nodalPoints(nNode), dNx(nNode), dNy(nNode), U(4,nNode))
+       allocate(nodalPoints(nNode), dNx(nNode), dNy(nNode), U(nDof,nNode))
        do i = 1, nNode
           nodalPoints(i) = this%node(i)
        end do

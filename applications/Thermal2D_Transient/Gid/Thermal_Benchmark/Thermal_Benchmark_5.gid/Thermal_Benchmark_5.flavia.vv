@@ -1,6 +1,6 @@
-BeginZE /home/marco/Gid/problemtypes/Project1/applications/Thermal2Dtransient/Gid/Thermal_Benchmark/Thermal_Benchmark_5.gid/Thermal_Benchmark_5.flavia.vv
-   x -0.177377 0.437377
-   y 0.365606 -0.0656061
+BeginZE /home/marco/Gid/problemtypes/Project789/applications/Thermal2D_Transient/Gid/Thermal_Benchmark/Thermal_Benchmark_5.gid/Thermal_Benchmark_5.flavia.vv
+   x -0.21826 0.47826
+   y 0.359622 -0.0599355
    z -0.614085 0.614085
    e 0.204695
    v 0 0 0
@@ -15,5 +15,5 @@ BeginZE /home/marco/Gid/problemtypes/Project1/applications/Thermal2Dtransient/Gi
    NowUse 2
    DrawingType 3
    LightVector 90 90 150 0
-EndZE /home/marco/Gid/problemtypes/Project1/applications/Thermal2Dtransient/Gid/Thermal_Benchmark/Thermal_Benchmark_5.gid/Thermal_Benchmark_5.flavia.vv
+EndZE /home/marco/Gid/problemtypes/Project789/applications/Thermal2D_Transient/Gid/Thermal_Benchmark/Thermal_Benchmark_5.gid/Thermal_Benchmark_5.flavia.vv
 

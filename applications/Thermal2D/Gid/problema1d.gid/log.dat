@@ -1,43 +1,43 @@
-19:15: 8  Initiating Program
-19:15: 8    Reading project data
-19:15: 8      Project name: problema1d
-19:15: 8      Path: /home/marco/Gid/problemtypes/Project789/applications/Thermal2D/Gid/Thermal2D.gid
-19:15: 8    Reading mesh data
-19:15: 8      Number of Elements.............................: 400
-19:15: 8      Are Elements Quadratic.........................: 0
-19:15: 8      Number of Triangular elements..................: 0
-19:15: 8      Number of Rectangular elements.................: 400
-19:15: 8      Number of Nodes................................: 441
-19:15: 8      Number of Dirichlet conditions.................: 21
-19:15: 8      Number of NormalFluxOnLines conditions.........: 20
-19:15: 8      Number of ConvectionOnLines conditions.........: 0
-19:15: 8      Number of Sources on points....................: 0
-19:15: 8      Number of Sources on surfaces..................: 1
-19:15: 8      Number of points with pointSource..............: 0
-19:15: 8      Number of Surfaces with surfaceSource..........: 400
-19:15: 8      Number of Materials............................: 1
-19:15: 8      Gauss cuadrature order.........................: 3
-19:15: 8          Allocated weights: 4
-19:15: 8          Allocated gPoints: 8
-19:15: 8          Allocated weights: 3
-19:15: 8          Allocated gPoints: 3
-19:15: 8          Allocated weights: 4
-19:15: 8          Allocated gPoints: 8
-19:15: 8          Allocated weights: 3
-19:15: 8          Allocated gPoints: 3
-19:15: 8          Allocated weights: 9
-19:15: 8          Allocated gPoints: 18
-19:15: 8          Allocated weights: 3
-19:15: 8          Allocated gPoints: 3
-19:15: 8          Allocated weights: 9
-19:15: 8          Allocated gPoints: 18
-19:15: 8          Allocated weights: 3
-19:15: 8          Allocated gPoints: 3
-19:15: 8    Reading materials properties
-19:15: 8    Reading elements
-19:15: 8    Reading point and line Sources
-19:15: 8    Reading Boundary Conditions
-19:15: 8  End loading data
-19:15: 8    Assembling stiffness matrix and right hand side vector
-19:15: 8  solving linear system
-19:15: 8  done solving
+16:55:49  Initiating Program
+16:55:49    Reading project data
+16:55:49      Project name: problema1d
+16:55:49      Path: /home/marco/Gid/problemtypes/Project789/applications/Thermal2D/Gid/Thermal2D.gid
+16:55:49    Reading mesh data
+16:55:49      Number of Elements.............................: 1600
+16:55:49      Are Elements Quadratic.........................: 1
+16:55:49      Number of Triangular elements..................: 1600
+16:55:49      Number of Rectangular elements.................: 0
+16:55:49      Number of Nodes................................: 3281
+16:55:49      Number of Dirichlet conditions.................: 41
+16:55:49      Number of NormalFluxOnLines conditions.........: 20
+16:55:49      Number of ConvectionOnLines conditions.........: 0
+16:55:49      Number of Sources on points....................: 0
+16:55:49      Number of Sources on surfaces..................: 1
+16:55:49      Number of points with pointSource..............: 0
+16:55:49      Number of Surfaces with surfaceSource..........: 1600
+16:55:49      Number of Materials............................: 1
+16:55:49      Gauss cuadrature order.........................: 3
+16:55:49          Allocated weights: 4
+16:55:49          Allocated gPoints: 8
+16:55:49          Allocated weights: 3
+16:55:49          Allocated gPoints: 3
+16:55:49          Allocated weights: 4
+16:55:49          Allocated gPoints: 8
+16:55:49          Allocated weights: 3
+16:55:49          Allocated gPoints: 3
+16:55:49          Allocated weights: 9
+16:55:49          Allocated gPoints: 18
+16:55:49          Allocated weights: 3
+16:55:49          Allocated gPoints: 3
+16:55:49          Allocated weights: 9
+16:55:49          Allocated gPoints: 18
+16:55:49          Allocated weights: 3
+16:55:49          Allocated gPoints: 3
+16:55:49    Reading materials properties
+16:55:49    Reading elements
+16:55:49    Reading point and line Sources
+16:55:49    Reading Boundary Conditions
+16:55:49  End loading data
+16:55:49    Assembling stiffness matrix and right hand side vector
+16:55:49  solving linear system
+16:55:49  done solving

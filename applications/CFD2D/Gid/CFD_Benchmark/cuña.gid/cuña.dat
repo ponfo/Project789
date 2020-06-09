@@ -13,7 +13,7 @@ Are_Elements_Quadratic.................: 0
 Triangular_Elements_Number.............: 7004
 Rectangular_Elements_Number............: 0
 Materials_Number.......................: 1
-Gauss_Order............................: 3
+Gauss_Order............................: 2
 Velocity_Conditions_Number.............: 31
 Density_Conditions_Number..............: 31
 Temperature_Conditions_Number..........: 31
@@ -22,10 +22,10 @@ Source_Number_On_Points................: 0
 Source_Number_On_Surfaces..............: 0
 Points_With_Point_Source...............: 0
 Surfaces_With_Surface_Source...........: 0
-Print_Every_N_Steps....................: 200
+Print_Every_N_Steps....................: 1
 Initial_Time...........................: 0.0
 Error_Tolerance........................: 0.000005
-Max_Iterations.........................: 25000
+Max_Iterations.........................: 200
 Safety_Factor..........................: 0.015
 Shock_Capturing_constant...............: 0.9
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

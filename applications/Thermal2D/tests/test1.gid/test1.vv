@@ -1,6 +1,6 @@
-BeginZE /home/ponfo/Documents/Project789/applications/Thermal2D/tests/test1.gid/test1.vv
-   x -1.91611 2.91611
-   y 2.19488 -1.19489
+BeginZE /home/marco/Gid/problemtypes/Project789/applications/Thermal2D/tests/test1.gid/test1.vv
+   x -0.755846 1.75585
+   y 1.22648 -0.226483
    z -2.17945 2.17945
    e 0.726483
    v 0 0 0
@@ -15,5 +15,5 @@ BeginZE /home/ponfo/Documents/Project789/applications/Thermal2D/tests/test1.gid/
    NowUse 1
    DrawingType 0
    LightVector 90 90 150 0
-EndZE /home/ponfo/Documents/Project789/applications/Thermal2D/tests/test1.gid/test1.vv
+EndZE /home/marco/Gid/problemtypes/Project789/applications/Thermal2D/tests/test1.gid/test1.vv
 
