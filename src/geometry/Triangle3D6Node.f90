@@ -94,8 +94,8 @@ contains
     dShapeFunc(1,1) = 4*point%getx()+4*point%gety()-3
     dShapeFunc(2,1) = 4*point%gety()+4*point%getx()-3
     dShapeFunc(1,2) = 4*point%getx()-1
-    dShapeFunc(2,2) = 0.d0
-    dShapeFunc(1,3) = 0.d0
+    dShapeFunc(2,2) = 0._rkind
+    dShapeFunc(1,3) = 0._rkind
     dShapeFunc(2,3) = 4*point%gety()-1
     !Sides
     dShapeFunc(1,4) = -8*point%getx()-4*point%gety()+4

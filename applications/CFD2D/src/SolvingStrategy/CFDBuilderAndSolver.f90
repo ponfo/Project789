@@ -49,7 +49,7 @@ contains
     do iElem = 1, nElem
        element = model%getElement(iElem)
        nNode = element%getnNode()
-       call element%calculateLocalSystem(model%processInfo,localLHS, localRHS)
+       call element%calculateLocalSystem(model%processInfo, localLHS, localRHS)
        do iNode = 1, nNode
           iNodeID = element%getNodeID(iNode)
           model%rhs(1:4,iNodeID) = model%rhs(1:4,iNodeID) + localLHS%stiffness(1:4,iNode)
