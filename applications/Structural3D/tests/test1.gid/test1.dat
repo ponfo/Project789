@@ -18,7 +18,7 @@ Fix_Displacement_X_Number..............: 21
 Fix_Displacement_Y_Number..............: 21
 Fix_Displacement_Z_Number..............: 21
 Pressure_On_Surfaces_Condition_elements: 0
-Load_Number_On_Points..................: 1
+Load_Number_On_Points..................: 4
 Load_Number_On_Volumes.................: 0
 Points_With_Point_Load.................: 4
 Surfaces_With_Volume_Load..............: 0
@@ -411,7 +411,10 @@ Conditions List:
 
 Load   |  Function
 ----------------------
-    1        0.0        0.0      10000
+    1        0.0      10000      10000
+    2        0.0      10000     -10000
+    3        0.0     -10000     -10000
+    4        0.0     -10000      10000
 
 ###################### Point Loads ######################
 
@@ -420,9 +423,9 @@ Conditions List:
   Node   |  Load
 --------------------------
     1          1 
-   30          1 
-   31          1 
-   72          1 
+   30          4 
+   31          2 
+   72          3 
 
 ###################### Volume Loads #####################
 

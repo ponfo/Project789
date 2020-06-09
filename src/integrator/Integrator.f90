@@ -91,17 +91,17 @@ contains
   subroutine getG1D(this)
     implicit none
     class(IntegratorDT), intent(inout) :: this
-    real(rkind), parameter :: pi = dacos(-1.d0)
+    real(rkind), parameter :: pi = dacos(-1._rkind)
     real(rkind) :: f, df, dx, r
     integer(ikind) :: i, j, iter, k, counter
     real(rkind), dimension(:), allocatable :: p0, p1, tmp
     real(rkind), dimension(:,:), allocatable :: G
     this%integTerms = this%gaussOrder
     allocate(G(2,this%gaussOrder))
-    p0 = [1.d0]
-    p1 = [1.d0, 0.d0]
+    p0 = [1._rkind]
+    p1 = [1._rkind, 0._rkind]
     do k = 2, this%gaussOrder
-       tmp = ((2*k-1)*[p1,0.d0]-(k-1)*[0.d0, 0.d0,p0])/k
+       tmp = ((2*k-1)*[p1,0._rkind]-(k-1)*[0._rkind, 0._rkind,p0])/k
        p0 = p1; p1 = tmp
     end do
     do i = 1, this%gaussOrder
@@ -135,38 +135,38 @@ contains
        this%integTerms  = 1
        allocate(this%weight(this%integTerms))
        allocate(this%gPoint(this%integTerms,2))
-       this%weight(1)   = 1.d0/2.d0
-       this%gPoint(1,1) = 1.d0/3.d0
-       this%gPoint(1,2) = 1.d0/3.d0
+       this%weight(1)   = 1._rkind/2._rkind
+       this%gPoint(1,1) = 1._rkind/3._rkind
+       this%gPoint(1,2) = 1._rkind/3._rkind
     else if(this%gaussOrder == 2) then
        this%integTerms  = 3
        allocate(this%weight(this%integTerms))
        allocate(this%gPoint(this%integTerms,2))
-       this%weight(1)   = 1.d0/6.d0
-       this%weight(2)   = 1.d0/6.d0
-       this%weight(3)   = 1.d0/6.d0
-       this%gPoint(1,1) = 1.d0/2.d0
-       this%gPoint(1,2) = 0.d0
-       this%gPoint(2,1) = 1.d0/2.d0
-       this%gPoint(2,2) = 1.d0/2.d0
-       this%gPoint(3,1) = 0.d0
-       this%gPoint(3,2) = 1.d0/2.d0
+       this%weight(1)   = 1._rkind/6._rkind
+       this%weight(2)   = 1._rkind/6._rkind
+       this%weight(3)   = 1._rkind/6._rkind
+       this%gPoint(1,1) = 1._rkind/2._rkind
+       this%gPoint(1,2) = 0._rkind
+       this%gPoint(2,1) = 1._rkind/2._rkind
+       this%gPoint(2,2) = 1._rkind/2._rkind
+       this%gPoint(3,1) = 0._rkind
+       this%gPoint(3,2) = 1._rkind/2._rkind
     else if(this%gaussOrder == 3) then
        this%integTerms  = 4
        allocate(this%weight(this%integTerms))
        allocate(this%gPoint(this%integTerms,2))
-       this%weight(1)   = -27.d0/96.d0
-       this%weight(2)   = 25.d0/96.d0
-       this%weight(3)   = 25.d0/96.d0
-       this%weight(4)   = 25.d0/96.d0
-       this%gPoint(1,1) = 1.d0/3.d0
-       this%gPoint(1,2) = 1.d0/3.d0
-       this%gPoint(2,1) = 1.d0/5.d0
-       this%gPoint(2,2) = 1.d0/5.d0
-       this%gPoint(3,1) = 3.d0/5.d0
-       this%gPoint(3,2) = 1.d0/5.d0
-       this%gPoint(4,1) = 1.d0/5.d0
-       this%gPoint(4,2) = 3.d0/5.d0
+       this%weight(1)   = -27._rkind/96._rkind
+       this%weight(2)   = 25._rkind/96._rkind
+       this%weight(3)   = 25._rkind/96._rkind
+       this%weight(4)   = 25._rkind/96._rkind
+       this%gPoint(1,1) = 1._rkind/3._rkind
+       this%gPoint(1,2) = 1._rkind/3._rkind
+       this%gPoint(2,1) = 1._rkind/5._rkind
+       this%gPoint(2,2) = 1._rkind/5._rkind
+       this%gPoint(3,1) = 3._rkind/5._rkind
+       this%gPoint(3,2) = 1._rkind/5._rkind
+       this%gPoint(4,1) = 1._rkind/5._rkind
+       this%gPoint(4,2) = 3._rkind/5._rkind
     else
        print'(A)', '** Input Gauss Order not supported for triangular elements! **'
     end if
@@ -177,17 +177,17 @@ contains
   subroutine getGSquare(this)
     implicit none
     class(IntegratorDT), intent(inout) :: this
-    real(rkind), parameter :: pi = dacos(-1.d0)
+    real(rkind), parameter :: pi = dacos(-1._rkind)
     real(rkind) :: f, df, dx, r
     integer(ikind) :: i, j, iter, k, counter
     real(rkind), dimension(:), allocatable :: p0, p1, tmp
     real(rkind), dimension(:,:), allocatable :: G
     this%integTerms = this%gaussOrder**2
     allocate(G(2,this%gaussOrder))
-    p0 = [1.d0]
-    p1 = [1.d0, 0.d0]
+    p0 = [1._rkind]
+    p1 = [1._rkind, 0._rkind]
     do k = 2, this%gaussOrder
-       tmp = ((2*k-1)*[p1,0.d0]-(k-1)*[0.d0, 0.d0,p0])/k
+       tmp = ((2*k-1)*[p1,0._rkind]-(k-1)*[0._rkind, 0._rkind,p0])/k
        p0 = p1; p1 = tmp
     end do
     do i = 1, this%gaussOrder
@@ -314,17 +314,17 @@ contains
   subroutine getGHexahedron(this)
     implicit none
     class(IntegratorDT), intent(inout) :: this
-    real(rkind), parameter :: pi = dacos(-1.d0)
+    real(rkind), parameter :: pi = dacos(-1._rkind)
     real(rkind) :: f, df, dx, r
     integer(ikind) :: i, j, iter, k, counter
     real(rkind), dimension(:), allocatable :: p0, p1, tmp
     real(rkind), dimension(:,:), allocatable :: G
     this%integTerms = this%gaussOrder**3
     allocate(G(2,this%gaussOrder))
-    p0 = [1.d0]
-    p1 = [1.d0, 0.d0]
+    p0 = [1._rkind]
+    p1 = [1._rkind, 0._rkind]
     do k = 2, this%gaussOrder
-       tmp = ((2*k-1)*[p1,0.d0]-(k-1)*[0.d0, 0.d0,p0])/k
+       tmp = ((2*k-1)*[p1,0._rkind]-(k-1)*[0._rkind, 0._rkind,p0])/k
        p0 = p1; p1 = tmp
     end do
     do i = 1, this%gaussOrder
