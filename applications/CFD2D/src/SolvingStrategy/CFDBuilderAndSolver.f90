@@ -67,7 +67,7 @@ contains
     type(ElementPtrDT)                         :: element
     nElem = model%getnElement()
     if (model%processInfo%getProcess(3) == 1) then
-       model%processInfo%mat = 0.d0
+       model%processInfo%mat = 0._rkind
        do iElem = 1, nElem
           element = model%getElement(iElem)
           call element%calculateResults(model%processInfo,resultMat)
@@ -82,7 +82,7 @@ contains
     real(rkind), dimension(:,:,:), allocatable :: resultMat 
     type(ElementPtrDT)                         :: element
     nElem = model%getnElement()
-    model%processInfo%vect = 0.d0
+    model%processInfo%vect = 0._rkind
     do iElem = 1, nElem
        element = model%getElement(iElem)
        call element%calculateResults(model%processInfo,resultMat)

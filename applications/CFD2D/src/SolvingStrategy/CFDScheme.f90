@@ -50,13 +50,13 @@ contains
        allocate(model%results%temperature(dim))
        allocate(model%results%internalEnergy(dim))
     end if
-    model%results%density(:)        = 0.d0
-    model%results%velocity(:,1)     = 0.d0
-    model%results%velocity(:,2)     = 0.d0
-    model%results%internalEnergy(:) = 0.d0
-    model%results%temperature(:)    = 0.d0
-    model%results%mach(:)           = 0.d0
-    model%results%pressure(:)       = 0.d0
+    model%results%density(:)        = 0._rkind
+    model%results%velocity(:,1)     = 0._rkind
+    model%results%velocity(:,2)     = 0._rkind
+    model%results%internalEnergy(:) = 0._rkind
+    model%results%temperature(:)    = 0._rkind
+    model%results%mach(:)           = 0._rkind
+    model%results%pressure(:)       = 0._rkind
     R     = model%processInfo%getConstants(3)
     Cv    = model%processInfo%getConstants(4)
     Vc    = model%processInfo%getConstants(5)

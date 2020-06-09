@@ -126,7 +126,7 @@ contains
     read(project,*)  aux, maxIter
     read(project,*)  aux, fSafe
     read(project,*)  aux, constant
-    constant = 1.d0/constant
+    constant = 1._rkind/constant
     
     if(verbose) print'(A,I0)','Number of Elements.............................: ', nElem
     if(verbose) print'(A,I0)','Are Elements Quadratic.........................: ', isQuadratic
@@ -206,13 +206,13 @@ contains
     if(verbose) print'(A)', 'Material    R    gamma     mu      k     Vx_inf   Vy_inf     T     rho      Mach       Cv        P     '
     do i = 1, nMaterial
        read(project,*) iMat, R, gamma, mu, k, Vx, Vy, T, rho, mach, Cv, P
-       if (T == 0.d0) T = P/(rho*R)
-       if (P == 0.d0) P = rho*R*T
-       if (rho == 0.d0) rho = P/(R*T)
+       if (T == 0._rkind) T = P/(rho*R)
+       if (P == 0._rkind) P = rho*R*T
+       if (rho == 0._rkind) rho = P/(R*T)
        Vc = sqrt(gamma*R*T)
-       if ((Vx**2+Vy**2) == 0.d0) then
+       if ((Vx**2+Vy**2) == 0._rkind) then
           Vx = Vc*mach
-          Vy = 0.d0
+          Vy = 0._rkind
        end if
        call cfdAppl%setTransientValues(printStep, t0, errorTol, maxIter, fSafe, constant, R, Cv, Vc, gamma&
             , Vx, Vy, T, P, rho, mach)
@@ -320,7 +320,7 @@ contains
     do i = 1, nTemperature
        read(Project,*) id, value
        if(verbose) print'(I0,5X,E10.3)', id, value
-       call cfdAppl%node(id)%fixDof(4, rho*(P/((gamma-1.d0)*rho)+0.5d0*(Vx**2.d0+Vy**2.d0)))
+       call cfdAppl%node(id)%fixDof(4, rho*(P/((gamma-1._rkind)*rho)+0.5d0*(Vx**2._rkind+Vy**2._rkind)))
     end do
     do i = 1, 7
        read(project,*)

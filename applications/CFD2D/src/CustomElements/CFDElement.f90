@@ -126,11 +126,11 @@ contains
     tau2    = processInfo%mat2(2,elemID)
     tau3    = processInfo%mat2(2,elemID)
     nu      = processInfo%vect2(elemID)
-    Ux      = 0.d0
-    Uy      = 0.d0
-    U_k     = 0.d0
-    theta_k = 0.d0
-    lhs%stiffness = 0.d0
+    Ux      = 0._rkind
+    Uy      = 0._rkind
+    U_k     = 0._rkind
+    theta_k = 0._rkind
+    lhs%stiffness = 0._rkind
     do i = 1, nNode
        bi = jacobian(1,2,2)*integrator%getDShapeFunc(1,1,i) &
             - jacobian(1,1,2)*integrator%getDShapeFunc(1,2,i)
@@ -225,8 +225,8 @@ contains
     jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
     fSafe       = processInfo%getConstants(1)
     dt_min      = 1.d20
-    VxMAX       = 0.d0
-    VyMAX       = 0.d0
+    VxMAX       = 0._rkind
+    VyMAX       = 0._rkind
     do i = 1, nNode
        Vx = this%node(i)%ptr%dof(2)%val/this%node(i)%ptr%dof(1)%val
        Vy = this%node(i)%ptr%dof(3)%val/this%node(i)%ptr%dof(1)%val
@@ -234,10 +234,10 @@ contains
        if (Vy.gt.VyMAX) VyMAX = Vy
     end do
     V       = (VxMAX**2+VyMAX**2)**0.5d0  
-    alpha   = min((V*sqrt(jacobianDet(1)))/(2.d0*0.001d0)/3.d0,1.d0)    
-    deltaTU = 1.d0/(4.d0*0.001d0/sqrt(jacobianDet(1))**2.d0+ALPHA*V/sqrt(jacobianDet(1)))    
-    deltaTC = 1.d0/(4.d0*0.001d0/sqrt(jacobianDet(1))**2.d0)    
-    dtElem  = fSafe/(1.d0/deltaTC+1.d0/deltaTU)    
+    alpha   = min((V*sqrt(jacobianDet(1)))/(2._rkind*0.001d0)/3._rkind,1._rkind)    
+    deltaTU = 1._rkind/(4._rkind*0.001d0/sqrt(jacobianDet(1))**2._rkind+ALPHA*V/sqrt(jacobianDet(1)))    
+    deltaTC = 1._rkind/(4._rkind*0.001d0/sqrt(jacobianDet(1))**2._rkind)    
+    dtElem  = fSafe/(1._rkind/deltaTC+1._rkind/deltaTU)    
     dt      = dtElem
     if (dtElem .lt. dt_min) dt_min = dtElem    
     call processInfo%setMinimumDt(dt_min)
@@ -280,17 +280,17 @@ contains
     gamma       = processInfo%getConstants(6)
     Tinf        = this%material%T_inf
     rhoinf      = this%material%rho
-    Tau         = 0.d0
-    rho         = 0.d0
-    Vx          = 0.d0
-    Vy          = 0.d0
-    temp        = 0.d0
-    drx         = 0.d0
-    dry         = 0.d0
-    dTx         = 0.d0
-    dTy         = 0.d0
-    dUx         = 0.d0
-    dUy         = 0.d0
+    Tau         = 0._rkind
+    rho         = 0._rkind
+    Vx          = 0._rkind
+    Vy          = 0._rkind
+    temp        = 0._rkind
+    drx         = 0._rkind
+    dry         = 0._rkind
+    dTx         = 0._rkind
+    dTy         = 0._rkind
+    dUx         = 0._rkind
+    dUy         = 0._rkind
     h_rgne      = 1.d-10
     h_rgn       = 1.d-10
     h_jgn       = 1.d-10
@@ -343,7 +343,7 @@ contains
     dU2  = sqrt(dUx*dUx+dUy*dUy)+1.d-20
     rUx  = dUx/dU2
     rUy  = dUy/dU2 
-    smu  = 110.d0
+    smu  = 110._rkind
     fmu  = 0.41685d0*(temp/Tinf)**1.5d0*(Tinf+smu)/(temp+smu)   
     do i = 1, nNode
        term_1 = abs(Vx *dNx(i)+Vy *dNy(i))
@@ -355,25 +355,25 @@ contains
        h_rgn  = h_rgn+h_rgn2              
        h_jgn  = h_jgn+term_2              
     end do
-    Tau     = 1.d0/Tau
-    h_rgne  = 2.d0/h_rgne
-    h_rgn   = 2.d0/h_rgn
-    if (h_rgn .gt. 1.d3) h_rgn = 0.d0
-    h_jgn   = 2.d0/h_jgn       
-    if (h_jgn .gt. 1.d10) h_jgn = 0.d0 
+    Tau     = 1._rkind/Tau
+    h_rgne  = 2._rkind/h_rgne
+    h_rgn   = 2._rkind/h_rgn
+    if (h_rgn .gt. 1.d3) h_rgn = 0._rkind
+    h_jgn   = 2._rkind/h_jgn       
+    if (h_jgn .gt. 1.d10) h_jgn = 0._rkind 
     tr1     = dr2*h_jgn/rho
-    zzz     = h_jgn/2.d0
+    zzz     = h_jgn/2._rkind
     shoc    = (sqrt(tr1)+tr1**2)*Vc*2*zzz
-    resumen = (1.d0/Tau)**2.d0 +(2.d0/dtmin)**2.d0
+    resumen = (1._rkind/Tau)**2._rkind +(2._rkind/dtmin)**2._rkind
     rrr     = resumen**(-0.5d0)
     t_sugn1 = rrr
     t_sugn2 = rrr
     t_sugn3 = rrr
-    if(fmu.ne.0.d0)then                 
-       tau_sung3   = h_rgn**2.d0/(4.d0*fmu/rhoinf)
-       tau_sung3_e = h_rgne**2.d0/(4.d0*fmu/rhoinf)
-       t_sugn2     = (resumen+1.d0/tau_sung3**2.d0)**(-0.5d0)
-       t_sugn3     = (resumen+1.d0/tau_sung3_e**2.d0)**(-0.5d0)
+    if(fmu.ne.0._rkind)then                 
+       tau_sung3   = h_rgn**2._rkind/(4._rkind*fmu/rhoinf)
+       tau_sung3_e = h_rgne**2._rkind/(4._rkind*fmu/rhoinf)
+       t_sugn2     = (resumen+1._rkind/tau_sung3**2._rkind)**(-0.5d0)
+       t_sugn3     = (resumen+1._rkind/tau_sung3_e**2._rkind)**(-0.5d0)
     end if
     processInfo%mat2(1,this%getId()) = t_sugn1
     processInfo%mat2(2,this%getId()) = t_sugn2
@@ -409,7 +409,7 @@ contains
        jacobian = this%geometry%jacobianAtGPoints(nodalPoints)
        jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
        do i = 1, nNode
-          adder = 0.d0
+          adder = 0._rkind
           do j = 1, nNode
              do k = 1, integrator%getIntegTerms()
                 adder = adder + (integrator%getWeight(k)*jacobianDet(k)&
@@ -435,8 +435,8 @@ contains
        jacobian    = this%geometry%jacobianAtGPoints(nodalPoints)
        jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
        gamma       = processInfo%getConstants(6)
-       Ux          = 0.d0
-       Uy          = 0.d0
+       Ux          = 0._rkind
+       Uy          = 0._rkind
        do i = 1, nNode
           bi = jacobian(1,2,2)*integrator%getDShapeFunc(1,1,i) &
                - jacobian(1,1,2)*integrator%getDShapeFunc(1,2,i)

@@ -34,7 +34,7 @@ module CFDApplicationM
 
 contains
 
-  type(CFDApplicationDT) function constructor&
+  type(CFDApplicationDT) function constructor &
        (nNode, nElement, nNormalVelocity, nSource, nMaterial, nGauss)
     implicit none
     integer(ikind), intent(in) :: nNode
@@ -61,7 +61,7 @@ contains
     allocate(this%source(nSource))
     allocate(this%material(nMaterial))
     call initGeometries(nGauss)
-    this%model = cfdModel(                &
+    this%model = cfdModel(               &
            nDof =   4                    &
          , nnz = nElement*256            &
          , id = 1                        &

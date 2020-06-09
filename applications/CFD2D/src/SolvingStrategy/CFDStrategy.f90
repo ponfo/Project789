@@ -1,4 +1,3 @@
-
 module CFDStrategyM
 
   use UtilitiesM
@@ -61,11 +60,11 @@ contains
     maxIter   = model%processInfo%getMaxIter()
     error     = errorTol+1
     error1    = errorTol+1
-    error2    = 1.d0
+    error2    = 1._rkind
     step1     = 0
     step2     = 1
-    t         = 0.d0
-    newDof    = 0.d0
+    t         = 0._rkind
+    newDof    = 0._rkind
     flagg     = 1
     stab      = 1
     RK        = 4
@@ -84,7 +83,7 @@ contains
           flagg  = 2
        end if
        porc = abs((dtMin-dtMin1)/dtMin)
-       if (100.d0*porc .le. 1.d0) then
+       if (100._rkind*porc .le. 1._rkind) then
           dtMin = dtMin1
        else
           dtMin1 = dtMin
@@ -94,13 +93,13 @@ contains
        oldDof = model%dof
        if (flagg .le. 4) then
           do i = 1, RK
-             factor = (1.d0/(RK+1.d0-i))
+             factor = (1._rkind/(RK+1._rkind-i))
              if (i == 1) then
                 call model%processInfo%setProcess(3,1)
              else
                 call model%processInfo%setProcess(3,0)
              end if
-             model%rhs = 0.d0
+             model%rhs = 0._rkind
              call builAndSolve%buildAndSolve(model)
              !$OMP PARALLEL DO PRIVATE(iNode)
              do iNode = 1, nNode
@@ -121,13 +120,13 @@ contains
              call model%processInfo%setProcess(3,0)
           end if
           stab = stab + 1
-          model%rhs = 0.d0
+          model%rhs = 0._rkind
           call builAndSolve%buildAndSolve(model)
-          factor = 24.d0
+          factor = 24._rkind
           !$OMP PARALLEL DO PRIVATE(iNode)
           do iNode = 1, nNode
-             newDof(:,iNode) = model%dof(:,iNode)+ (55.d0*model%rhs(:,iNode)&
-                  -59.d0*rhs1(:,iNode)+37.d0*rhs2(:,iNode)-9.d0*rhs3(:,iNode))*dtMin/factor
+             newDof(:,iNode) = model%dof(:,iNode)+ (55._rkind*model%rhs(:,iNode)&
+                  -59._rkind*rhs1(:,iNode)+37._rkind*rhs2(:,iNode)-9._rkind*rhs3(:,iNode))*dtMin/factor
           end do
           !$OMP END PARALLEL DO
           rhs3 = rhs2
@@ -137,8 +136,8 @@ contains
           call applyDirichlet(model)
        end if
        if (step1 == step2 .or. step1 == maxIter) then
-          error1 = 0.d0
-          error2 = 0.d0
+          error1 = 0._rkind
+          error2 = 0._rkind
           !$OMP PARALLEL DO REDUCTION(+:error1, error2) 
           do iNode = 1, nNode
              error1(:)  = error1(:) + (model%dof(:,iNode)-oldDof(:,iNode))**2
