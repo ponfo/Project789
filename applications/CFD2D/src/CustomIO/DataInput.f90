@@ -85,6 +85,8 @@ contains
     call readPointLineSurfaceSources(cfdAppl)
     call debugLog('  Reading Boundary Conditions')
     call readBoundaryConditions(cfdAppl)
+    call debugLog('  Initializing Dofs')
+    call initDof(cfdAppl)
     call debugLog('End loading data')
   end subroutine initFEM2D
   
@@ -350,5 +352,17 @@ contains
     close(project)
   end subroutine readBoundaryConditions
 
+  subroutine initDof(cfdAppl)
+    implicit none
+    type(CFDApplicationDT), intent(inout) :: cfdAppl
+    integer(ikind) :: i
+    do i = 1, cfdAppl%model%getnNode()
+       cfdAppl%model%dof(1,i) = rho
+       cfdAppl%model%dof(2,i) = rho*Vx
+       cfdAppl%model%dof(3,i) = rho*Vy
+       cfdAppl%model%dof(4,i) = rho*(Cv*T+0.5d0*(Vx**2+Vy**2)) 
+    end do
+  end subroutine initDof
+  
 end module DataInputM
   

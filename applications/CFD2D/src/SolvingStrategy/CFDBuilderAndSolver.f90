@@ -52,7 +52,7 @@ contains
        call element%calculateLocalSystem(model%processInfo,localLHS, localRHS)
        do iNode = 1, nNode
           iNodeID = element%getNodeID(iNode)
-          model%rhs(1:4,iNodeID) = model%rhs(1:4,iNodeID) + localLHS%stiffness(1:4,iNode)
+          model%rhs(:,iNodeID) = model%rhs(:,iNodeID) + localLHS%stiffness(1:4,iNode)
        end do
        call localLHS%free()
     end do

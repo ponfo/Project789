@@ -9,9 +9,7 @@ module ProcessInfoM
 
   type :: ProcessInfoDT
      real(rkind), dimension(:,:) , allocatable :: mat
-     real(rkind), dimension(:,:) , allocatable :: mat2
      real(rkind), dimension(:)   , allocatable :: vect 
-     real(rkind), dimension(:)   , allocatable :: vect2
      real(rkind)                 , allocatable :: t
      real(rkind)                 , allocatable :: dt
      real(rkind)                 , allocatable :: t0

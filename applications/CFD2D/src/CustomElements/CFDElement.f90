@@ -31,6 +31,8 @@ module CFDElementM
 
   type, extends(ElementDT) :: CFDElementDT
      class(CFDMaterialDT), pointer :: material
+     real(rkind), dimension(3)     :: Tau
+     real(rkind)                   :: nu
    contains
      procedure, public  :: init
      procedure, public  :: calculateLHS
@@ -105,8 +107,8 @@ contains
     real(rkind)    , dimension(:,:,:), allocatable            :: jacobian
     real(rkind)    , dimension(:,:)  , allocatable            :: U, theta
     real(rkind)    , dimension(:)    , allocatable            :: jacobianDet, dNx, dNy
-    real(rkind)                                               :: gamma, V_sq, v1, v2, e, rho
-    real(rkind)                                               :: nu, bi, ci, tau1, tau2, tau3
+    real(rkind)                                               :: gamma, V_sq 
+    real(rkind)                                               :: bi, ci, v1, v2, e, rho
     real(rkind)                                               :: thetaK(4), AiUi(4), AiUi_theta(4)
     real(rkind)                                               :: U_k(4), theta_k(4), Ux(4), Uy(4)
     real(rkind)                                               :: A1AiUi_theta(4), A2AiUi_theta(4)        
@@ -122,10 +124,6 @@ contains
     jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
     gamma   = processInfo%getConstants(6)
     elemID  = this%getID()
-    tau1    = processInfo%mat2(1,elemID)
-    tau2    = processInfo%mat2(2,elemID)
-    tau3    = processInfo%mat2(2,elemID)
-    nu      = processInfo%vect2(elemID)
     Ux      = 0.d0
     Uy      = 0.d0
     U_k     = 0.d0
@@ -188,17 +186,17 @@ contains
             AiUi_theta(2) + v2*(V_sq*(gamma - 1) - e*gamma)*AiUi_theta(1) &
             + (-1.0d0/2.0d0*V_sq*(gamma - 1) + e*gamma - v2**2*(gamma - 1 &
             ))*AiUi_theta(3)
-       A1AiUi_theta(1) = A1AiUi_theta(1)*tau1
-       A1AiUi_theta(2:3) = A1AiUi_theta(2:3)*tau2
-       A1AiUi_theta(4) = A1AiUi_theta(4)*tau3
-       A2AiUi_theta(1) = A2AiUi_theta(1)*tau1    
-       A2AiUi_theta(2:3) = A2AiUi_theta(2:3)*tau2
-       A2AiUi_theta(4) = A2AiUi_theta(4)*tau3    
+       A1AiUi_theta(1) = A1AiUi_theta(1)*this%Tau(1)
+       A1AiUi_theta(2:3) = A1AiUi_theta(2:3)*this%Tau(2)
+       A1AiUi_theta(4) = A1AiUi_theta(4)*this%Tau(3)
+       A2AiUi_theta(1) = A2AiUi_theta(1)*this%Tau(1)    
+       A2AiUi_theta(2:3) = A2AiUi_theta(2:3)*this%Tau(2)
+       A2AiUi_theta(4) = A2AiUi_theta(4)*this%Tau(3)    
        do i = 1, nNode
           iNodeID = this%getNodeID(i)
           lhs%stiffness(1:4,i) = lhs%stiffness(1:4,i) - (integrator%getShapeFunc(k,i)*AiUi &
                + dNx(i)*A1AiUi_theta + dNy(i)*A2AiUi_theta                                &
-               + nu*(dNx(i)*Ux + dNy(i)*Uy))                                              &
+               + this%nu*(dNx(i)*Ux + dNy(i)*Uy))                                              &
                *jacobianDet(k)*integrator%getWeight(k)/processInfo%vect(iNodeID)
        end do
     end do
@@ -375,10 +373,10 @@ contains
        t_sugn2     = (resumen+1.d0/tau_sung3**2.d0)**(-0.5d0)
        t_sugn3     = (resumen+1.d0/tau_sung3_e**2.d0)**(-0.5d0)
     end if
-    processInfo%mat2(1,this%getId()) = t_sugn1
-    processInfo%mat2(2,this%getId()) = t_sugn2
-    processInfo%mat2(3,this%getId()) = t_sugn3
-    processInfo%vect2(this%getId())  = shoc*cte
+    this%Tau(1) = t_sugn1
+    this%Tau(2) = t_sugn2
+    this%Tau(3) = t_sugn3
+    this%nu     = shoc*cte
     deallocate(nodalPoints, dNx, dNy, U)
   end subroutine calculateTauNu
 

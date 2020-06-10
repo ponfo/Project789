@@ -16,6 +16,12 @@ module CFDStrategyM
   use SchemeM
   use BuilderAndSolverM
 
+  use NavierStokes2DM
+
+  use RK4M
+  use AdamsB4M
+  use ExplicitEulerM
+
   implicit none
 
   private
@@ -35,8 +41,11 @@ contains
     type(CFDSchemeDT)                        :: scheme
     type(CFDBuilderAndSolverDT)              :: builAndSolve
     type(PrintDT)                            :: writeOutput
-    real(rkind), dimension(:,:), allocatable :: oldDof, newDof
-    real(rkind), dimension(:,:), allocatable :: rhs1, rhs2, rhs3
+    type(NavierStokes2DDT)                   :: NavierStokes2D
+    type(ExplicitEulerDT)                    :: ExplicitEuler
+    type(RK4DT)                              :: RungeKutta4
+    type(AdamsB4DT)                          :: AdamsBash4 
+    real(rkind), dimension(:,:), allocatable :: oldDof
     real(rkind)                              :: dtMin, dtMin1, t
     real(rkind)                              :: factor, error, porc
     real(rkind)                              :: errorTol, error1(4), error2(4)
@@ -51,9 +60,7 @@ contains
     allocate(this%scheme, source = SetScheme(scheme))
     allocate(this%builderAndSolver, source = SetBuilderAndSolver(builAndSolve))
     allocate(this%process, source = WriteOutput)
-    allocate(model%processInfo%mat2(3,model%getnElement()))
-    allocate(model%processInfo%vect2(model%getnElement()))
-    allocate(newDof(4,nNode),oldDof(4,nNode),rhs1(4,nNode),rhs2(4,nNode),rhs3(4,nNode))
+    allocate(oldDof(4,nNode)) 
     call model%processInfo%initProcess(3)
     call model%processInfo%setProcess(2,1)
     printStep = model%processInfo%getPrintStep()
@@ -65,11 +72,9 @@ contains
     step1     = 0
     step2     = 1
     t         = 0.d0
-    newDof    = 0.d0
     flagg     = 1
     stab      = 1
     RK        = 4
-    call initDof(model)
     call model%processInfo%setProcess(1,1)
     call calculateMass(model)
     call model%processInfo%setProcess(1,0)
@@ -92,6 +97,7 @@ contains
        end if
        t      = t + model%processInfo%getDt()
        oldDof = model%dof
+       call model%processInfo%setStep(step1-1)
        if (flagg .le. 4) then
           do i = 1, RK
              factor = (1.d0/(RK+1.d0-i))
@@ -102,16 +108,13 @@ contains
              end if
              model%rhs = 0.d0
              call builAndSolve%buildAndSolve(model)
-             !$OMP PARALLEL DO PRIVATE(iNode)
              do iNode = 1, nNode
-                newDof(:,iNode) = model%dof(:,iNode) + factor*model%rhs(:,iNode)*dtMin
+                navierStokes2D = SetNavierStokes2D(model%dof(:,iNode), model%rhs(:,iNode)&
+                     , ExplicitEuler)
+                call navierStokes2D%integrate(factor*dtMin)
+                model%dof(:,iNode) = navierStokes2D%getState()
              end do
-             !$OMP END PARALLEL DO
-             model%dof = newDof
              call applyDirichlet(model)
-             rhs3 = rhs2
-             rhs2 = rhs1
-             rhs1 = model%rhs
           end do
        else
           if (stab == 4) stab = 1
@@ -123,28 +126,21 @@ contains
           stab = stab + 1
           model%rhs = 0.d0
           call builAndSolve%buildAndSolve(model)
-          factor = 24.d0
-          !$OMP PARALLEL DO PRIVATE(iNode)
           do iNode = 1, nNode
-             newDof(:,iNode) = model%dof(:,iNode)+ (55.d0*model%rhs(:,iNode)&
-                  -59.d0*rhs1(:,iNode)+37.d0*rhs2(:,iNode)-9.d0*rhs3(:,iNode))*dtMin/factor
+             navierStokes2D = SetNavierStokes2D(model%dof(:,iNode), model%rhs(:,iNode)&
+                  , AdamsBash4, step1)
+             call navierStokes2D%integrate(dtMin)
+             model%dof(:,iNode) = navierStokes2D%getState()
           end do
-          !$OMP END PARALLEL DO
-          rhs3 = rhs2
-          rhs2 = rhs1
-          rhs1 = model%rhs
-          model%dof = newDof
           call applyDirichlet(model)
        end if
        if (step1 == step2 .or. step1 == maxIter) then
           error1 = 0.d0
-          error2 = 0.d0
-          !$OMP PARALLEL DO REDUCTION(+:error1, error2) 
+          error2 = 0.d0 
           do iNode = 1, nNode
              error1(:)  = error1(:) + (model%dof(:,iNode)-oldDof(:,iNode))**2
              error2(:)  = error2(:) + oldDof(:,iNode)**2
           end do
-          !$OMP END PARALLEL DO
           error = maxval(sqrt(error1/error2))
           if (error.gt.1.d2) then
              call debugLog('CONVERGENCE ERROR')
@@ -183,27 +179,5 @@ contains
     call debugLog('*** Finished Integration ***')
     print'(A)', '*** Finished Integration ***'
   end subroutine buildStrategyAndSolve
-
-  subroutine initDof(model)
-    implicit none
-    class(CFDModelDT), intent(inout) :: model
-    real(rkind) :: Vx, Vy, T, P, rho, mach, Cv
-    integer(ikind) :: i
-    Vx   = model%processInfo%getConstants(7)
-    Vy   = model%processInfo%getConstants(8)
-    T    = model%processInfo%getConstants(9)
-    P    = model%processInfo%getConstants(10)
-    rho  = model%processInfo%getConstants(11)
-    mach = model%processInfo%getConstants(12)
-    Cv   = model%processInfo%getConstants(4)
-    !$OMP PARALLEL DO PRIVATE(i)
-    do i = 1, model%getnNode()
-       model%dof(1,i) = rho
-       model%dof(2,i) = rho*Vx
-       model%dof(3,i) = rho*Vy
-       model%dof(4,i) = rho*(Cv*T+0.5d0*(Vx**2+Vy**2)) 
-    end do
-    !$OMP END PARALLEL DO
-  end subroutine initDof
 
 end module CFDStrategyM

@@ -17,6 +17,7 @@ OBJECTS := $(BINDIR)/CFDMaterial.o      \
 	$(BINDIR)/CFDModel.o            \
 	$(BINDIR)/CFDBuilderAndSolver.o \
 	$(BINDIR)/CFDScheme.o           \
+	$(BINDIR)/NavierStokes2D.o      \
 	$(BINDIR)/CFDStrategy.o         \
 	$(BINDIR)/CFDApplication.o      \
 	$(BINDIR)/DataInput.o           \
@@ -55,6 +56,8 @@ $(BINDIR)/Print.o : $(VPATH)/Process/Print.f90
 $(BINDIR)/Results.o : $(VPATH)/CustomResults/Results.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/NormalVelocity.o : $(VPATH)/CustomConditions/NormalVelocity.f90
+	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
+$(BINDIR)/NavierStokes2D.o : $(VPATH)/SolvingStrategy/NavierStokes2D.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 #========================================================================
 help:
