@@ -443,9 +443,9 @@ contains
   !     Input, i(int), j(int)
   !     Output, get(i,j)(realrkind)
   !***************************************************
-  real(rkind) function get(this, i, j)
+  real(rkind) pure function get(this, i, j)
     implicit none
-    class(Sparse), intent(inout) :: this
+    class(Sparse) , intent(in) :: this
     integer(ikind), intent(in) :: i
     integer(ikind), intent(in) :: j
     integer(ikind) :: k
@@ -468,9 +468,9 @@ contains
   !     Input, -
   !     Output, getnnz()(integer(ikind))
   !***************************************************
-  integer(ikind) function getnnz(this)
+  integer(ikind) pure function getnnz(this)
     implicit none
-    class(Sparse), intent(inout) :: this
+    class(Sparse), intent(in) :: this
     getnnz = this%nnz
   end function getnnz
   
@@ -482,9 +482,9 @@ contains
   !     Input, -
   !     Output, getn()(integer(ikind))
   !***************************************************
-  integer(ikind) function getn(this)
+  integer(ikind) pure function getn(this)
     implicit none
-    class(Sparse), intent(inout) :: this
+    class(Sparse), intent(in) :: this
     getn = this%n
   end function getn
 
@@ -496,11 +496,11 @@ contains
   !     Input, -
   !     Output, getA(:)(Real(rkind))
   !***************************************************
-  function getA(this)
+  pure function getA(this)
     implicit none
-    class(Sparse), intent(inout)    :: this
+    class(Sparse), intent(in)        :: this
     real(rkind), dimension(this%nnz) :: getA
-       getA = this%A
+    getA = this%A
   end function getA
 
   !***************************************************
@@ -511,11 +511,11 @@ contains
   !     Input, -
   !     Output, getAI(:)(Integer(ikind))
   !***************************************************
-  function getAI(this)
+  pure function getAI(this)
     implicit none
-    class(Sparse), intent(inout)       :: this
+    class(Sparse) , intent(in)         :: this
     integer(ikind), dimension(this%n+1) :: getAI
-       getAI = this%AI
+    getAI = this%AI
   end function getAI
 
     !***************************************************
@@ -526,11 +526,11 @@ contains
   !     Input, -
   !     Output, getAJ(:)(Integer(ikind))
   !***************************************************
-  function getAJ(this)
+  pure function getAJ(this)
     implicit none
-    class(Sparse), intent(inout)       :: this
+    class(Sparse) , intent(in)         :: this
     integer(ikind), dimension(this%nnz) :: getAJ
-       getAJ = this%AJ
+    getAJ = this%AJ
   end function getAJ
   
   !***************************************************

@@ -1,0 +1,19 @@
+BeginZE /home/ponfo/Documents/Project789/applications/Structural3D/tests/test4.gid/test4.post.vv
+   x -0.57328 0.643842
+   y 0.329312 -0.285596
+   z -2.15831 1.15831
+   e 0.552771
+   v 0.107155 -0.294563 -0.0217704
+   r -0.949356
+   m 0.825517 -0.104464 0.554625 0 -0.0217921 0.976088 0.216282 0 -0.563956 -0.190631 0.803501 0 0 0 0 1
+   c 0.02 0.03 0.5
+   pd 0
+   pno 0
+   pfo 0
+   pf 4
+   pv 0
+   NowUse 2
+   DrawingType 3
+   LightVector 90 90 150 0
+EndZE /home/ponfo/Documents/Project789/applications/Structural3D/tests/test4.gid/test4.post.vv
+

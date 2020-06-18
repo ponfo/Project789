@@ -1,52 +1,44 @@
- 2:18:20  Initiating Program
- 2:18:20    Reading project data
- 2:18:20      Project name: test1
- 2:18:20      Path: /home/ponfo/Documents/Project789/applications/Structural3D/Gid/Structural3D.gid
- 2:18:20    Reading mesh data
- 2:18:20      Number of Elements.............................: 40
- 2:18:20      Are Elements Quadratic.........................: 1
- 2:18:20      Number of Tetrahedral elements.................: 0
- 2:18:20      Number of Hexahedral elements..................: 40
- 2:18:20      Number of Nodes................................: 321
- 2:18:20      Number of Dirichlet X conditions...............: 21
- 2:18:20      Number of Dirichlet Y conditions...............: 21
- 2:18:20      Number of Dirichlet Z conditions...............: 21
- 2:18:20      Number of Pressure conditions..................: 0
- 2:18:20      Number of Sources on points....................: 4
- 2:18:20      Number of Sources on surfaces..................: 0
- 2:18:20      Number of points with pointSource..............: 4
- 2:18:20      Number of Volumes with volumeSource............: 0
- 2:18:20      Number of Materials............................: 1
- 2:18:20      Gauss cuadrature order.........................: 3
- 2:18:20          Allocated weights: 11
- 2:18:20          Allocated gPoints: 33
- 2:18:20          Allocated weights: 4
- 2:18:20          Allocated gPoints: 8
- 2:18:20          Allocated weights: 3
- 2:18:20          Allocated gPoints: 3
- 2:18:20          Allocated weights: 11
- 2:18:20          Allocated gPoints: 33
- 2:18:20          Allocated weights: 4
- 2:18:20          Allocated gPoints: 8
- 2:18:20          Allocated weights: 3
- 2:18:20          Allocated gPoints: 3
- 2:18:20          Allocated weights: 27
- 2:18:20          Allocated gPoints: 81
- 2:18:20          Allocated weights: 9
- 2:18:20          Allocated gPoints: 18
- 2:18:20          Allocated weights: 3
- 2:18:20          Allocated gPoints: 3
- 2:18:20          Allocated weights: 27
- 2:18:20          Allocated gPoints: 81
- 2:18:20          Allocated weights: 9
- 2:18:20          Allocated gPoints: 18
- 2:18:20          Allocated weights: 3
- 2:18:20          Allocated gPoints: 3
- 2:18:20    Reading materials properties
- 2:18:20    Reading elements
- 2:18:20    Reading point and line Sources
- 2:18:20    Reading Boundary Conditions
- 2:18:20  End loading data
- 2:18:20    Assembling stiffness matrix and right hand side vector
- 2:18:21  solving linear system
- 2:18:21  done solving
+16:31:30  Initiating Program
+16:31:30    Reading project data
+16:31:30      Project name: test1
+16:31:30      Path: /home/ponfo/Documents/Project789/applications/Structural3D/Gid/Structural3D.gid
+16:31:30    Reading mesh data
+16:31:30      Number of Elements.............................: 393745
+16:31:30      Are Elements Quadratic.........................: 0
+16:31:30      Number of Tetrahedral elements.................: 393745
+16:31:30      Number of Hexahedral elements..................: 0
+16:31:30      Number of Nodes................................: 71671
+16:31:30      Number of Dirichlet X conditions...............: 480
+16:31:30      Number of Dirichlet Y conditions...............: 480
+16:31:30      Number of Dirichlet Z conditions...............: 480
+16:31:30      Number of Pressure conditions..................: 0
+16:31:30      Number of Sources on points....................: 4
+16:31:30      Number of Sources on surfaces..................: 0
+16:31:30      Number of points with pointSource..............: 4
+16:31:30      Number of Volumes with volumeSource............: 0
+16:31:30      Number of Materials............................: 1
+16:31:30      Gauss cuadrature order.........................: 3
+16:31:30          Allocated weights: 11
+16:31:30          Allocated gPoints: 33
+16:31:30          Allocated weights: 4
+16:31:30          Allocated gPoints: 8
+16:31:30          Allocated weights: 3
+16:31:30          Allocated gPoints: 3
+16:31:30          Allocated weights: 11
+16:31:30          Allocated gPoints: 33
+16:31:30          Allocated weights: 4
+16:31:30          Allocated gPoints: 8
+16:31:30          Allocated weights: 3
+16:31:30          Allocated gPoints: 3
+16:31:30          Allocated weights: 27
+16:31:30          Allocated gPoints: 81
+16:31:30          Allocated weights: 9
+16:31:30          Allocated gPoints: 18
+16:31:30          Allocated weights: 3
+16:31:30          Allocated gPoints: 3
+16:31:30          Allocated weights: 27
+16:31:30          Allocated gPoints: 81
+16:31:30          Allocated weights: 9
+16:31:30          Allocated gPoints: 18
+16:31:30          Allocated weights: 3
+16:31:30          Allocated gPoints: 3
