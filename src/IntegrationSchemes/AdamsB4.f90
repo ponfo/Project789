@@ -20,56 +20,55 @@ module AdamsB4M
 
 contains
 
-  subroutine integrate(this,dt)
+  subroutine integrate(this,dt,multi_step)
     class(NewProcessDT), intent(inout) :: this
+    class(IntegrandDT) , pointer       :: temp
     real(rkind)        , intent(in)    :: dt
-    class(IntegrandDT), allocatable    :: k1
-    class(IntegrandDT), allocatable    :: k2
-    class(IntegrandDT), allocatable    :: k3
-    class(IntegrandDT), allocatable    :: k4
+    logical            , intent(in)    :: multi_step
     select type (this)
     class is (IntegrandDT)
-       allocate(k1, source = this)
-       allocate(k2, source = this)
-       allocate(k3, source = this)
-       allocate(k4, source = this)
-       if (this%step .eq. 0) then
-          if (allocated(this%values)) deallocate(this%values)
-          allocate(this%values(3,size(this%state)))
-          this%values = 0.d0
-          k1 = this%t(this%state)
-          k2 = this%t(this%state) * 0.d0
-          k3 = this%t(this%state) * 0.d0
-          k4 = this%t(this%state) * 0.d0
-          this%values(1,:) = this%state
-       else if (this%step == 1) then
-          k4 = this%t(this%state) * 0.d0
-          k3 = this%t(this%state) * 0.d0
-          k2 = this%t(this%values(1,:))
-          k1 = this%t(this%state)
-          this%values(2,:) = this%state
-       else if (this%step == 2) then
-          k4 = this%t(this%state) * 0.d0
-          k3 = this%t(this%values(1,:))
-          k2 = this%t(this%values(2,:))
-          k1 = this%t(this%state)
-          this%values(3,:) = this%state
-       else if (this%step .ge. 3) then
-          k4 = this%t(this%values(1,:))
-          k3 = this%t(this%values(2,:))
-          k2 = this%t(this%values(3,:))
-          k1 = this%t(this%state)
-          this%values(1,:) = this%values(2,:)
-          this%values(2,:) = this%values(3,:)
-          this%values(3,:) = this%state
+       if (this%step .eq. 1) then
+          allocate(temp, source = this)
+          temp = this
+          this = this + (this%t(this%state) * (55.0_rkind/24.0_rkind))*dt
+          allocate(this%previous1, source = temp)
+          this%previous1 = temp
+          deallocate(temp)
+       else if (this%step .eq. 2) then
+          allocate(temp, source = this)
+          temp = this
+          this = this + (this%previous1%t(this%previous1%state) * (-59.0_rkind/24.0_rkind)&
+               + this%t(this%state)                            * (55.0_rkind/24.0_rkind))*dt
+          allocate(this%previous2, source = this)
+          this%previous2 = this%previous1
+          this%previous1 = temp
+          deallocate(temp)
+       else if (this%step .eq. 3) then
+          allocate(temp, source = this)
+          temp = this
+          this = this + (this%previous2%t(this%previous2%state) * (37.0_rkind/24.0_rkind) &
+               + this%previous1%t(this%previous1%state)         * (-59.0_rkind/24.0_rkind)&
+               + this%t(this%state)                            * (55.0_rkind/24.0_rkind))*dt
+          allocate(this%previous3, source = this)
+          this%previous3 = this%previous2
+          this%previous2 = this%previous1
+          this%previous1 = temp
+          deallocate(temp)
+       else
+          allocate(temp, source = this)
+          temp = this
+          this = this + (this%previous3%t(this%previous3%state) * (-9.0_rkind/24.0_rkind) &
+               + this%previous2%t(this%previous2%state)         * (37.0_rkind/24.0_rkind) &
+               + this%previous1%t(this%previous1%state)         * (-59.0_rkind/24.0_rkind)&
+               + this%t(this%state)                            * (55.0_rkind/24.0_rkind))*dt
+          this%previous3 = this%previous2
+          this%previous2 = this%previous1
+          this%previous1 = temp
+          deallocate(temp)
        end if
-       this = this + (k4 * (-9.0_rkind/24.0_rkind)&
-            + k3 * (37.0_rkind/24.0_rkind)       &
-            + k2 * (-59.0_rkind/24.0_rkind)      &
-            + k1 * (55.0_rkind/24.0_rkind))*dt 
     class default
        stop 'integrate: unsupported class'
     end select
   end subroutine integrate
-  
+
 end module AdamsB4M

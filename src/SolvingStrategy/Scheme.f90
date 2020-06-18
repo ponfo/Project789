@@ -15,10 +15,11 @@ module SchemeM
   end type NewSchemeDT
 
   abstract interface
-     subroutine integrator_interface(this, dt)
+     subroutine integrator_interface(this, dt, multi_step)
        import :: NewProcessDT, rkind
        class(NewProcessDT), intent(inout) :: this
        real(rkind)        , intent(in)    :: dt
+       logical            , intent(in)    :: multi_step
      end subroutine integrator_interface
   end interface
   

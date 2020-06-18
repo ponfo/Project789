@@ -51,6 +51,7 @@ contains
     class(DofDT), intent(inout) :: this
     real(rkind) , intent(in)    :: fixedVal
     this%isFixed = .true.
+    if(allocated(this%fixedVal)) deallocate(this%fixedVal)
     allocate(this%fixedVal, source = fixedVal)
   end subroutine fixDof
 
