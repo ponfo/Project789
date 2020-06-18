@@ -15,19 +15,24 @@ CONDTYPE: over lines
 QUESTION: Temperature
 VALUE: 1
 END CONDITION
-NUMBER: 4 CONDITION: Normal_Velocity
+NUMBER: 4 CONDITION: Fix_NoSlip
+CONDTYPE: over lines
+QUESTION: NoSlip
+VALUE: 1
+END CONDITION
+NUMBER: 5 CONDITION: Normal_Velocity
 CONDTYPE: over lines
 QUESTION: Velocity
 VALUE: 1
 END CONDITION
-NUMBER: 5 CONDITION: Source_On_Points
+NUMBER: 6 CONDITION: Source_On_Points
 CONDTYPE: over points
 QUESTION: Source_Number_On_Points
 VALUE: 1
 QUESTION: SourceOP
 VALUE: 0.0
 END CONDITION
-NUMBER: 6 CONDITION: Source_On_Surfaces
+NUMBER: 7 CONDITION: Source_On_Surfaces
 CONDTYPE: over surface
 CONDMESHTYPE: over body elems
 QUESTION: Source_Number_On_Surfaces

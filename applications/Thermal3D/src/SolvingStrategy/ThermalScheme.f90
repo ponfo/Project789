@@ -103,10 +103,11 @@ contains
     end do
   end subroutine calculateFlux
 
-  subroutine integrator(this, dt)
+  subroutine integrator(this, dt, multi_step)
     implicit none
     class(NewProcessDT), intent(inout) :: this
     real(rkind)        , intent(in)    :: dt
+    logical            , intent(in) :: multi_step
   end subroutine integrator
   
 end module ThermalSchemeM

@@ -35,12 +35,16 @@ Gauss_Order............................: *GenData(Gauss_Order)
 *Set var b = condnumentities
 *Set Cond Fix_Temperature *nodes
 *Set var c = condnumentities
+*Set Cond Fix_NoSlip *nodes
+*Set var d = condnumentities
 *#---------------------------------------------------------
 Velocity_Conditions_Number.............: *a
 *#---------------------------------------------------------
 Density_Conditions_Number..............: *b
 *#---------------------------------------------------------
 Temperature_Conditions_Number..........: *c
+*#---------------------------------------------------------
+No_Slip_Conditions_Number..............: *d
 *#---------------------------------------------------------
 *Set Cond Normal_Velocity *elems
 Normal_Velocity_Condition_Elements.....: *condnumentities
@@ -87,7 +91,7 @@ Material |      R     |   Gamma   |   Mu   |    K    |   Vx_inf |  Vy_inf   |   
 --------------------------------------------------------------------------------------------------------------------------------------
 *loop materials
 *format "%5i%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e%10.4e"
-*matnum  *matprop(R_Gas)  *matprop(Gamma)  *matprop(Mu)  *matprop(K)  *matprop(Vx)  *matprop(Vy)  *matprop(T)  *matprop(Rho)  *matprop(Mach)  *matprop(Cv)  *matprop(P)
+*matnum  *matprop(R_Gas)  *matprop(Gamma)  *matprop(Mu)  *matprop(K)  *matprop(Vx)  *matprop(Vy)  *matprop(T)  *matprop(Rho)  *matprop(Mach)  *matprop(Cv)  *matprop(P)  *matprop(Mu)  *matprop(K)
 *end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -190,6 +194,18 @@ Conditions List:
 *loop nodes *OnlyInCond
 *format "%5i%10.4e"
 *NodesNum           *cond(Temperature) 
+*end
+
+####################### No Slip ######################
+
+Conditions List:
+
+  Node    |    No Slip
+------------------------------
+*Set Cond Fix_NoSlip *nodes
+*loop nodes *OnlyInCond
+*format "%5i%10.4e"
+*NodesNum           *cond(NoSlip) 
 *end
 
 ####################### Normal Velocity ########################

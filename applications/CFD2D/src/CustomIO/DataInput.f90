@@ -33,6 +33,7 @@ module DataInputM
   integer(ikind)               :: nTemperature
   integer(ikind)               :: nDensity
   integer(ikind)               :: nVelocity
+  integer(ikind)               :: nNoSlip
   integer(ikind)               :: nMaterial
   integer(ikind)               :: nGauss
   integer(ikind)               :: isQuadratic
@@ -116,7 +117,8 @@ contains
     read(project,*)  aux, nGauss    
     read(project,*)  aux, nVelocity    
     read(project,*)  aux, nDensity    
-    read(project,*)  aux, nTemperature
+    read(project,*)  aux, nTemperature    
+    read(project,*)  aux, nNoSlip
     read(project,*)  aux, nNormalVelocity
     read(project,*)  aux, nSourceOnPoints
     read(project,*)  aux, nSourceOnSurfaces
@@ -137,7 +139,8 @@ contains
     if(verbose) print'(A,I0)','Number of Nodes................................: ', nPoint
     if(verbose) print'(A,I0)','Number of Velocity conditions..................: ', nVelocity
     if(verbose) print'(A,I0)','Number of Density conditions...................: ', nDensity
-    if(verbose) print'(A,I0)','Number of Temperature conditions...............: ', nTemperature   
+    if(verbose) print'(A,I0)','Number of Temperature conditions...............: ', nTemperature
+    if(verbose) print'(A,I0)','Number of No Slip conditions...................: ', nNoSlip   
     if(verbose) print'(A,I0)','Number of Normal Velocity conditions...........: ', nNormalVelocity 
     if(verbose) print'(A,I0)','Number of Loads on points......................: ', nSourceOnPoints 
     if(verbose) print'(A,I0)','Number of Loads on surfaces....................: ', nSourceOnSurfaces
@@ -159,7 +162,8 @@ contains
     call debugLog('    Number of Nodes................................: ', nPoint)
     call debugLog('    Number of Velocity conditions..........---.....: ', nVelocity)
     call debugLog('    Number of Density conditions...................: ', nDensity)
-    call debugLog('    Number of Temperature conditions...............: ', nTemperature)    
+    call debugLog('    Number of Temperature conditions...............: ', nTemperature)
+    call debugLog('    Number of Bo Slip conditions...................: ', nNoSlip)    
     call debugLog('    Number of Pressure conditions..................: ', nNormalVelocity) 
     call debugLog('    Number of Loads on points......................: ', nSourceOnPoints) 
     call debugLog('    Number of Loads on surfaces....................: ', nSourceOnSurfaces)
@@ -212,6 +216,9 @@ contains
        if (P == 0.d0) P = rho*R*T
        if (rho == 0.d0) rho = P/(R*T)
        Vc = sqrt(gamma*R*T)
+       if (mach == 0.d0) then
+          mach = Vx/Vc
+       end if
        if ((Vx**2+Vy**2) == 0.d0) then
           Vx = Vc*mach
           Vy = 0.d0
@@ -323,6 +330,18 @@ contains
        read(Project,*) id, value
        if(verbose) print'(I0,5X,E10.3)', id, value
        call cfdAppl%node(id)%fixDof(4, rho*(P/((gamma-1.d0)*rho)+0.5d0*(Vx**2.d0+Vy**2.d0)))
+    end do
+    do i = 1, 7
+       read(project,*)
+    end do
+    if(verbose) print'(/,A)', 'No Slip conditions'
+    if(verbose) print'(A)', 'Node    Value'
+    do i = 1, nNoSlip
+       read(Project,*) id, value
+       if(verbose) print'(I0,5X,E10.3)', id, value
+       call cfdAppl%node(id)%fixDof(2, 0.d0)
+       call cfdAppl%node(id)%fixDof(3, 0.d0)
+       call cfdAppl%node(id)%fixDof(4, rho*(T*(1.d0+(gamma-1.d0)/2.d0*mach**2)))
     end do
     do i = 1, 7
        read(project,*)

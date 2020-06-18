@@ -46,6 +46,7 @@ contains
     integer(ikind)                          :: step1
     integer(ikind)                          :: step2
     integer(ikind)                          :: printStep
+    logical                                 :: multi_step = .false.
     write(*,*) '*** Transient Strategy ***'
     allocate(this%scheme, source = SetScheme(directScheme))
     allocate(this%builderAndSolver, source = SetBuilderAndSolver(directBAndS))
@@ -70,7 +71,7 @@ contains
           step2 = step2 + printStep
        write(*,*) 't = ', t, 'error = ', error
        end if      
-       call poisson2D%integrate(dt)
+       call poisson2D%integrate(dt, multi_step)
        model%dof = poisson2D%getState()
        t         = t + dt
        call applyDirichlet(model)

@@ -45,13 +45,15 @@ contains
     type(ExplicitEulerDT)                    :: ExplicitEuler
     type(RK4DT)                              :: RungeKutta4
     type(AdamsB4DT)                          :: AdamsBash4 
-    real(rkind), dimension(:,:), allocatable :: oldDof
+    real(rkind), dimension(:,:), allocatable :: oldDof 
+    real(rkind), dimension(:)  , allocatable :: auxDof, auxRhs
     real(rkind)                              :: dtMin, dtMin1, t
     real(rkind)                              :: factor, error, porc
     real(rkind)                              :: errorTol, error1(4), error2(4)
     integer(ikind)                           :: maxIter, iNode, nNode, i
     integer(ikind)                           :: step1, step2, printStep
     integer(ikind)                           :: flagg, stab, RK
+    logical                                  :: multi_step = .true.
     call debugLog('  *** Transient Strategy ***')
     print'(A)', '*** Transient Strategy ***'
     nNode = model%getnNode()
@@ -60,7 +62,7 @@ contains
     allocate(this%scheme, source = SetScheme(scheme))
     allocate(this%builderAndSolver, source = SetBuilderAndSolver(builAndSolve))
     allocate(this%process, source = WriteOutput)
-    allocate(oldDof(4,nNode)) 
+    allocate(oldDof(4,nNode), auxRhs(nNode*4), auxDof(nNode*4)) 
     call model%processInfo%initProcess(3)
     call model%processInfo%setProcess(2,1)
     printStep = model%processInfo%getPrintStep()
@@ -70,8 +72,10 @@ contains
     error1    = errorTol+1
     error2    = 1.d0
     step1     = 0
-    step2     = 1
+    step2     = printStep
     t         = 0.d0
+    auxDof    = 0.d0
+    auxRhs    = 0.d0
     flagg     = 1
     stab      = 1
     RK        = 4
@@ -95,10 +99,10 @@ contains
           dtMin1 = dtMin
           flagg  = 2
        end if
-       t      = t + model%processInfo%getDt()
+       t      = t + dtmin
        oldDof = model%dof
-       call model%processInfo%setStep(step1-1)
-       if (flagg .le. 4) then
+       call model%processInfo%setStep(step1)
+       if (flagg .le. 5) then
           do i = 1, RK
              factor = (1.d0/(RK+1.d0-i))
              if (i == 1) then
@@ -109,10 +113,14 @@ contains
              model%rhs = 0.d0
              call builAndSolve%buildAndSolve(model)
              do iNode = 1, nNode
-                navierStokes2D = SetNavierStokes2D(model%dof(:,iNode), model%rhs(:,iNode)&
-                     , ExplicitEuler)
-                call navierStokes2D%integrate(factor*dtMin)
-                model%dof(:,iNode) = navierStokes2D%getState()
+                auxDof(iNode*4-3:iNode*4) = model%dof(:,iNode)
+                auxRhs(iNode*4-3:iNode*4) = model%rhs(:,iNode)
+             end do
+             navierStokes2D = SetNavierStokes2D(auxDof, auxRhs, ExplicitEuler, step1)
+             call navierStokes2D%integrate(factor*dtMin, multi_step)
+             auxDof = navierStokes2D%getState()
+             do iNode = 1, nNode
+                model%dof(:,iNode) = auxDof(iNode*4-3:iNode*4)
              end do
              call applyDirichlet(model)
           end do
@@ -127,10 +135,14 @@ contains
           model%rhs = 0.d0
           call builAndSolve%buildAndSolve(model)
           do iNode = 1, nNode
-             navierStokes2D = SetNavierStokes2D(model%dof(:,iNode), model%rhs(:,iNode)&
-                  , AdamsBash4, step1)
-             call navierStokes2D%integrate(dtMin)
-             model%dof(:,iNode) = navierStokes2D%getState()
+             auxDof(iNode*4-3:iNode*4) = model%dof(:,iNode)
+             auxRhs(iNode*4-3:iNode*4) = model%rhs(:,iNode)
+          end do 
+          navierStokes2D = SetNavierStokes2D(auxDof, auxRhs, AdamsBash4, step1)
+          call navierStokes2D%integrate(dtMin, multi_step)
+          auxDof = navierStokes2D%getState()
+          do iNode = 1, nNode
+             model%dof(:,iNode) = auxDof(iNode*4-3:iNode*4)
           end do
           call applyDirichlet(model)
        end if
@@ -163,7 +175,7 @@ contains
           call debugLog('Mach Max = ', maxval(model%results%mach))
           call debugLog('::::::::::::::::::::::::::::::::::::::::')
           print'(A40)'      , '::::::::::::::::::::::::::::::::::::::::' 
-          print'(A11,I5   )', 'Step     : ', step1
+          print'(A11,I10   )', 'Step     : ', step1
           print'(A29,E10.3)', 'Error Ec. de Continuidad  = ', sqrt(error1(1)/error2(1))
           print'(A29,E10.3)', 'Error Ec. de Momento x    = ', sqrt(error1(2)/error2(2))
           print'(A29,E10.3)', 'Error Ec. de Momento y    = ', sqrt(error1(3)/error2(3))

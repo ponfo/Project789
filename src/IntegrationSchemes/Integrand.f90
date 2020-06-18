@@ -12,10 +12,12 @@ module IntegrandM
   public :: IntegrandDT
   
   type, abstract, extends(NewProcessDT) :: IntegrandDT
-     class(NewSchemeDT), allocatable :: quadrature
-     real(rkind), dimension(:), allocatable :: state
-     real(rkind), dimension(:,:), allocatable :: values
-     integer(ikind) :: step
+     class(NewSchemeDT), allocatable               :: quadrature
+     class(IntegrandDT), pointer :: previous1 => null()
+     class(IntegrandDT), pointer :: previous2 => null()
+     class(IntegrandDT), pointer :: previous3 => null()
+     real(rkind), dimension(:), allocatable   :: state
+     integer(ikind)                           :: step
    contains
      procedure, non_overridable :: integrate  
      procedure, non_overridable :: set_quadrature
@@ -72,14 +74,15 @@ contains
     allocate (this_strategy, source=this%quadrature)
   end function get_quadrature
   
-  subroutine integrate(model,dt)
-    class(IntegrandDT)      :: model
-    real(rkind) ,intent(in) :: dt
+  subroutine integrate(model, dt, multi_step)
+    class(IntegrandDT)            :: model
+    real(rkind)      , intent(in) :: dt
+    logical          , intent(in) :: multi_step
     if (allocated(model%quadrature)) then
-       call model%quadrature%integrate(model,dt)
+       call model%quadrature%integrate(model,dt,multi_step)
     else
        stop 'integrate: no integration procedure available.'
     end if
   end subroutine integrate
-  
+
 end module IntegrandM

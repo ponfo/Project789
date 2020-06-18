@@ -12,9 +12,7 @@ module NavierStokes2DM
   public :: NavierStokes2DDT, SetNavierStokes2D
 
   type, extends(IntegrandDT) :: NavierStokes2DDT
-     !real(rkind), dimension(:), allocatable :: rhs
      real(rkind), dimension(:), allocatable :: lhs
-     !type(Sparse)                           :: massMatrix
    contains
      procedure :: t          => dnavierStokes2D_dt 
      procedure :: add        => add_navierStokes2D
@@ -32,17 +30,12 @@ contains
 
   type(navierStokes2DDT) function constructor(initial_state, lhs&
        , this_strategy, step)
-       !, rhs, massMatrix, this_strategy, step)
     class(NewSchemeDT)       , intent(in) :: this_strategy
-    !type(Sparse)             , intent(in) :: massMatrix
     real(rkind), dimension(:), intent(in) :: initial_state
-    !real(rkind), dimension(:), intent(in) :: rhs
     real(rkind), dimension(:), intent(in) :: lhs
     integer(ikind), intent(in), optional  :: step
     constructor%state             = initial_state
-    !constructor%rhs               = rhs
     constructor%lhs               = lhs
-    !constructor%lumpedMassInverse = massMatrix
     if (present(step)) constructor%step = step
     call constructor%set_quadrature(this_strategy)
   end function constructor
@@ -93,9 +86,7 @@ contains
     class is (NavierStokes2DDT)
        lhs%state = rhs%state
        lhs%step = rhs%step
-       !lhs%rhs = rhs%rhs
        lhs%lhs = rhs%lhs
-       !lhs%massMatrix = rhs%massMatrix
        call lhs%set_quadrature(rhs%get_quadrature())
     class default
        stop 'assign_navierStokes2D: unsupported class'

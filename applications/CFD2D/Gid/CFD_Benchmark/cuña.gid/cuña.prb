@@ -10,7 +10,7 @@ VALUE: 2
 QUESTION: Initial_Time
 VALUE: 0.0
 QUESTION: Error_Tolerance
-VALUE: 0.000005
+VALUE: 1e-15
 QUESTION: Max_Iterations
 VALUE: 200
 QUESTION: Print_Every_N_Steps
