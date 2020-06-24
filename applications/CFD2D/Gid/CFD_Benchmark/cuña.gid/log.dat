@@ -1,61 +1,251 @@
-22:37:58  Initiating Program
-22:37:58    Reading project data
-22:37:58      Project name: cuña
-22:37:58    Reading mesh data
-22:37:58      Number of Elements.............................: 5494
-22:37:58      Are Elements Quadratic.........................: 1
-22:37:58      Number of Triangular elements..................: 5494
-22:37:58      Number of Rectangular elements.................: 0
-22:37:58      Number of Nodes................................: 11133
-22:37:58      Number of Velocity conditions..........---.....: 33
-22:37:58      Number of Density conditions...................: 33
-22:37:58      Number of Temperature conditions...............: 33
-22:37:58      Number of Bo Slip conditions...................: 0
-22:37:58      Number of Pressure conditions..................: 84
-22:37:58      Number of Loads on points......................: 0
-22:37:58      Number of Loads on surfaces....................: 0
-22:37:58      Number of points with pointSource..............: 0
-22:37:58      Number of Surfaces with surfaceSource..........: 0
-22:37:58      Number of Materials............................: 1
-22:37:58      Gauss cuadrature order.........................: 2
-22:37:58      PrintStep......................................: 1
-22:37:58      Initial time...................................:   0.00000000E+00
-22:37:58      Error tolerance................................:   0.10000000E-14
-22:37:58      Max Iterations.................................: 200
-22:37:58      Safety Factor..................................:   0.15000000E-01
-22:37:58      Shock Capturing constant.......................:   0.11111111E+01
-22:37:58          Allocated weights: 3
-22:37:58          Allocated gPoints: 6
-22:37:58          Allocated weights: 2
-22:37:58          Allocated gPoints: 2
-22:37:58          Allocated weights: 3
-22:37:58          Allocated gPoints: 6
-22:37:58          Allocated weights: 2
-22:37:58          Allocated gPoints: 2
-22:37:58          Allocated weights: 4
-22:37:58          Allocated gPoints: 8
-22:37:58          Allocated weights: 2
-22:37:58          Allocated gPoints: 2
-22:37:58          Allocated weights: 4
-22:37:58          Allocated gPoints: 8
-22:37:58          Allocated weights: 2
-22:37:58          Allocated gPoints: 2
-22:37:58    Reading materials properties
-22:37:58    Reading elements
-22:37:58    Reading point and surface Sources
-22:37:58    Reading Boundary Conditions
-22:37:58    Initializing Dofs
-22:37:58  End loading data
-22:37:58    *** Transient Strategy ***
-22:38: 0  ::::::::::::::::::::::::::::::::::::::::
-22:38: 0  Step     : 1
-22:38: 0  Error Ec. de Continuidad  =              NaN
-22:38: 0  Error Ec. de Momento x    =              NaN
-22:38: 0  Error Ec. de Momento y    =              NaN
-22:38: 0  Error Ec. de Energia      =              NaN
-22:38: 0  t        :   0.42856541E-06
-22:38: 0  dt       :   0.42856541E-06
-22:38: 0  Mach Max =   0.30000000E+01
-22:38: 0  ::::::::::::::::::::::::::::::::::::::::
-22:38: 0  *** Finished Integration ***
-22:38: 0      Total time =   0.14420140E+01
+18:42:25  Initiating Program
+18:42:25    Reading project data
+18:42:25      Project name: cuña
+18:42:25    Reading mesh data
+18:42:25      Number of Elements.............................: 2906
+18:42:25      Are Elements Quadratic.........................: 0
+18:42:25      Number of Triangular elements..................: 0
+18:42:25      Number of Rectangular elements.................: 2906
+18:42:25      Number of Nodes................................: 2980
+18:42:25      Number of Velocity conditions..........---.....: 17
+18:42:25      Number of Density conditions...................: 17
+18:42:25      Number of Temperature conditions...............: 17
+18:42:25      Number of Bo Slip conditions...................: 0
+18:42:25      Number of Pressure conditions..................: 84
+18:42:25      Number of Loads on points......................: 0
+18:42:25      Number of Loads on surfaces....................: 0
+18:42:25      Number of points with pointSource..............: 0
+18:42:25      Number of Surfaces with surfaceSource..........: 0
+18:42:25      Number of Materials............................: 1
+18:42:25      Gauss cuadrature order.........................: 3
+18:42:25      PrintStep......................................: 250
+18:42:25      Initial time...................................:   0.00000000E+00
+18:42:25      Error tolerance................................:   0.10000000E-07
+18:42:25      Max Iterations.................................: 5000
+18:42:25      Safety Factor..................................:   0.10000000E+00
+18:42:25      Shock Capturing constant.......................:   0.11111111E+01
+18:42:25          Allocated weights: 4
+18:42:25          Allocated gPoints: 8
+18:42:25          Allocated weights: 3
+18:42:25          Allocated gPoints: 3
+18:42:25          Allocated weights: 4
+18:42:25          Allocated gPoints: 8
+18:42:25          Allocated weights: 3
+18:42:25          Allocated gPoints: 3
+18:42:25          Allocated weights: 9
+18:42:25          Allocated gPoints: 18
+18:42:25          Allocated weights: 3
+18:42:25          Allocated gPoints: 3
+18:42:25          Allocated weights: 9
+18:42:25          Allocated gPoints: 18
+18:42:25          Allocated weights: 3
+18:42:25          Allocated gPoints: 3
+18:42:25    Reading materials properties
+18:42:25    Reading elements
+18:42:25    Reading point and surface Sources
+18:42:25    Reading Boundary Conditions
+18:42:25    Initializing Dofs
+18:42:25  End loading data
+18:42:25    *** Transient Strategy ***
+18:42:40  ::::::::::::::::::::::::::::::::::::::::
+18:42:40  Step     : 250
+18:42:40  Error Ec. de Continuidad  =   0.22327684E-03
+18:42:40  Error Ec. de Momento x    =   0.14754758E-03
+18:42:40  Error Ec. de Momento y    =   0.39802536E-02
+18:42:40  Error Ec. de Energia      =   0.17094618E-03
+18:42:40  t        :   0.80806874E-04
+18:42:40  dt       :   0.32322750E-06
+18:42:40  Mach Max =   0.30343301E+01
+18:42:40  ::::::::::::::::::::::::::::::::::::::::
+18:42:55  ::::::::::::::::::::::::::::::::::::::::
+18:42:55  Step     : 500
+18:42:55  Error Ec. de Continuidad  =   0.10478010E-03
+18:42:55  Error Ec. de Momento x    =   0.91213677E-04
+18:42:55  Error Ec. de Momento y    =   0.86971148E-03
+18:42:55  Error Ec. de Energia      =   0.11944975E-03
+18:42:55  t        :   0.16161375E-03
+18:42:55  dt       :   0.32322750E-06
+18:42:55  Mach Max =   0.30292676E+01
+18:42:55  ::::::::::::::::::::::::::::::::::::::::
+18:43:10  ::::::::::::::::::::::::::::::::::::::::
+18:43:10  Step     : 750
+18:43:10  Error Ec. de Continuidad  =   0.97093816E-04
+18:43:10  Error Ec. de Momento x    =   0.12844828E-03
+18:43:10  Error Ec. de Momento y    =   0.70823182E-03
+18:43:10  Error Ec. de Energia      =   0.11275003E-03
+18:43:10  t        :   0.24242062E-03
+18:43:10  dt       :   0.32322750E-06
+18:43:10  Mach Max =   0.30439578E+01
+18:43:10  ::::::::::::::::::::::::::::::::::::::::
+18:43:24  ::::::::::::::::::::::::::::::::::::::::
+18:43:24  Step     : 1000
+18:43:24  Error Ec. de Continuidad  =   0.93667307E-04
+18:43:24  Error Ec. de Momento x    =   0.96168325E-04
+18:43:24  Error Ec. de Momento y    =   0.56223040E-03
+18:43:24  Error Ec. de Energia      =   0.10691087E-03
+18:43:24  t        :   0.32322750E-03
+18:43:24  dt       :   0.32322750E-06
+18:43:24  Mach Max =   0.30680110E+01
+18:43:24  ::::::::::::::::::::::::::::::::::::::::
+18:43:39  ::::::::::::::::::::::::::::::::::::::::
+18:43:39  Step     : 1250
+18:43:39  Error Ec. de Continuidad  =   0.74521172E-04
+18:43:39  Error Ec. de Momento x    =   0.61973363E-04
+18:43:39  Error Ec. de Momento y    =   0.49469024E-03
+18:43:39  Error Ec. de Energia      =   0.83234936E-04
+18:43:39  t        :   0.40403437E-03
+18:43:39  dt       :   0.32322750E-06
+18:43:39  Mach Max =   0.31016759E+01
+18:43:39  ::::::::::::::::::::::::::::::::::::::::
+18:43:54  ::::::::::::::::::::::::::::::::::::::::
+18:43:54  Step     : 1500
+18:43:54  Error Ec. de Continuidad  =   0.70086421E-04
+18:43:54  Error Ec. de Momento x    =   0.56311103E-04
+18:43:54  Error Ec. de Momento y    =   0.44134608E-03
+18:43:54  Error Ec. de Energia      =   0.77803491E-04
+18:43:54  t        :   0.48484124E-03
+18:43:54  dt       :   0.32322750E-06
+18:43:54  Mach Max =   0.31415913E+01
+18:43:54  ::::::::::::::::::::::::::::::::::::::::
+18:44: 9  ::::::::::::::::::::::::::::::::::::::::
+18:44: 9  Step     : 1750
+18:44: 9  Error Ec. de Continuidad  =   0.70703443E-04
+18:44: 9  Error Ec. de Momento x    =   0.55153215E-04
+18:44: 9  Error Ec. de Momento y    =   0.42467432E-03
+18:44: 9  Error Ec. de Energia      =   0.74000621E-04
+18:44: 9  t        :   0.56564812E-03
+18:44: 9  dt       :   0.32322750E-06
+18:44: 9  Mach Max =   0.31839357E+01
+18:44: 9  ::::::::::::::::::::::::::::::::::::::::
+18:44:24  ::::::::::::::::::::::::::::::::::::::::
+18:44:24  Step     : 2000
+18:44:24  Error Ec. de Continuidad  =   0.96096940E-04
+18:44:24  Error Ec. de Momento x    =   0.14183937E-03
+18:44:24  Error Ec. de Momento y    =   0.47010462E-03
+18:44:24  Error Ec. de Energia      =   0.13041700E-03
+18:44:24  t        :   0.64645499E-03
+18:44:24  dt       :   0.32322750E-06
+18:44:24  Mach Max =   0.32264366E+01
+18:44:24  ::::::::::::::::::::::::::::::::::::::::
+18:44:38  ::::::::::::::::::::::::::::::::::::::::
+18:44:38  Step     : 2250
+18:44:38  Error Ec. de Continuidad  =   0.77747185E-04
+18:44:38  Error Ec. de Momento x    =   0.13122638E-03
+18:44:38  Error Ec. de Momento y    =   0.59155248E-03
+18:44:38  Error Ec. de Energia      =   0.14452320E-03
+18:44:38  t        :   0.72726187E-03
+18:44:38  dt       :   0.32322750E-06
+18:44:38  Mach Max =   0.32686070E+01
+18:44:38  ::::::::::::::::::::::::::::::::::::::::
+18:44:53  ::::::::::::::::::::::::::::::::::::::::
+18:44:53  Step     : 2500
+18:44:53  Error Ec. de Continuidad  =   0.15064401E-03
+18:44:53  Error Ec. de Momento x    =   0.12401874E-03
+18:44:53  Error Ec. de Momento y    =   0.53549686E-03
+18:44:53  Error Ec. de Energia      =   0.21116744E-03
+18:44:53  t        :   0.80806874E-03
+18:44:53  dt       :   0.32322750E-06
+18:44:53  Mach Max =   0.33102793E+01
+18:44:53  ::::::::::::::::::::::::::::::::::::::::
+18:45: 7  ::::::::::::::::::::::::::::::::::::::::
+18:45: 7  Step     : 2750
+18:45: 7  Error Ec. de Continuidad  =   0.10732729E-03
+18:45: 7  Error Ec. de Momento x    =   0.13640396E-03
+18:45: 7  Error Ec. de Momento y    =   0.42462658E-03
+18:45: 7  Error Ec. de Energia      =   0.15736853E-03
+18:45: 7  t        :   0.88887561E-03
+18:45: 7  dt       :   0.32322750E-06
+18:45: 7  Mach Max =   0.33519596E+01
+18:45: 7  ::::::::::::::::::::::::::::::::::::::::
+18:45:22  ::::::::::::::::::::::::::::::::::::::::
+18:45:22  Step     : 3000
+18:45:22  Error Ec. de Continuidad  =   0.11206127E-03
+18:45:22  Error Ec. de Momento x    =   0.14619766E-03
+18:45:22  Error Ec. de Momento y    =   0.43988251E-03
+18:45:22  Error Ec. de Energia      =   0.16636535E-03
+18:45:22  t        :   0.96968249E-03
+18:45:22  dt       :   0.32322750E-06
+18:45:22  Mach Max =   0.33939340E+01
+18:45:22  ::::::::::::::::::::::::::::::::::::::::
+18:45:37  ::::::::::::::::::::::::::::::::::::::::
+18:45:37  Step     : 3250
+18:45:37  Error Ec. de Continuidad  =   0.10696028E-03
+18:45:37  Error Ec. de Momento x    =   0.13042191E-03
+18:45:37  Error Ec. de Momento y    =   0.44729903E-03
+18:45:37  Error Ec. de Energia      =   0.13209136E-03
+18:45:37  t        :   0.10504894E-02
+18:45:37  dt       :   0.32322750E-06
+18:45:37  Mach Max =   0.34369954E+01
+18:45:37  ::::::::::::::::::::::::::::::::::::::::
+18:45:53  ::::::::::::::::::::::::::::::::::::::::
+18:45:53  Step     : 3500
+18:45:53  Error Ec. de Continuidad  =   0.11296357E-03
+18:45:53  Error Ec. de Momento x    =   0.14605102E-03
+18:45:53  Error Ec. de Momento y    =   0.45438555E-03
+18:45:53  Error Ec. de Energia      =   0.19774348E-03
+18:45:53  t        :   0.11312962E-02
+18:45:53  dt       :   0.32322750E-06
+18:45:53  Mach Max =   0.34817846E+01
+18:45:53  ::::::::::::::::::::::::::::::::::::::::
+18:46: 8  ::::::::::::::::::::::::::::::::::::::::
+18:46: 8  Step     : 3750
+18:46: 8  Error Ec. de Continuidad  =   0.11930950E-03
+18:46: 8  Error Ec. de Momento x    =   0.16772328E-03
+18:46: 8  Error Ec. de Momento y    =   0.42200513E-03
+18:46: 8  Error Ec. de Energia      =   0.16219146E-03
+18:46: 8  t        :   0.12121031E-02
+18:46: 8  dt       :   0.32322750E-06
+18:46: 8  Mach Max =   0.35284804E+01
+18:46: 8  ::::::::::::::::::::::::::::::::::::::::
+18:46:23  ::::::::::::::::::::::::::::::::::::::::
+18:46:23  Step     : 4000
+18:46:23  Error Ec. de Continuidad  =   0.98064260E-04
+18:46:23  Error Ec. de Momento x    =   0.85637728E-04
+18:46:23  Error Ec. de Momento y    =   0.44447835E-03
+18:46:23  Error Ec. de Energia      =   0.11133786E-03
+18:46:23  t        :   0.12929100E-02
+18:46:23  dt       :   0.32322750E-06
+18:46:23  Mach Max =   0.35761567E+01
+18:46:23  ::::::::::::::::::::::::::::::::::::::::
+18:46:38  ::::::::::::::::::::::::::::::::::::::::
+18:46:38  Step     : 4250
+18:46:38  Error Ec. de Continuidad  =   0.64144690E-04
+18:46:38  Error Ec. de Momento x    =   0.60935537E-04
+18:46:38  Error Ec. de Momento y    =   0.29983421E-03
+18:46:38  Error Ec. de Energia      =   0.78143918E-04
+18:46:38  t        :   0.13737169E-02
+18:46:38  dt       :   0.32322750E-06
+18:46:38  Mach Max =   0.36229712E+01
+18:46:38  ::::::::::::::::::::::::::::::::::::::::
+18:46:53  ::::::::::::::::::::::::::::::::::::::::
+18:46:53  Step     : 4500
+18:46:53  Error Ec. de Continuidad  =   0.69411382E-04
+18:46:53  Error Ec. de Momento x    =   0.77155293E-04
+18:46:53  Error Ec. de Momento y    =   0.28716751E-03
+18:46:53  Error Ec. de Energia      =   0.82184343E-04
+18:46:53  t        :   0.14545237E-02
+18:46:53  dt       :   0.32322750E-06
+18:46:53  Mach Max =   0.36659526E+01
+18:46:53  ::::::::::::::::::::::::::::::::::::::::
+18:47: 8  ::::::::::::::::::::::::::::::::::::::::
+18:47: 8  Step     : 4750
+18:47: 8  Error Ec. de Continuidad  =   0.11967832E-03
+18:47: 8  Error Ec. de Momento x    =   0.18057365E-03
+18:47: 8  Error Ec. de Momento y    =   0.27376789E-03
+18:47: 8  Error Ec. de Energia      =   0.17341382E-03
+18:47: 8  t        :   0.15353306E-02
+18:47: 8  dt       :   0.32322750E-06
+18:47: 8  Mach Max =   0.37015291E+01
+18:47: 8  ::::::::::::::::::::::::::::::::::::::::
+18:47:22  ::::::::::::::::::::::::::::::::::::::::
+18:47:22  Step     : 5000
+18:47:22  Error Ec. de Continuidad  =   0.94290812E-04
+18:47:22  Error Ec. de Momento x    =   0.10273123E-03
+18:47:22  Error Ec. de Momento y    =   0.34779514E-03
+18:47:22  Error Ec. de Energia      =   0.11855833E-03
+18:47:22  t        :   0.16161375E-02
+18:47:22  dt       :   0.32322750E-06
+18:47:22  Mach Max =   0.37251812E+01
+18:47:22  ::::::::::::::::::::::::::::::::::::::::
+18:47:22  *** Finished Integration ***
+18:47:22      Total time =   0.31653394E+03

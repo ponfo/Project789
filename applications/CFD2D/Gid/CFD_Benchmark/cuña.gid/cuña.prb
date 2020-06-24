@@ -6,17 +6,17 @@ VALUE: 0
 QUESTION: Source_Number_On_Surfaces
 VALUE: 0
 QUESTION: Gauss_Order
-VALUE: 2
+VALUE: 3
 QUESTION: Initial_Time
 VALUE: 0.0
 QUESTION: Error_Tolerance
-VALUE: 1e-15
+VALUE: 1e-8
 QUESTION: Max_Iterations
-VALUE: 200
+VALUE: 5000
 QUESTION: Print_Every_N_Steps
-VALUE: 1
+VALUE: 250
 QUESTION: Safety_Factor
-VALUE: 0.015
+VALUE: 0.1
 QUESTION: Constant_Shock_Capturing
 VALUE: 0.9
 END PROBLEM DATA

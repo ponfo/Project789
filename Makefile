@@ -6,7 +6,7 @@ BINDIR		:=  lib/Bin
 OBJECTDIR	:=  lib/Objects
 LIBDIR		:=  lib
 COMPILER	:=  ifort
-FFLAGS		:=  -Ofast -qopenmp -free -check bounds -mkl -liomp5 -lpthread -ldl -traceback -module $(OBJECTDIR)
+FFLAGS		:=  -Ofast -qopenmp -free -mkl -liomp5 -lpthread -ldl -module $(OBJECTDIR)
 FFLAGSDebug 	:=  -O0 -fpp -check bounds -traceback -warn nounused -module $(OBJECTDIR)
 
 OBJECTS := $(BINDIR)/Utilities.o                \

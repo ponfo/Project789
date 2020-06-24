@@ -1,12 +1,12 @@
-BeginZE /home/marco/Gid/problemtypes/project789/applications/CFD2D/Gid/CFD_Benchmark/cuña.gid/cuña.vv
-   x -14.842 0.448472
-   y 7.7062 -7.35342
+BeginZE /home/ponfo/Documents/Project789/applications/CFD2D/Gid/CFD_Benchmark/cuña.gid/cuña.vv
+   x -23.3133 8.92771
+   y 11.4888 -11.128
    z -21.7245 21.7245
    e 7.2415
    v 0 0 0
    r 1
    m 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1
-   c -7.19278 0.180385 0
+   c -7.19279 0.180385 0
    pd 0
    pno 0
    pfo 0
@@ -15,5 +15,5 @@ BeginZE /home/marco/Gid/problemtypes/project789/applications/CFD2D/Gid/CFD_Bench
    NowUse 1
    DrawingType 0
    LightVector 9.60474 80.1136 122.177 0
-EndZE /home/marco/Gid/problemtypes/project789/applications/CFD2D/Gid/CFD_Benchmark/cuña.gid/cuña.vv
+EndZE /home/ponfo/Documents/Project789/applications/CFD2D/Gid/CFD_Benchmark/cuña.gid/cuña.vv
 

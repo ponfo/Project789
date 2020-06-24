@@ -43,6 +43,9 @@ module ModelM
      generic  , public  :: getNode         => getNodeOneMesh, getNodeMultiMesh
      generic  , public  :: getElement      => getElementOneMesh, getElementMultiMesh
      generic  , public  :: getCondition    => getConditionOneMesh, getConditionMultiMesh
+     generic  , public  :: getNodes        => getNodesOneMesh, getNodesMultiMesh
+     generic  , public  :: getElements     => getElementsOneMesh, getElementsMultiMesh
+     generic  , public  :: getConditions   => getConditionsOneMesh, getConditionsMultiMesh
 
      generic  , public  :: removeNode      => removeNodeOneMesh, removeNodeMultiMesh
      generic  , public  :: removeElement   => removeElementOneMesh, removeElementMultiMesh
@@ -71,6 +74,12 @@ module ModelM
      procedure, private :: getElementMultiMesh
      procedure, private :: getConditionOneMesh
      procedure, private :: getConditionMultiMesh
+     procedure, private :: getNodesOneMesh
+     procedure, private :: getNodesMultiMesh
+     procedure, private :: getElementsOneMesh
+     procedure, private :: getElementsMultiMesh
+     procedure, private :: getConditionsOneMesh
+     procedure, private :: getConditionsMultiMesh
      procedure, private :: removeNodeOneMesh
      procedure, private :: removeNodeMultiMesh
      procedure, private :: removeElementOneMesh
@@ -255,6 +264,51 @@ contains
     integer(ikind), intent(in)    :: conditionID
     getConditionMultiMesh = this%mesh(meshID)%getCondition(conditionID)
   end function getConditionMultiMesh
+
+  function getNodesOneMesh(this)
+    implicit none
+    class(ModelDT) , intent(inout)                     :: this
+    type(NodePtrDT), dimension(this%getnNodeOneMesh()) :: getNodesOneMesh
+    getNodesOneMesh = this%mesh(1)%node
+  end function getNodesOneMesh
+
+  function getNodesMultiMesh(this, meshID)
+    implicit none
+    class(ModelDT) , intent(inout)                             :: this
+    integer(ikind) , intent(in)                                :: meshID
+    type(NodePtrDT), dimension(this%getnNodeMultiMesh(meshID)) :: getNodesMultiMesh
+    getNodesMultiMesh = this%mesh(meshID)%node
+  end function getNodesMultiMesh
+
+  function getElementsOneMesh(this)
+    implicit none
+    class(ModelDT)    , intent(inout)                        :: this
+    type(ElementPtrDT), dimension(this%getnElementOneMesh()) :: getElementsOneMesh
+    getElementsOneMesh = this%mesh(1)%element
+  end function getElementsOneMesh
+
+  function getElementsMultiMesh(this, meshID)
+    implicit none
+    class(ModelDT)    , intent(inout)                                :: this
+    integer(ikind)    , intent(in)                                   :: meshID
+    type(ElementPtrDT), dimension(this%getnElementMultiMesh(meshID)) :: getElementsMultiMesh
+    getElementsMultiMesh = this%mesh(meshID)%element
+  end function getElementsMultiMesh
+
+  function getConditionsOneMesh(this)
+    implicit none
+    class(ModelDT)      , intent(inout)                          :: this
+    type(ConditionPtrDT), dimension(this%getnConditionOneMesh()) :: getConditionsOneMesh
+    getConditionsOneMesh = this%mesh(1)%condition
+  end function getConditionsOneMesh
+
+  function getConditionsMultiMesh(this, meshID)
+    implicit none
+    class(ModelDT)      , intent(inout)                                  :: this
+    integer(ikind)      , intent(in)                                     :: meshID
+    type(ConditionPtrDT), dimension(this%getnConditionMultiMesh(meshID)) :: getConditionsMultiMesh
+    getConditionsMultiMesh = this%mesh(meshID)%condition
+  end function getConditionsMultiMesh
 
   subroutine removeNodeOneMesh(this, nodeID)
     implicit none

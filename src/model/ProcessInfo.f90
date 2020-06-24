@@ -23,6 +23,7 @@ module ProcessInfoM
      procedure, public :: setTime
      procedure, public :: setDT
      procedure, public :: setMinimumDT
+     procedure, public :: freeDT
      procedure, public :: setErrorTol
      procedure, public :: setPrintStep
      procedure, public :: setT0
@@ -78,6 +79,12 @@ contains
     end if
   end subroutine setMinimumDT
 
+  subroutine freeDT(this)
+    implicit none
+    class(ProcessInfoDT), intent(inout) :: this
+    if(allocated(this%dt)) deallocate(this%dt)
+  end subroutine freeDT
+
   subroutine setPrintStep(this, printStep)
     implicit none
     class(ProcessInfoDT), intent(inout) :: this
@@ -86,7 +93,7 @@ contains
     this%printStep = printStep
   end subroutine setPrintStep
 
-    subroutine setT0(this, t0)
+  subroutine setT0(this, t0)
     implicit none
     class(ProcessInfoDT), intent(inout) :: this
     real(rkind)         , intent(in)    :: t0

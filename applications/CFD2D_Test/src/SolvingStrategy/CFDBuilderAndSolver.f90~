@@ -1,0 +1,139 @@
+module CFDBuilderAndSolverM
+
+  use UtilitiesM
+  use SparseKit
+  use DebuggerM
+
+  use SparseKit
+
+  use NodePtrM
+  use ElementPtrM
+  use ConditionPtrM
+
+  use CFDElementM
+
+  use LeftHandSideM
+
+  use CFDModelM
+  use CFDApplicationM
+
+  use BuilderAndSolverM
+
+  implicit none
+
+  private
+  public :: CFDBuilderAndSolverDT
+
+  type, extends(NewBuilderAndSolverDT) :: CFDBuilderAndSolverDT
+   contains
+     procedure :: buildAndSolve
+     procedure :: update
+  end type CFDBuilderAndSolverDT
+  
+contains
+
+  subroutine buildAndSolve(this, app)
+    implicit none
+    class(CFDBuilderAndSolverDT), intent(inout) :: this
+    class(CFDApplicationDT)     , intent(inout) :: app
+    call applyDirichlet(app)
+    call calculateStab(app)
+    call assembleSystem(app)
+  end subroutine buildAndSolve
+
+  subroutine update(this, app)
+    implicit none
+    class(CFDBuilderAndSolverDT), intent(inout) :: this
+    class(CFDApplicationDT)     , intent(inout) :: app
+    call applyDirichlet(app)
+    call assembleSystem(app)
+  end subroutine update
+
+  subroutine assembleSystem(app)
+    implicit none
+    class(CFDApplicationDT), intent(inout)     :: app
+    integer(ikind)                             :: iNode, i, iNodeID, j
+    integer(ikind)                             :: iElem, nElem, nNode
+    type(LeftHandSideDT)                       :: localLHS
+    real(rkind), dimension(:)    , allocatable :: localRHS
+    type(ElementPtrDT)                         :: element
+    nElem = app%model%getnElement()
+    do iElem = 1, nElem
+       element = app%model%getElement(iElem)
+       nNode = element%getnNode()
+       call element%calculateLocalSystem(app%model%processInfo, localLHS, localRHS)
+       do iNode = 1, nNode
+          iNodeID = element%getNodeID(iNode)
+          model%rhs(:,iNodeID) = model%rhs(:,iNodeID) + localLHS%stiffness(1:4,iNode)
+       end do
+       call localLHS%free()
+    end do
+  end subroutine assembleSystem
+  
+  subroutine calculateStab(app)
+    implicit none
+    class(CFDApplicationDT), intent(inout) :: app
+    call zeroStabMat()
+    nElem = app%model%getnElement()
+    do iElem = 1, nElem
+       call app%element(iElem)%calculateStabMat()
+    end do
+  end subroutine calculateStab
+
+  subroutine applyDirichlet(app)
+    implicit none
+    class(CFDApplicationDT)             , intent(inout) :: app
+    integer(ikind)                                      :: iCond, nCond, iNode, iNodeID
+    real(rkind)             , dimension(:), allocatable :: localRHS
+    real(rkind)                                         :: Vx, Vy, filter, nx, ny
+    integer(ikind)                                      :: i, nNode, nodeID, nDof
+    integer(ikind)          , dimension(:), allocatable :: position
+    type(NodePtrDT)                                     :: node
+    type(ConditionPtrDT)                                :: condition
+    nCond = app%model%getnCondition()
+    nNode = app%model%getnNode()
+    nDof = 4
+    do i = 1, nNode
+       node = app%model%getNode(i)
+       if(node%ptr%dof(1)%isFixed) then
+          nodeID = node%ptr%getID()
+          app%model%dof(1,nodeID) = node%ptr%dof(1)%fixedVal
+       end if
+       if(node%ptr%dof(2)%isFixed) then
+          nodeID = node%ptr%getID()
+          app%model%dof(2,nodeID) = node%ptr%dof(2)%fixedVal
+       end if
+       if(node%ptr%dof(3)%isFixed) then
+          nodeID = node%ptr%getID()
+          app%model%dof(3,nodeID) = node%ptr%dof(3)%fixedVal
+       end if
+       if(node%ptr%dof(4)%isFixed) then
+          nodeID = node%ptr%getID()
+          app%model%dof(4,nodeID) = node%ptr%dof(4)%fixedVal
+       end if
+    end do
+    allocate(position(nNode))
+    position = 0
+    do iCond = 1, nCond
+       condition = app%model%getCondition(iCond)
+       nNode = condition%getnNode()
+       call condition%calculateRHS(app%model%processInfo, localRHS)
+       do iNode = 1, nNode
+          iNodeID = condition%getNodeID(iNode)
+          position(iNodeID) = position(iNodeID) + 1
+          if (position(iNodeID) .le. 1) then
+             i = i + 1
+             Vx  = app%model%dof(2,iNodeID)
+             Vy  = app%model%dof(3,iNodeID)
+             nx  = localRHS(iNode*2-1)
+             ny  = localRHS(iNode*2  )
+             app%model%dof(2,iNodeID) = (Vx*nx + Vy*ny)*nx
+             app%model%dof(3,iNodeID) = (Vx*nx + Vy*ny)*ny
+          end if
+       end do
+       deallocate(localRHS)
+    end do
+    deallocate(position)
+  end subroutine applyDirichlet
+
+end module CFDBuilderAndSolverM
