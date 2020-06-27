@@ -4,7 +4,7 @@ module AdamsB4M
 
   use ProcessM
 
-  use SchemeM
+  use BaseIntegrandM
 
   use IntegrandM
 
@@ -13,7 +13,7 @@ module AdamsB4M
   private
   public :: AdamsB4DT
 
-  type, extends(NewSchemeDT) :: AdamsB4DT
+  type, extends(BaseIntegrandDT) :: AdamsB4DT
    contains
      procedure, nopass  :: integrate
   end type ADAMSB4DT

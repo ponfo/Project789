@@ -19,8 +19,9 @@ OBJECTS := $(BINDIR)/CFDMaterial.o      \
 	$(BINDIR)/CFDBuilderAndSolver.o \
 	$(BINDIR)/CFDScheme.o           \
 	$(BINDIR)/NavierStokes2D.o      \
-	$(BINDIR)/CFDStrategy.o         \
 	$(BINDIR)/DataInput.o           \
+	$(BINDIR)/SolvingStrategy.o     \
+	$(BINDIR)/CFDStrategy.o         \
 	$(BINDIR)/main.o
 
 LIBRARIES := $(LIB)/project789.a
@@ -44,6 +45,8 @@ $(BINDIR)/CFDBuilderAndSolver.o : $(VPATH)/SolvingStrategy/CFDBuilderAndSolver.f
 $(BINDIR)/CFDScheme.o : $(VPATH)/SolvingStrategy/CFDScheme.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/CFDStrategy.o : $(VPATH)/SolvingStrategy/CFDStrategy.f90
+	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
+$(BINDIR)/SolvingStrategy.o : $(VPATH)/SolvingStrategy/SolvingStrategy.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/CFDApplication.o : $(VPATH)/CFDApplication.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@

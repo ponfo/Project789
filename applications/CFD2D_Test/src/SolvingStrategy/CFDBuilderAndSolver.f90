@@ -10,7 +10,7 @@ module CFDBuilderAndSolverM
   use ElementPtrM
   use ConditionPtrM
 
-  use CFDElementM
+  use CFDElementM 
 
   use LeftHandSideM
 
@@ -36,7 +36,6 @@ contains
     implicit none
     class(CFDBuilderAndSolverDT), intent(inout) :: this
     class(CFDApplicationDT)     , intent(inout) :: app
-    call applyDirichlet(app)
     call calculateStab(app)
     call assembleSystem(app)
   end subroutine buildAndSolve
@@ -46,7 +45,6 @@ contains
     class(CFDBuilderAndSolverDT), intent(inout) :: this
     class(CFDApplicationDT)     , intent(inout) :: app
     call applyDirichlet(app)
-    call assembleSystem(app)
   end subroutine update
 
   subroutine assembleSystem(app)

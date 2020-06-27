@@ -1,4 +1,4 @@
-# Makefile
+# Makefile 
 
 VPATH		:=  src
 BINDIR		:=  Bin
@@ -6,7 +6,7 @@ OBJECTDIR	:=  Objects
 LIB		:=  ../../lib
 LIBOBJECTS	:=  $(LIB)/Objects
 COMPILER	:=  ifort
-FFLAGS		:=  -Ofast -qopenmp -free -check bounds -mkl -liomp5 -lpthread -ldl -traceback -module $(OBJECTDIR)
+FFLAGS		:=  -Ofast -qopenmp -free -mkl -liomp5 -lpthread -ldl -traceback -module $(OBJECTDIR)
 FFLAGSDebug 	:=  -O0 -fpp -check bounds -traceback -warn nounused -module $(OBJECTDIR)
 
 OBJECTS := $(BINDIR)/CFDMaterial.o      \
@@ -18,9 +18,10 @@ OBJECTS := $(BINDIR)/CFDMaterial.o      \
 	$(BINDIR)/CFDBuilderAndSolver.o \
 	$(BINDIR)/CFDScheme.o           \
 	$(BINDIR)/NavierStokes2D.o      \
-	$(BINDIR)/CFDStrategy.o         \
 	$(BINDIR)/CFDApplication.o      \
 	$(BINDIR)/DataInput.o           \
+	$(BINDIR)/SolvingStrategy.o     \
+	$(BINDIR)/CFDStrategy.o         \
 	$(BINDIR)/main.o
 
 LIBRARIES := $(LIB)/project789.a
@@ -44,6 +45,8 @@ $(BINDIR)/CFDBuilderAndSolver.o : $(VPATH)/SolvingStrategy/CFDBuilderAndSolver.f
 $(BINDIR)/CFDScheme.o : $(VPATH)/SolvingStrategy/CFDScheme.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/CFDStrategy.o : $(VPATH)/SolvingStrategy/CFDStrategy.f90
+	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
+$(BINDIR)/SolvingStrategy.o : $(VPATH)/SolvingStrategy/SolvingStrategy.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/CFDApplication.o : $(VPATH)/CFDApplication.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@

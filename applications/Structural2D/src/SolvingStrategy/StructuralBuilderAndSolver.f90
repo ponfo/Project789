@@ -1,9 +1,8 @@
 module StructuralBuilderAndSolverM
 
   use UtilitiesM
-  use DebuggerM
-
   use SparseKit
+  use DebuggerM
 
   use NodePtrM
   use ElementPtrM
@@ -33,32 +32,24 @@ contains
   subroutine buildAndSolve(this, model)
     implicit none
     class(StructuralBuilderAndSolverDT), intent(inout) :: this
-    class(StructuralModelDT)       , intent(inout) :: model
-    integer(ikind) :: i
+    class(StructuralModelDT)           , intent(inout) :: model
     write(*,*) '*** Structural Builder And Solver ***'
     call debugLog('  Assembling stiffness matrix and right hand side vector')
     print'(A)', 'Assembling stiffness matrix and right hand side vector'
     call assembleSystem(model)
     call applyBC(model)
-!!$    print*, 'SYSTEM'
-!!$    print*, 'LHS'
-!!$    call model%lhs%printNonZeros()
-!!$    print*, 'RHS'
-!!$    do i = 1, size(model%rhs)
-!!$       print'(A,I0,A,E16.8)', 'rhs(', i, ') = ', model%rhs(i)
-!!$    end do
     write(*,*) '*** Init Linear Solver ***'
     call solve(model)
   end subroutine buildAndSolve
 
   subroutine assembleSystem(model)
     implicit none
-    class(StructuralModelDT)    , intent(inout) :: model
-    integer(ikind)                              :: iNode, jNode, iDof, jDof, iNodeID, jNodeID
-    integer(ikind)                              :: iElem, nElem, nNode, nDof
-    type(LeftHandSideDT)                        :: localLHS
-    real(rkind), dimension(:)  , allocatable    :: localRHS
-    type(ElementPtrDT)                          :: element
+    class(StructuralModelDT), intent(inout) :: model
+    integer(ikind)                          :: iNode, jNode, iDof, jDof, iNodeID, jNodeID
+    integer(ikind)                          :: iElem, nElem, nNode, nDof
+    type(LeftHandSideDT)                    :: localLHS
+    real(rkind), dimension(:), allocatable  :: localRHS
+    type(ElementPtrDT)                      :: element
     nElem = model%getnElement()
     nDof = 2
     do iElem = 1, nElem
@@ -123,15 +114,15 @@ contains
     nDof = 2
     do i = 1, nNode
        node = model%getNode(i)
-       if(node%ptr%dof(2)%isFixed) then
+       if(node%ptr%dof(1)%isFixed) then
           nodeID = node%ptr%getID()
           call model%lhs%setDirichlet(nodeID*nDof-1)
-          model%rhs(nodeID*nDof-1) = node%ptr%dof(2)%fixedVal
+          model%rhs(nodeID*nDof-1) = node%ptr%dof(1)%fixedVal
        end if
-       if(node%ptr%dof(3)%isFixed) then
+       if(node%ptr%dof(2)%isFixed) then
           nodeID = node%ptr%getID()
           call model%lhs%setDirichlet(nodeID*nDof)
-          model%rhs(nodeID*nDof) = node%ptr%dof(3)%fixedVal
+          model%rhs(nodeID*nDof) = node%ptr%dof(2)%fixedVal
        end if
     end do
   end subroutine applyDirichlet
@@ -192,9 +183,7 @@ contains
     end do
     data(136)     = msglvl
     data(137)     = error
-
     call UserSolver%solve(model%rhs, model%lhs, model%dof, data)
-
     call cpu_time(finish)
     print'(a,e14.7)', 'solver time => ', (finish-start)
     call debuglog('done solving')

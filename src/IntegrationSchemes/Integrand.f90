@@ -4,7 +4,7 @@ module IntegrandM
   
   use ProcessM
 
-  use SchemeM 
+  use BaseIntegrandM 
 
   implicit none 
 
@@ -12,12 +12,12 @@ module IntegrandM
   public :: IntegrandDT
   
   type, abstract, extends(NewProcessDT) :: IntegrandDT
-     class(NewSchemeDT), allocatable               :: quadrature
-     class(IntegrandDT), pointer :: previous1 => null()
-     class(IntegrandDT), pointer :: previous2 => null()
-     class(IntegrandDT), pointer :: previous3 => null()
-     real(rkind), dimension(:), allocatable   :: state
-     integer(ikind)                           :: step
+     class(BaseIntegrandDT), allocatable    :: quadrature
+     class(IntegrandDT), pointer            :: previous1 => null()
+     class(IntegrandDT), pointer            :: previous2 => null()
+     class(IntegrandDT), pointer            :: previous3 => null()
+     real(rkind), dimension(:), allocatable :: state
+     integer(ikind)                         :: step
    contains
      procedure, non_overridable :: integrate  
      procedure, non_overridable :: set_quadrature
@@ -62,15 +62,15 @@ module IntegrandM
 contains
   
   subroutine set_quadrature (this, s)
-    class(IntegrandDT), intent(inout) :: this
-    class(NewSchemeDT), intent(in) :: s
+    class(IntegrandDT)    , intent(inout) :: this
+    class(BaseIntegrandDT), intent(in) :: s
     if (allocated(this%quadrature)) deallocate (this%quadrature)
     allocate (this%quadrature, source=s)
   end subroutine set_quadrature
   
   function get_quadrature (this) result (this_strategy)
-    class(IntegrandDT), intent(in) :: this
-    class(NewSchemeDT), allocatable :: this_strategy
+    class(IntegrandDT)    , intent(in)  :: this
+    class(BaseIntegrandDT), allocatable :: this_strategy
     allocate (this_strategy, source=this%quadrature)
   end function get_quadrature
   

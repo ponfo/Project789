@@ -1,7 +1,6 @@
 module StructuralSchemeM
 
   use UtilitiesM
-  use DebuggerM
 
   use IntegratorPtrM
 
@@ -20,8 +19,7 @@ module StructuralSchemeM
 
   type, extends(NewSchemeDT) :: StructuralSchemeDT
    contains
-     procedure, public              :: calculatePost
-     procedure, nopass              :: integrate => integrator
+     procedure, public :: calculatePost
   end type StructuralSchemeDT
   
 contains
@@ -122,12 +120,5 @@ contains
        deallocate(localResultMat)
     end do
   end subroutine calculatePost
-  
-  subroutine integrator(this, dt, multi_step)
-    implicit none
-    class(NewProcessDT), intent(inout) :: this
-    real(rkind)        , intent(in)    :: dt
-    logical            , intent(in) :: multi_step
-  end subroutine integrator
 
 end module StructuralSchemeM

@@ -45,7 +45,7 @@ module CFDElementM
      procedure, public  :: calculateTauNu
      procedure, private :: setupIntegration
      procedure, private :: getValuedSource
-     procedure  :: vectorCalculus
+     procedure, private :: vectorCalculus
   end type CFDElementDT
 
   interface cfdElement

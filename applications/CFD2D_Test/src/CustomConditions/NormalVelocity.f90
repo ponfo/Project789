@@ -24,7 +24,6 @@ module NormalVelocityM
      integer(ikind), dimension(:), allocatable :: nodeIDList
    contains
      procedure, public :: init
-
      procedure, public :: calculateLocalSystem
      procedure, public :: calculateLHS
      procedure, public :: calculateRHS

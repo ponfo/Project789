@@ -2,7 +2,6 @@ module CFDSchemeM
 
   use UtilitiesM
   
-  use CFDModelM
   use CFDApplicationM
   
   use SchemeM
@@ -16,8 +15,7 @@ module CFDSchemeM
 
   type, extends(NewSchemeDT) :: CFDSchemeDT
    contains
-     procedure, public :: calculateOutputs
-     procedure, nopass :: integrate => integrator
+     procedure :: calculateOutputs
   end type CFDSchemeDT
   
 contains
@@ -51,13 +49,13 @@ contains
        allocate(app%model%results%temperature(dim))
        allocate(app%model%results%internalEnergy(dim))
     end if
-    app%model%results%density(:)        = 0._rkind
-    app%model%results%velocity(:,1)     = 0._rkind
-    app%model%results%velocity(:,2)     = 0._rkind
-    app%model%results%internalEnergy(:) = 0._rkind
-    app%model%results%temperature(:)    = 0._rkind
-    app%model%results%mach(:)           = 0._rkind
-    app%model%results%pressure(:)       = 0._rkind
+    app%model%results%density(:)        = 0.d0
+    app%model%results%velocity(:,1)     = 0.d0
+    app%model%results%velocity(:,2)     = 0.d0
+    app%model%results%internalEnergy(:) = 0.d0
+    app%model%results%temperature(:)    = 0.d0
+    app%model%results%mach(:)           = 0.d0
+    app%model%results%pressure(:)       = 0.d0
     R     = app%model%processInfo%getConstants(3)
     Cv    = app%model%processInfo%getConstants(4)
     Vc    = app%model%processInfo%getConstants(5)
@@ -67,7 +65,7 @@ contains
        rho = app%model%dof(iNode*4-3)
        Vx  = app%model%dof(iNode*4-2)/rho
        Vy  = app%model%dof(iNode*4-1)/rho
-       E   = app%model%dof(iNode*4)/rho
+       E   = app%model%dof(iNode*4  )/rho
        T   = (E-0.5d0*(Vx**2+Vy**2))/Cv
        M   = sqrt(Vx**2+Vy**2)/Vc
        P   = rho*R*T
@@ -81,12 +79,8 @@ contains
     end do
     !$OMP END PARALLEL DO
   end subroutine calculateOutputs
-  
-  subroutine integrator(this, dt, multi_step)
-    implicit none
-    class(NewProcessDT), intent(inout) :: this
-    real(rkind)        , intent(in)    :: dt
-    logical            , intent(in) :: multi_step
-  end subroutine integrator
 
 end module CFDSchemeM
+
+
+

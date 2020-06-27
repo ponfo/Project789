@@ -1,4 +1,5 @@
 module PressureM
+  
   use UtilitiesM
 
   use PointM
@@ -26,7 +27,6 @@ module PressureM
      class(StructuralMaterialDT) , pointer     :: material
    contains
      procedure, public :: init
-
      procedure, public :: calculateLocalSystem
      procedure, public :: calculateLHS
      procedure, public :: calculateRHS

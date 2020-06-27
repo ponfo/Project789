@@ -17,9 +17,10 @@ OBJECTS := $(BINDIR)/ThermalMaterial.o      \
 	$(BINDIR)/ThermalModel.o            \
 	$(BINDIR)/ThermalBuilderAndSolver.o \
 	$(BINDIR)/ThermalScheme.o           \
-	$(BINDIR)/ThermalStrategy.o         \
 	$(BINDIR)/Thermal2DApplication.o    \
 	$(BINDIR)/DataInput.o               \
+	$(BINDIR)/SolvingStrategy.o	    \
+	$(BINDIR)/ThermalStrategy.o         \
 	$(BINDIR)/main.o
 
 LIBRARIES := $(LIB)/project789.a
@@ -50,6 +51,8 @@ $(BINDIR)/ThermalModel.o : $(VPATH)/Model/ThermalModel.f90
 $(BINDIR)/ThermalBuilderAndSolver.o : $(VPATH)/SolvingStrategy/ThermalBuilderAndSolver.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/ThermalScheme.o : $(VPATH)/SolvingStrategy/ThermalScheme.f90
+	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
+$(BINDIR)/SolvingStrategy.o : $(VPATH)/SolvingStrategy/SolvingStrategy.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/ThermalStrategy.o : $(VPATH)/SolvingStrategy/ThermalStrategy.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@

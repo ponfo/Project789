@@ -40,15 +40,6 @@ contains
     print'(A)', 'Assembling stiffness matrix and right hand side vector'
     call assembleSystem(model)
     call applyBC(model)
-!!$    print*, 'SYSTEM'
-!!$    print*, 'LHS'
-!!$    call model%lhs%printNonZeros()
-!!$    print*, 'Mass'
-!!$    call model%mass%printNonZeros()
-!!$    print*, 'RHS'
-!!$    do i = 1, size(model%rhs)
-!!$       print'(A,I0,A,E16.8)', 'rhs(', i, ') = ', model%rhs(i)
-!!$    end do
   end subroutine buildAndSolve
 
   subroutine assembleSystem(model)

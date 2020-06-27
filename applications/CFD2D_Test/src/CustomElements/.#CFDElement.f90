@@ -1,1 +1,0 @@
-ponfo@ponfo-kubuntu.12734:1592889859

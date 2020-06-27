@@ -14,7 +14,6 @@ module PrintM
   type, extends(NewProcessDT) :: PrintDT
    contains
      procedure :: initPrint
-     procedure :: useProcess => use
      procedure :: print
   end type PrintDT
 
@@ -75,10 +74,5 @@ contains
          , component1   = velocity(:,1)               &
          , component2   = velocity(:,2)               )
   end subroutine print
-
-  subroutine use(this)
-    implicit none
-    class(PrintDT), intent(inout) :: this
-  end subroutine use
   
 end module PrintM

@@ -76,7 +76,7 @@ contains
     call initLog(.true., 'log.dat')
     call debugLog('  Reading project data')
     call readProjectData
-    call debugLog('  Reading mesh data')
+    call debugLog('  Reading mesh data') 
     call initMesh(cfdAppl)
     call debugLog('  Reading materials properties')
     call initMaterials(cfdAppl)
@@ -86,9 +86,9 @@ contains
     call readPointLineSurfaceSources(cfdAppl)
     call debugLog('  Reading Boundary Conditions')
     call readBoundaryConditions(cfdAppl)
-    call debugLog('  Initializing Dofs')
-    call initDof(cfdAppl)
     call debugLog('End loading data')
+    call debugLog('Initializing Dofs')
+    call initDof(cfdAppl)
   end subroutine initFEM2D
   
   subroutine readProjectData

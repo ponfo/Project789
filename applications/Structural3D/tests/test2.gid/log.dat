@@ -1,43 +1,50 @@
- 2:35:16  Initiating Program
- 2:35:16    Reading project data
- 2:35:16      Project name: test2
- 2:35:16      Path: /home/ponfo/Documents/Project789/applications/Structural2D/Gid/Structural2D.gid
- 2:35:16    Reading mesh data
- 2:35:16      Number of Elements.............................: 100
- 2:35:16      Are Elements Quadratic.........................: 0
- 2:35:16      Number of Triangular elements..................: 0
- 2:35:16      Number of Rectangular elements.................: 100
- 2:35:16      Number of Nodes................................: 121
- 2:35:16      Number of Dirichlet X conditions...............: 11
- 2:35:16      Number of Dirichlet Y conditions...............: 11
- 2:35:16      Number of Pressure conditions..................: 10
- 2:35:16      Number of Loads on points......................: 1
- 2:35:16      Number of Loads on surfaces....................: 0
- 2:35:16      Number of points with pointSource..............: 1
- 2:35:16      Number of Surfaces with surfaceSource..........: 0
- 2:35:16      Number of Materials............................: 1
- 2:35:16      Gauss cuadrature order.........................: 3
- 2:35:16          Allocated weights: 4
- 2:35:16          Allocated gPoints: 8
- 2:35:16          Allocated weights: 3
- 2:35:16          Allocated gPoints: 3
- 2:35:16          Allocated weights: 4
- 2:35:16          Allocated gPoints: 8
- 2:35:16          Allocated weights: 3
- 2:35:16          Allocated gPoints: 3
- 2:35:16          Allocated weights: 9
- 2:35:16          Allocated gPoints: 18
- 2:35:16          Allocated weights: 3
- 2:35:16          Allocated gPoints: 3
- 2:35:16          Allocated weights: 9
- 2:35:16          Allocated gPoints: 18
- 2:35:16          Allocated weights: 3
- 2:35:16          Allocated gPoints: 3
- 2:35:16    Reading materials properties
- 2:35:16    Reading elements
- 2:35:16    Reading point and line Sources
- 2:35:16    Reading Boundary Conditions
- 2:35:16  End loading data
- 2:35:16    Assembling stiffness matrix and right hand side vector
- 2:35:16  solving linear system
- 2:35:16  done solving
+23: 1:50  Initiating Program
+23: 1:50    Reading project data
+23: 1:50      Project name: test2
+23: 1:50    Reading mesh data
+23: 1:50      Number of Elements.............................: 2500
+23: 1:50      Are Elements Quadratic.........................: 0
+23: 1:50      Number of Tetrahedral elements.................: 0
+23: 1:50      Number of Hexahedral elements..................: 0
+23: 1:50      Number of Nodes................................: 2601
+23: 1:50      Number of Dirichlet X conditions...............: 51
+23: 1:50      Number of Dirichlet Y conditions...............: 51
+23: 1:50      Number of Dirichlet Z conditions...............: 0
+23: 1:50      Number of Pressure conditions..................: 0
+23: 1:50      Number of Sources on points....................: 1
+23: 1:50      Number of Sources on surfaces..................: 0
+23: 1:50      Number of points with pointSource..............: 1
+23: 1:50      Number of Volumes with volumeSource............: 0
+23: 1:50      Number of Materials............................: 1
+23: 1:50      Gauss cuadrature order.........................: 3
+23: 1:50          Allocated weights: 11
+23: 1:50          Allocated gPoints: 33
+23: 1:50          Allocated weights: 4
+23: 1:50          Allocated gPoints: 8
+23: 1:50          Allocated weights: 3
+23: 1:50          Allocated gPoints: 3
+23: 1:50          Allocated weights: 11
+23: 1:50          Allocated gPoints: 33
+23: 1:50          Allocated weights: 4
+23: 1:50          Allocated gPoints: 8
+23: 1:50          Allocated weights: 3
+23: 1:50          Allocated gPoints: 3
+23: 1:50          Allocated weights: 27
+23: 1:50          Allocated gPoints: 81
+23: 1:50          Allocated weights: 9
+23: 1:50          Allocated gPoints: 18
+23: 1:50          Allocated weights: 3
+23: 1:50          Allocated gPoints: 3
+23: 1:50          Allocated weights: 27
+23: 1:50          Allocated gPoints: 81
+23: 1:50          Allocated weights: 9
+23: 1:50          Allocated gPoints: 18
+23: 1:50          Allocated weights: 3
+23: 1:50          Allocated gPoints: 3
+23: 1:50    Reading materials properties
+23: 1:50    Reading elements
+23: 1:50    Reading point and line Sources
+23: 1:50    Reading Boundary Conditions
+23: 1:50  End loading data
+23: 1:50    Assembling stiffness matrix and right hand side vector
+23: 1:51  solving linear system

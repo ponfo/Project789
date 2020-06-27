@@ -2,7 +2,7 @@ module BaseModelM
 
   use UtilitiesM
   
-  use SchemeM
+  use BaseIntegrandM
   
   use IntegrandM
   
@@ -18,7 +18,6 @@ module BaseModelM
      procedure, public :: add        => add_BaseModel
      procedure, public :: multiply   => multiply_BaseModel
      procedure, public :: assign     => assign_BaseModel
-     procedure, public :: useProcess => process
      procedure, public :: output    
   end type BaseModelDT
   
@@ -27,17 +26,12 @@ module BaseModelM
   end interface SetBaseModel
   
 contains
-
-  subroutine process(this)
-    implicit none
-    class(BaseModelDT), intent(inout) :: this
-  end subroutine process
   
   type(BaseModelDT) function constructor(initial_state,c,integrand, step)
     real(rkind), dimension(:) ,intent(in) :: initial_state
     real(rkind), intent(in) :: c
     integer(ikind), intent(in), optional :: step
-    class(NewSchemeDT),intent(in) :: integrand
+    class(BaseIntegrandDT),intent(in) :: integrand
     constructor%state=initial_state
     constructor%constant=c
     if (present(step)) constructor%step = step

@@ -130,20 +130,17 @@ contains
     integrator  = this%getIntegrator()
     jacobian    = this%geometry%jacobianAtGPoints(this%nodalPoints)
     jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
-    
     lambda  = this%material%k
     mu      = this%material%mu
     temp    = 0._rkind
     Cv      = this%material%Cv
     T_inf   = this%material%T_inf
-    
     gamma   = this%material%gamma
     elemID  = this%getID()
     Ux      = 0._rkind
     Uy      = 0._rkind
     U_k     = 0._rkind
     theta_k = 0._rkind
-
     rhs = 0._rkind
     do i = 1, nNode
        do j = 1, nDof
@@ -153,9 +150,7 @@ contains
        Uy = Uy + U(:,i)*this%dNdy(i)
        temp = temp + (((U(4,i)/U(1,i))-0.5*((U(2,i)/U(1,i))**2+(U(3,i)/U(1,i))**2))/Cv)/nNode
     end do
-
     lambda = lambda*(temp/T_inf)**1.5*(T_inf + 194)/(temp + 194)
-    
     do k = 1, integrator%getIntegTerms()
        do i = 1, nNode
           iNodeID = this%getNodeID(i)
@@ -206,8 +201,6 @@ contains
        A2AiUi_theta(1) = A2AiUi_theta(1)*this%Tau(1)    
        A2AiUi_theta(2:3) = A2AiUi_theta(2:3)*this%Tau(2)
        A2AiUi_theta(4) = A2AiUi_theta(4)*this%Tau(3)
-
-       
        K1jUj(1) = 0._rkind
        K1jUj(2) = (2._rkind/3._rkind)*mu*(-2*Ux(1)*v1 + 2*Ux(2) + Uy(1)*v2 - Uy(3))/rho
        K1jUj(3) = mu*(-Ux(1)*v2 + Ux(3) - Uy(1)*v1 + Uy(2))/rho
@@ -220,8 +213,6 @@ contains
        K2jUj(4) = (1._rkind/3._rkind)*(Cv*mu*(-Ux(1)*v1*v2 - 2*Ux(2)*v2 + 3*Ux(3)*v1) &
             - Uy(1)*(Cv*mu*(3*V_sq + v2**2) - 3*lambda*(V_sq - e)) + 3*Uy(2)*v1*(Cv*mu &
             - lambda) + Uy(3)*v2*(4*Cv*mu - 3*lambda) + 3*Uy(4)*lambda)/(Cv*rho)
-
-       
        do i = 1, nNode
           iNodeID = this%getNodeID(i)
           rhs(i*nDof-3:i*nDof) = rhs(i*nDof-3:i*nDof) - (integrator%getShapeFunc(k,i)*AiUi &

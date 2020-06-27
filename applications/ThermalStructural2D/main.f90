@@ -2,6 +2,7 @@ program main
   
   use DataInputM
   use ThermalStruct2DApplicationM
+  use SolvingStrategyM
   use ThermalStrategyM
   use StructuralStrategyM
   use GIDDataOutputM
@@ -9,12 +10,13 @@ program main
   implicit none
 
   type(ThermalStruct2DApplicationDT) :: application
+  type(SolvingStrategyDT)            :: solvingStrategy
   type(ThermalStrategyDT)            :: thermalStrategy
   type(StructuralStrategyDT)         :: structuralStrategy
 
   call initFEM2D(application)
-  
-  call thermalStrategy%buildStrategyAndSolve(application%thermalModel)
+  solvingStrategy = InitSolvingStrategy(thermalStrategy, application%thermalModel)
+  call solvingStrategy%useStrategy()
   call initDataOutput()
   call printResults(resultName = 'Temperature'              &
        , step         = 1                                   &
@@ -45,7 +47,8 @@ program main
 
   call application%transitionToStructural()
   
-  call structuralStrategy%buildStrategyAndSolve(application%structuralModel)
+  solvingStrategy = InitSolvingStrategy(structuralStrategy, application%structuralModel)
+  call solvingStrategy%useStrategy()
   
   call printResults(resultName = 'Displacement'                &
        , step         = 1                                      &

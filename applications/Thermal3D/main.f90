@@ -3,15 +3,18 @@ program main
   use DataInputM
   use Thermal3DApplicationM
   use ThermalStrategyM
+  use SolvingStrategyM
   use GIDDataOutputM
 
   implicit none
 
   type(Thermal3DApplicationDT)   :: application
-  type(ThermalStrategyDT)        :: thermalStrategy
+  type(ThermalStrategyDT)        :: strategy
+  type(SolvingStrategyDT)        :: solvingStrategy
 
   call initFEM3D(application)
-  call thermalStrategy%buildStrategyAndSolve(application%model)
+  solvingStrategy = InitSolvingStrategy(strategy, application%model)
+  call solvingStrategy%useStrategy()
   call initDataOutput()
   call printResults(resultName = 'Temperature'       &
        , step         = 1                            &

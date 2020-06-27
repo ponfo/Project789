@@ -1,4 +1,4 @@
-# Makefile
+# Makefile 
 
 VPATH		:=  src
 BINDIR		:=  Bin
@@ -6,7 +6,7 @@ OBJECTDIR	:=  Objects
 LIB		:=  ../../lib
 LIBOBJECTS	:=  $(LIB)/Objects
 COMPILER	:=  ifort
-FFLAGS		:=  -Ofast -qopenmp -free -check bounds -mkl -liomp5 -lpthread -ldl -traceback -module $(OBJECTDIR)
+FFLAGS		:=  -Ofast -qopenmp -free -mkl -liomp5 -lpthread -ldl -traceback -module $(OBJECTDIR)
 FFLAGSDebug 	:=  -O0 -fpp -check bounds -traceback -warn nounused -module $(OBJECTDIR)
 
 OBJECTS := $(BINDIR)/StructuralMaterial.o      \
@@ -18,9 +18,10 @@ OBJECTS := $(BINDIR)/StructuralMaterial.o      \
 	$(BINDIR)/StructuralModel.o            \
 	$(BINDIR)/StructuralBuilderAndSolver.o \
 	$(BINDIR)/StructuralScheme.o           \
-	$(BINDIR)/StructuralStrategy.o         \
 	$(BINDIR)/Structural2DApplication.o    \
 	$(BINDIR)/DataInput.o                  \
+	$(BINDIR)/SolvingStrategy.o	       \
+	$(BINDIR)/StructuralStrategy.o         \
 	$(BINDIR)/main.o
 
 LIBRARIES := $(LIB)/project789.a
@@ -53,6 +54,8 @@ $(BINDIR)/StructuralModel.o : $(VPATH)/Model/StructuralModel.f90
 $(BINDIR)/StructuralBuilderAndSolver.o : $(VPATH)/SolvingStrategy/StructuralBuilderAndSolver.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/StructuralScheme.o : $(VPATH)/SolvingStrategy/StructuralScheme.f90
+	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
+$(BINDIR)/SolvingStrategy.o : $(VPATH)/SolvingStrategy/SolvingStrategy.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/StructuralStrategy.o : $(VPATH)/SolvingStrategy/StructuralStrategy.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@

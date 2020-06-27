@@ -84,13 +84,15 @@ OBJECTS := $(BINDIR)/Utilities.o                \
 						\
 	$(BINDIR)/BuilderAndSolver.o		\
 	$(BINDIR)/Scheme.o			\
+	$(BINDIR)/BaseIntegrand.o		\
 	$(BINDIR)/Integrand.o			\
 	$(BINDIR)/BaseModel.o			\
 	$(BINDIR)/RK2.o				\
 	$(BINDIR)/RK4.o				\
 	$(BINDIR)/AdamsB4.o			\
 	$(BINDIR)/ExplicitEuler.o		\
-	$(BINDIR)/SolvingStrategy.o             \
+	$(BINDIR)/NewStrategy.o			\
+	$(BINDIR)/NewSolvingStrategy.o          \
                                                 \
 	$(BINDIR)/GIDDataOutput.o               
 
@@ -239,11 +241,15 @@ $(BINDIR)/BuilderAndSolver.o : $(VPATH)/SolvingStrategy/BuilderAndSolver.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/Scheme.o : $(VPATH)/SolvingStrategy/Scheme.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
-$(BINDIR)/SolvingStrategy.o : $(VPATH)/SolvingStrategy/SolvingStrategy.f90
+$(BINDIR)/NewSolvingStrategy.o : $(VPATH)/SolvingStrategy/NewSolvingStrategy.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/NewStrategy.o : $(VPATH)/SolvingStrategy/NewStrategy.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/BaseModel.o : $(VPATH)/IntegrationSchemes/BaseModel.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/Integrand.o : $(VPATH)/IntegrationSchemes/Integrand.f90
+	$(COMPILER) $(FFLAGS) -c $^ -o $@
+$(BINDIR)/BaseIntegrand.o : $(VPATH)/IntegrationSchemes/BaseIntegrand.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@
 $(BINDIR)/ExplicitEuler.o : $(VPATH)/IntegrationSchemes/ExplicitEuler.f90
 	$(COMPILER) $(FFLAGS) -c $^ -o $@

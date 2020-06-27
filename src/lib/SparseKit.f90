@@ -1077,7 +1077,7 @@ contains
              call inverse%append( val = solution(j) , row = i, col = j)
           end if
        end do
-       write(*,*) 'Inverse =>', (100*i/A%getn()),'%'
+       !write(*,*) 'Inverse =>', (100*i/A%getn()),'%'
     end do
     deallocate(vector,solution)
     call inverse%makeCRS(sortRows)

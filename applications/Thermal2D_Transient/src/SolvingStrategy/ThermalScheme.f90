@@ -20,8 +20,7 @@ module ThermalSchemeM
 
   type, extends(NewSchemeDT) :: ThermalSchemeDT
    contains
-     procedure, public              :: calculateFlux
-     procedure, nopass              :: integrate => integrator
+     procedure, public :: calculateFlux
   end type ThermalSchemeDT
   
 contains
@@ -65,14 +64,6 @@ contains
           end if
        end if
     end do
-!!$    if (allocated(model%heatFlux%triangElemID)) deallocate(model%heatFlux%triangElemID)
-!!$    allocate(model%heatFlux%triangElemID(nTriang))
-!!$    if (allocated(model%heatFlux%triangFlux)) deallocate(model%heatFlux%triangFlux)
-!!$    allocate(model%heatFlux%triangFlux(nPointsTriang,2))
-!!$    if (allocated(model%heatFlux%quadElemID)) deallocate(model%heatFlux%quadElemID)
-!!$    allocate(model%heatFlux%quadElemID(nQuad))
-!!$    if (allocated(model%heatFlux%quadFlux)) deallocate(model%heatFlux%quadFlux)
-!!$    allocate(model%heatFlux%quadFlux(nPointsQuad,2))
     if(.not.allocated(model%heatFlux%triangElemID)) allocate(model%heatFlux%triangElemID(nTriang))
     if(.not.allocated(model%heatFlux%triangFlux)) allocate(model%heatFlux%triangFlux(nPointsTriang,2))
     if(.not.allocated(model%heatFlux%quadElemID)) allocate(model%heatFlux%quadElemID(nQuad))
@@ -106,12 +97,5 @@ contains
        deallocate(localResultMat)
     end do
   end subroutine calculateFlux
-
-  subroutine integrator(this, dt, multi_step)
-    implicit none
-    class(NewProcessDT), intent(inout) :: this
-    real(rkind)        , intent(in)    :: dt
-    logical            , intent(in) :: multi_step
-  end subroutine integrator
   
 end module ThermalSchemeM

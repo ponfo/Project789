@@ -23,7 +23,6 @@ module FluxOnLineM
      real(rkind)                               :: flux
    contains
      procedure, public :: init
-
      procedure, public :: calculateLocalSystem
      procedure, public :: calculateLHS
      procedure, public :: calculateRHS

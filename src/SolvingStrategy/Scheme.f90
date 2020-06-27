@@ -2,8 +2,6 @@ module SchemeM
 
   use UtilitiesM
   
-  use ProcessM
-  
   implicit none
 
   private
@@ -11,17 +9,7 @@ module SchemeM
 
   type, abstract :: NewSchemeDT
    contains
-     procedure(integrator_interface), nopass, deferred :: integrate
   end type NewSchemeDT
-
-  abstract interface
-     subroutine integrator_interface(this, dt, multi_step)
-       import :: NewProcessDT, rkind
-       class(NewProcessDT), intent(inout) :: this
-       real(rkind)        , intent(in)    :: dt
-       logical            , intent(in)    :: multi_step
-     end subroutine integrator_interface
-  end interface
   
   interface SetScheme
      procedure :: constructor

@@ -1,8 +1,8 @@
 module ThermalStrategyM
-
-  use ThermalmodelM
   
+  use NewStrategyM
   use SolvingStrategyM
+  use ProcessM
 
   use ThermalSchemeM
   use ThermalBuilderAndSolverM
@@ -14,29 +14,27 @@ module ThermalStrategyM
   private
   public :: ThermalStrategyDT
 
-  type, extends(NewSolvingStrategyDT) :: ThermalStrategyDT
+  type, extends(NewStrategyDT) :: ThermalStrategyDT
    contains
-     procedure :: useProcess  => process
-     procedure :: buildStrategyAndSolve 
+     procedure, nopass :: useNewStrategy => ThermalStrategy 
   end type ThermalStrategyDT
 
 contains
 
-  subroutine process(this)
+  subroutine ThermalStrategy(this)
     implicit none
-    class(ThermalStrategyDT), intent(inout) :: this
-  end subroutine process
-
-  subroutine buildStrategyAndSolve(this, model)
-    implicit none
-    class(ThermalStrategyDT), intent(inout) :: this
-    class(ThermalmodelDT)   , intent(inout) :: model
-    type(ThermalSchemeDT)                   :: directScheme
-    type(ThermalBuilderAndSolverDT)         :: directBAndS
-    allocate(this%scheme, source = SetScheme(directScheme))
-    allocate(this%builderAndSolver, source = SetBuilderAndSolver(directBAndS))
-    call directBAndS%buildAndSolve(model)
-    call DirectScheme%calculateFlux(model)
-  end subroutine buildStrategyAndSolve
+    class(ProcessDT), intent(inout) :: this
+    type(ThermalSchemeDT)           :: directScheme
+    type(ThermalBuilderAndSolverDT) :: directBAndS
+    select type(this)
+    class is(SolvingStrategyDT)
+    this%scheme           = SetScheme(directScheme)
+    this%builderAndSolver = SetBuilderAndSolver(directBAndS)
+    call directBAndS%buildAndSolve(this%thermalModel)
+    call DirectScheme%calculateFlux(this%thermalModel)
+    class default
+       stop 'strategy: unsupported class.'
+    end select
+  end subroutine ThermalStrategy
   
 end module ThermalStrategyM

@@ -3,7 +3,7 @@ module Poisson2DM
   use UtilitiesM
   use SparseKit
   
-  use SchemeM
+  use BaseIntegrandM
 
   use IntegrandM
 
@@ -22,7 +22,6 @@ module Poisson2DM
      procedure :: multiply   => multiply_poisson2D
      procedure :: assign     => assign_poisson2D
      procedure :: getState
-     procedure :: useProcess => process
   end type Poisson2DDT
 
   interface SetPoisson2D
@@ -33,7 +32,7 @@ contains
 
   type(poisson2DDT) function constructor(initial_state, stiffness&
        , rhs, lumpedMassInverse, this_strategy, step)
-    class(NewSchemeDT)       , intent(in) :: this_strategy
+    class(BaseIntegrandDT)   , intent(in) :: this_strategy
     type(Sparse)             , intent(in) :: stiffness
     type(Sparse)             , intent(in) :: lumpedMassInverse
     real(rkind), dimension(:), intent(in) :: initial_state
@@ -108,10 +107,5 @@ contains
     real(rkind), dimension(:), allocatable :: coordinates
     coordinates = this%state
   end function getState
-
-  subroutine process(this)
-    implicit none
-    class(Poisson2DDT), intent(inout) :: this
-  end subroutine process
   
 end module Poisson2DM

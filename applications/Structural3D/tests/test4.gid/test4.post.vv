@@ -1,6 +1,6 @@
-BeginZE /home/ponfo/Documents/Project789/applications/Structural3D/tests/test4.gid/test4.post.vv
-   x -0.57328 0.643842
-   y 0.329312 -0.285596
+BeginZE /home/marco/Gid/problemtypes/project789/applications/Structural3D/tests/test4.gid/test4.post.vv
+   x -0.704016 0.774578
+   y 0.361692 -0.317976
    z -2.15831 1.15831
    e 0.552771
    v 0.107155 -0.294563 -0.0217704
@@ -15,5 +15,5 @@ BeginZE /home/ponfo/Documents/Project789/applications/Structural3D/tests/test4.g
    NowUse 2
    DrawingType 3
    LightVector 90 90 150 0
-EndZE /home/ponfo/Documents/Project789/applications/Structural3D/tests/test4.gid/test4.post.vv
+EndZE /home/marco/Gid/problemtypes/project789/applications/Structural3D/tests/test4.gid/test4.post.vv
 

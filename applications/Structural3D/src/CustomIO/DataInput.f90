@@ -42,7 +42,6 @@ module DataInputM
   integer(ikind)               :: nPointSource
   integer(ikind)               :: nVolumeSource
   character(100)               :: projectName
-  character(100)               :: path
   character(100)               :: aux
   logical       , parameter    :: verbose = .false.
   logical                      :: isMaterialAsigned = .true.
@@ -77,10 +76,8 @@ contains
     implicit none
     open(projectData, file = 'projectData.dat')
     read(projectData, '(*(A))') projectName
-    read(projectData, '(*(A))') path
     close(projectData)
     call debugLog('    Project name: ', trim(projectName))
-    call debugLog('    Path: ', trim(path))
   end subroutine readProjectData
   
   subroutine initMesh(structuralAppl)

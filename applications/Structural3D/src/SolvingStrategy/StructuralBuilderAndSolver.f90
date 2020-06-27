@@ -3,7 +3,7 @@ module StructuralBuilderAndSolverM
   use UtilitiesM
   use DebuggerM
 
-  use SparseKit
+  use SparseKit 
 
   use NodePtrM
   use ElementPtrM
@@ -34,7 +34,6 @@ contains
     implicit none
     class(StructuralBuilderAndSolverDT), intent(inout) :: this
     class(StructuralModelDT)       , intent(inout) :: model
-    integer(ikind) :: i
     write(*,*) '*** Structural Builder And Solver ***'
     call debugLog('  Assembling stiffness matrix and right hand side vector')
     print'(A)', 'Assembling stiffness matrix and right hand side vector'

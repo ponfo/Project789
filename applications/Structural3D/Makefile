@@ -1,4 +1,4 @@
-# Makefile
+# Makefile 
 
 VPATH		:=  src
 BINDIR		:=  Bin
@@ -18,9 +18,10 @@ OBJECTS := $(BINDIR)/StructuralMaterial.o      \
 	$(BINDIR)/StructuralModel.o            \
 	$(BINDIR)/StructuralBuilderAndSolver.o \
 	$(BINDIR)/StructuralScheme.o           \
-	$(BINDIR)/StructuralStrategy.o         \
 	$(BINDIR)/Structural3DApplication.o    \
 	$(BINDIR)/DataInput.o                  \
+	$(BINDIR)/SolvingStrategy.o	       \
+	$(BINDIR)/StructuralStrategy.o         \
 	$(BINDIR)/main.o
 
 LIBRARIES := $(LIB)/project789.a
@@ -53,6 +54,8 @@ $(BINDIR)/StructuralModel.o : $(VPATH)/Model/StructuralModel.f90
 $(BINDIR)/StructuralBuilderAndSolver.o : $(VPATH)/SolvingStrategy/StructuralBuilderAndSolver.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/StructuralScheme.o : $(VPATH)/SolvingStrategy/StructuralScheme.f90
+	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
+$(BINDIR)/SolvingStrategy.o : $(VPATH)/SolvingStrategy/SolvingStrategy.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/StructuralStrategy.o : $(VPATH)/SolvingStrategy/StructuralStrategy.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@

@@ -3,15 +3,18 @@ program main
   use DataInputM
   use Structural3DApplicationM
   use StructuralStrategyM
+  use SolvingStrategyM
   use GIDDataOutputM
 
   implicit none
 
-  type(Structural3DApplicationDT)   :: application
-  type(StructuralStrategyDT)        :: structuralStrategy
+  type(Structural3DApplicationDT) :: application
+  type(StructuralStrategyDT)      :: strategy
+  type(SolvingStrategyDT)         :: solvingStrategy
 
   call initFEM3D(application)
-  call structuralStrategy%buildStrategyAndSolve(application%model)
+  solvingStrategy = InitSolvingStrategy(strategy, application%model)
+  call solvingStrategy%useStrategy()
   call initDataOutput()
   call printResults(resultName = 'Displacement'      &
        , step         = 1                            &

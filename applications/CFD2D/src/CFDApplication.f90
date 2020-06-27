@@ -100,5 +100,5 @@ contains
     call this%model%processInfo%setMaxIter(maxIter)
     call this%model%processInfo%setConstants(12, vector)
   end subroutine setTransientValues
-
+  
 end module CFDApplicationM

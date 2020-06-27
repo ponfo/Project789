@@ -4,7 +4,7 @@ module ExplicitEulerM
 
   use ProcessM
 
-  use SchemeM
+  use BaseIntegrandM
 
   use IntegrandM
 
@@ -13,7 +13,7 @@ module ExplicitEulerM
   private
   public :: ExplicitEulerDT
 
-  type, extends(NewSchemeDT) :: ExplicitEulerDT
+  type, extends(BaseIntegrandDT) :: ExplicitEulerDT
    contains
      procedure, nopass :: integrate
   end type ExplicitEulerDT

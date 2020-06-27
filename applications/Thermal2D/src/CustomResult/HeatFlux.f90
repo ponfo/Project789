@@ -1,4 +1,5 @@
 module HeatFluxM
+  
   use UtilitiesM
 
   private
@@ -12,4 +13,5 @@ module HeatFluxM
      real(rkind)   , dimension(:,:), allocatable :: quadGPoint
      real(rkind)   , dimension(:,:), allocatable :: quadFlux
   end type HeatFluxDT
+  
 end module HeatFluxM

@@ -4,7 +4,7 @@ module RK2M
 
   use ProcessM
 
-  use SchemeM
+  use BaseIntegrandM
 
   use IntegrandM
 
@@ -13,7 +13,7 @@ module RK2M
   private
   public :: RK2DT
 
-  type, extends(NewSchemeDT) :: RK2DT
+  type, extends(BaseIntegrandDT) :: RK2DT
    contains
      procedure, nopass :: integrate
   end type RK2DT

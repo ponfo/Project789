@@ -4,7 +4,7 @@ module RK4M
 
   use ProcessM
 
-  use SchemeM
+  use BaseIntegrandM
 
   use IntegrandM
 
@@ -13,7 +13,7 @@ module RK4M
   private
   public :: RK4DT
 
-  type, extends(NewSchemeDT) :: RK4DT
+  type, extends(BaseIntegrandDT) :: RK4DT
    contains
      procedure, nopass :: integrate
   end type RK4DT

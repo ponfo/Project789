@@ -14,11 +14,11 @@ module ThermalModelM
   public :: ThermalModelDT, thermalModel
 
   type, extends(modelDT) :: ThermalModelDT
-     type(Sparse)                             :: lhs
-     type(Sparse)                             :: mass
-     real(rkind), dimension(:)  , allocatable :: rhs
-     real(rkind), dimension(:)  , allocatable :: dof
-     type(HeatFluxDT)                         :: heatFlux
+     type(Sparse)                           :: lhs
+     type(Sparse)                           :: mass
+     real(rkind), dimension(:), allocatable :: rhs
+     real(rkind), dimension(:), allocatable :: dof
+     type(HeatFluxDT)                       :: heatFlux
    contains
      procedure, public :: init
      procedure, public :: freeSystem

@@ -2,7 +2,7 @@ module NavierStokes2DM
 
   use UtilitiesM
   
-  use SchemeM
+  use BaseIntegrandM
 
   use IntegrandM
 
@@ -19,7 +19,6 @@ module NavierStokes2DM
      procedure :: multiply   => multiply_navierStokes2D
      procedure :: assign     => assign_navierStokes2D
      procedure :: getState
-     procedure :: useProcess => process
   end type NavierStokes2DDT
 
   interface SetNavierStokes2D
@@ -30,7 +29,7 @@ contains
 
   type(navierStokes2DDT) function constructor(initial_state, lhs&
        , this_strategy, step)
-    class(NewSchemeDT)       , intent(in) :: this_strategy
+    class(BaseIntegrandDT)       , intent(in) :: this_strategy
     real(rkind), dimension(:), intent(in) :: initial_state
     real(rkind), dimension(:), intent(in) :: lhs
     integer(ikind), intent(in), optional  :: step
@@ -98,10 +97,5 @@ contains
     real(rkind), dimension(:), allocatable :: coordinates
     coordinates = this%state
   end function getState
-
-  subroutine process(this)
-    implicit none
-    class(NavierStokes2DDT), intent(inout) :: this
-  end subroutine process
   
 end module NavierStokes2DM

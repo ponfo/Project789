@@ -4,8 +4,6 @@ module CFDBuilderAndSolverM
   use SparseKit
   use DebuggerM
 
-  use SparseKit
-
   use NodePtrM
   use ElementPtrM
   use ConditionPtrM
@@ -144,7 +142,6 @@ contains
           iNodeID = condition%getNodeID(iNode)
           position(iNodeID) = position(iNodeID) + 1
           if (position(iNodeID) .le. 1) then
-             i = i + 1
              Vx  = model%dof(2,iNodeID)
              Vy  = model%dof(3,iNodeID)
              nx  = localRHS(iNode*2-1)

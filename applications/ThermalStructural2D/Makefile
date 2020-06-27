@@ -20,7 +20,6 @@ OBJECTS := $(BINDIR)/ThermalMaterial.o          \
 	$(BINDIR)/ThermalModel.o                \
 	$(BINDIR)/ThermalBuilderAndSolver.o     \
 	$(BINDIR)/ThermalScheme.o               \
-	$(BINDIR)/ThermalStrategy.o             \
 	                                        \
 	$(BINDIR)/Pressure.o                    \
 	$(BINDIR)/NormalStress.o                \
@@ -29,11 +28,13 @@ OBJECTS := $(BINDIR)/ThermalMaterial.o          \
 	$(BINDIR)/StructuralModel.o             \
 	$(BINDIR)/StructuralBuilderAndSolver.o  \
 	$(BINDIR)/StructuralScheme.o            \
-	$(BINDIR)/StructuralStrategy.o          \
                                                 \
 	$(BINDIR)/ThermalStructuralElement.o    \
 	$(BINDIR)/ThermalStruct2DApplication.o  \
 	$(BINDIR)/DataInput.o                   \
+	$(BINDIR)/SolvingStrategy.o	        \
+	$(BINDIR)/ThermalStrategy.o             \
+	$(BINDIR)/StructuralStrategy.o          \
 	$(BINDIR)/main.o
 
 LIBRARIES := $(LIB)/project789.a
@@ -84,6 +85,8 @@ $(BINDIR)/StructuralBuilderAndSolver.o : $(STRUCTURALSRC)/SolvingStrategy/Struct
 $(BINDIR)/StructuralScheme.o : $(STRUCTURALSRC)/SolvingStrategy/StructuralScheme.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 $(BINDIR)/StructuralStrategy.o : $(STRUCTURALSRC)/SolvingStrategy/StructuralStrategy.f90
+	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
+$(BINDIR)/SolvingStrategy.o : $(VPATH)/SolvingStrategy/SolvingStrategy.f90
 	$(COMPILER) $(FFLAGS) -c $^ -I$(LIBOBJECTS) -o $@
 
 

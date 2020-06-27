@@ -23,7 +23,7 @@ Source_Number_On_Points................: 0
 Source_Number_On_Surfaces..............: 0
 Points_With_Point_Source...............: 0
 Surfaces_With_Surface_Source...........: 0
-Print_Every_N_Steps....................: 1000
+Print_Every_N_Steps....................: 200
 Initial_Time...........................: 0.0
 Error_Tolerance........................: 0.000005
 Max_Iterations.........................: 25000

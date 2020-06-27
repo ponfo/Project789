@@ -1,4 +1,5 @@
 module DataInputM
+  
   use UtilitiesM
   use DebuggerM
 
@@ -43,7 +44,7 @@ module DataInputM
   character(100)               :: projectName
   character(100)               :: path
   character(100)               :: aux
-  logical       , parameter    :: verbose = .true.
+  logical       , parameter    :: verbose = .false.
   logical                      :: isMaterialAsigned = .true.
   
   interface initFEM2D

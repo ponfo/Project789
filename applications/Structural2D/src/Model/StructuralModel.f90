@@ -1,6 +1,6 @@
 module StructuralModelM
+  
   use UtilitiesM
-
   use SparseKit
 
   use MeshM
@@ -16,12 +16,12 @@ module StructuralModelM
   public :: StructuralModelDT, structuralModel
 
   type, extends(modelDT) :: StructuralModelDT
-     type(Sparse)                             :: lhs
-     real(rkind), dimension(:)  , allocatable :: rhs
-     real(rkind), dimension(:)  , allocatable :: dof
-     type(NormalStressDT)                     :: normalStress
-     type(ShearStressDT)                      :: shearStress
-     type(StrainDT)                           :: strain
+     type(Sparse)                           :: lhs
+     real(rkind), dimension(:), allocatable :: rhs
+     real(rkind), dimension(:), allocatable :: dof
+     type(NormalStressDT)                   :: normalStress
+     type(ShearStressDT)                    :: shearStress
+     type(StrainDT)                         :: strain
    contains
      procedure, public :: init
      procedure, public :: initWithoutSystem

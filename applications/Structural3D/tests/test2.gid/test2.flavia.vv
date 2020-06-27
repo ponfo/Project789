@@ -1,11 +1,11 @@
-BeginZE /home/ponfo/Documents/Project789/applications/Structural2D/tests/test2.gid/test2.flavia.vv
-   x -2.22799 3.22798
-   y 2.46248 -1.46248
+BeginZE /home/marco/Gid/problemtypes/project789/applications/Structural3D/tests/test2.gid/test2.flavia.vv
+   x -1.21885 2.21885
+   y 1.2901 -0.290104
    z -2.17945 2.17945
    e 0.726483
-   v 0 0 0
-   r 1
-   m 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1
+   v 0.448003 -0.113844 -0.159744
+   r 0.872247
+   m 0.923043 0.176666 -0.341732 0 -0.380677 0.547551 -0.745166 0 0.0554697 0.81791 0.572666 0 0 0 0 1
    c 0.5 0.5 0
    pd 0
    pno 0
@@ -15,5 +15,5 @@ BeginZE /home/ponfo/Documents/Project789/applications/Structural2D/tests/test2.g
    NowUse 2
    DrawingType 3
    LightVector 90 90 150 0
-EndZE /home/ponfo/Documents/Project789/applications/Structural2D/tests/test2.gid/test2.flavia.vv
+EndZE /home/marco/Gid/problemtypes/project789/applications/Structural3D/tests/test2.gid/test2.flavia.vv
 

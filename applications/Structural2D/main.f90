@@ -2,16 +2,19 @@ program main
   
   use DataInputM
   use Structural2DApplicationM
-  use StructuralStrategyM
   use GIDDataOutputM
+  use StructuralStrategyM
+  use SolvingStrategyM
 
   implicit none
 
-  type(Structural2DApplicationDT)   :: application
-  type(StructuralStrategyDT)        :: structuralStrategy
+  type(Structural2DApplicationDT) :: application
+  type(StructuralStrategyDT)      :: strategy
+  type(SolvingStrategyDT)         :: solvingStrategy
 
   call initFEM2D(application)
-  call structuralStrategy%buildStrategyAndSolve(application%model)
+  solvingStrategy = InitSolvingStrategy(strategy, application%model)
+  call solvingStrategy%useStrategy()
   call initDataOutput()
   call printResults(resultName = 'Displacement'      &
        , step         = 1                            &
