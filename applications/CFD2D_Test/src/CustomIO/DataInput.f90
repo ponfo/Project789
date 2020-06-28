@@ -223,9 +223,8 @@ contains
           Vx = Vc*mach
           Vy = 0.d0
        end if
-       call cfdAppl%setTransientValues(printStep, t0, errorTol, maxIter, fSafe, constant, R, Cv, Vc, gamma&
-            , Vx, Vy, T, P, rho, mach)
-       cfdAppl%material(iMat) = cfdMaterial(R, gamma, mu, k, Vx, Vy, T, rho, mach, Cv, P, Vc)
+       call cfdAppl%setTransientValues(printStep, t0, errorTol, maxIter)
+       cfdAppl%material(iMat) = cfdMaterial(R, gamma, mu, k, Vx, Vy, T, rho, mach, Cv, P, Vc, fSafe, constant)
        if(verbose) print'(4X,I0,7X,2(E10.3,3X))', iMat, R, gamma, mu, k, Vx, Vy, T, rho, mach, Cv, P
     end do
   end subroutine initMaterials
@@ -379,7 +378,7 @@ contains
        cfdAppl%model%dof(i*4-3) = rho
        cfdAppl%model%dof(i*4-2) = rho*Vx
        cfdAppl%model%dof(i*4-1) = rho*Vy
-       cfdAppl%model%dof(i*4) = rho*(Cv*T+0.5d0*(Vx**2+Vy**2)) 
+       cfdAppl%model%dof(i*4  ) = rho*(Cv*T+0.5d0*(Vx**2+Vy**2)) 
     end do
   end subroutine initDof
   

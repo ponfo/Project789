@@ -238,7 +238,7 @@ contains
     nNode       = this%getnNode()
     jacobian    = this%geometry%jacobianAtGPoints(this%nodalPoints)
     jacobianDet = this%geometry%jacobianDetAtGPoints(jacobian)
-    fSafe       = processInfo%getConstants(1)
+    fSafe       = this%material%fSafe
     VxMAX       = 0._rkind
     VyMAX       = 0._rkind
     do i = 1, nNode
@@ -372,7 +372,7 @@ contains
     end do
     !calculo tau y nu
     dtmin       = processInfo%getDt()
-    cte         = processInfo%getConstants(2)
+    cte         = this%material%constant
     R           = this%material%R
     Cv          = this%material%Cv
     Tinf        = this%material%T_inf
@@ -470,9 +470,44 @@ contains
 
   subroutine calculateResults(this, processInfo, resultMat)
     implicit none
-    class(CFDElementDT)                           , intent(inout) :: this
-    type(ProcessInfoDT)                           , intent(inout) :: processInfo
-    real(rkind)    , dimension(:,:,:), allocatable, intent(inout) :: resultMat
+    class(CFDElementDT)                       , intent(inout) :: this
+    type(ProcessInfoDT)                       , intent(inout) :: processInfo
+    real(rkind), dimension(:,:,:), allocatable, intent(inout) :: resultMat
+    real(rkind), dimension(:,:)  , allocatable                :: U
+    real(rkind)                                               :: rho, Vx, Vy, T
+    real(rkind)                                               :: P, E, M
+    real(rkind)                                               :: R, Cv, Vc, gamma
+    integer(ikind)                                            :: nNode, nDof, iNode
+    integer(ikind)                                            :: i, j
+    nDof = 4
+    nNode = this%getnNode()
+    allocate(resultMat(7,nNode,1), U(nDof,nNode))
+    do i = 1, nNode
+       do j = 1, nDof
+          U(j,i) = this%node(i)%ptr%dof(j)%val
+       end do
+    end do
+    R     = this%material%R
+    Cv    = this%material%Cv
+    Vc    = this%material%Vc
+    gamma = this%material%gamma
+    resultMat = 0.d0
+    do iNode = 1, nNode
+       rho = U(1,iNode)
+       Vx  = U(2,iNode)/rho
+       Vy  = U(3,iNode)/rho
+       E   = U(4,iNode)/rho
+       T   = (E-0.5d0*(Vx**2+Vy**2))/Cv
+       M   = sqrt(Vx**2+Vy**2)/Vc
+       P   = rho*R*T
+       resultMat(1,iNode,1) = rho
+       resultMat(2,iNode,1) = Vx
+       resultMat(3,iNode,1) = Vy
+       resultMat(4,iNode,1) = E
+       resultMat(5,iNode,1) = T
+       resultMat(6,iNode,1) = M
+       resultMat(7,iNode,1) = P
+    end do
   end subroutine calculateResults
   
   subroutine calculateLHS(this, processInfo, lhs)

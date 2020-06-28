@@ -50,7 +50,7 @@ contains
   subroutine assembleSystem(app)
     implicit none
     class(CFDApplicationDT), intent(inout)     :: app
-    integer(ikind)                             :: iNode, i, iNodeID, j
+    integer(ikind)                             :: iNode, iNodeID
     integer(ikind)                             :: iElem, nElem, nNode
     type(LeftHandSideDT)                       :: localLHS
     real(rkind), dimension(:)    , allocatable :: localRHS

@@ -15,7 +15,6 @@ module ProcessInfoM
      real(rkind)                 , allocatable :: t0
      real(rkind)                 , allocatable :: errorTol
      real(rkind)                 , allocatable :: printStep
-     real(rkind)                 , allocatable :: constants(:)
      integer(ikind)              , allocatable :: step
      integer(ikind)              , allocatable :: maxIter
      integer(ikind), dimension(:), allocatable :: process
@@ -27,9 +26,6 @@ module ProcessInfoM
      procedure, public :: setErrorTol
      procedure, public :: setPrintStep
      procedure, public :: setT0
-     generic  , public :: setConstants => setOneConstant, setAllConstants
-     procedure, public :: setAllConstants
-     procedure, public :: setOneConstant
      procedure, public :: setStep
      procedure, public :: setMaxIter
      procedure, public :: initProcess
@@ -41,9 +37,6 @@ module ProcessInfoM
      procedure, public :: getErrorTol
      procedure, public :: getPrintStep
      procedure, public :: getT0
-     generic  , public :: getConstants => getOneConstant, getAllConstants
-     procedure, public :: getOneConstant
-     procedure, public :: getAllConstants
      procedure, public :: getStep
      procedure, public :: getMaxIter
      procedure, public :: getProcess
@@ -108,24 +101,6 @@ contains
     if(.not.allocated(this%errorTol)) allocate(this%errorTol)
     this%errorTol = errorTol
   end subroutine setErrorTol
-
-  subroutine setAllConstants(this, n, values)
-    implicit none
-    class(ProcessInfoDT)                  , intent(inout) :: this
-    real(rkind), dimension(:), allocatable, intent(in)    :: values
-    integer(ikind)                        , intent(in)    :: n
-    if (allocated(this%constants)) deallocate(this%constants)
-    allocate(this%constants(n))
-    this%constants = values
-  end subroutine setAllConstants
-
-  subroutine setOneConstant(this, i, value)
-    implicit none
-    class(ProcessInfoDT)                  , intent(inout) :: this
-    real(rkind)                           , intent(in)    :: value
-    integer(ikind)                        , intent(in)    :: i
-    this%constants(i) = value
-  end subroutine setOneConstant
   
   subroutine setStep(this, step)
     implicit none
@@ -195,20 +170,6 @@ contains
     class(ProcessInfoDT), intent(in) :: this
     getErrorTol = this%errorTol
   end function getErrorTol
-
-  real(rkind) pure function getOneConstant(this,i)
-    implicit none
-    class(ProcessInfoDT), intent(in) :: this
-    integer(ikind)      , intent(in) :: i
-    getOneConstant = this%constants(i)
-  end function getOneConstant
-
-  pure function getAllConstants(this)
-    implicit none
-    class(ProcessInfoDT), intent(in)            :: this
-    real(rkind), dimension(size(this%constants)) :: getAllConstants
-    getAllConstants = this%constants
-  end function getAllConstants
 
   integer(ikind) pure function getStep(this)
     implicit none

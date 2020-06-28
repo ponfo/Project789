@@ -21,6 +21,8 @@ module CFDMaterialM
      real(rkind) :: Cv
      real(rkind) :: mach
      real(rkind) :: Vc
+     real(rkind) :: fSafe
+     real(rkind) :: constant
    contains
      procedure :: init
   end type CFDMaterialDT
@@ -31,7 +33,7 @@ module CFDMaterialM
   
 contains
   
-  type(CFDMaterialDT) function constructor(R, gamma, mu, k, Vx, Vy, T, rho, mach, Cv, P, Vc)
+  type(CFDMaterialDT) function constructor(R, gamma, mu, k, Vx, Vy, T, rho, mach, Cv, P, Vc, fSafe, constant)
     implicit none
     real(rkind), intent(in) :: R
     real(rkind), intent(in) :: gamma
@@ -45,10 +47,12 @@ contains
     real(rkind), intent(in) :: Cv
     real(rkind), intent(in) :: P
     real(rkind), intent(in) :: Vc
-    call constructor%init(R, gamma, mu, k, Vx, Vy, T, rho, mach, Cv, P, Vc)
+    real(rkind), intent(in) :: fSafe
+    real(rkind), intent(in) :: constant
+    call constructor%init(R, gamma, mu, k, Vx, Vy, T, rho, mach, Cv, P, Vc, fSafe, constant)
   end function constructor
 
-  subroutine init(this, R, gamma, mu, k, Vx, Vy, T, rho, mach, Cv, P, Vc)
+  subroutine init(this, R, gamma, mu, k, Vx, Vy, T, rho, mach, Cv, P, Vc, fSafe, constant)
     implicit none
     class(CFDMaterialDT), intent(inout) :: this
     real(rkind)         , intent(in)    :: R
@@ -63,18 +67,22 @@ contains
     real(rkind)         , intent(in)    :: Cv
     real(rkind)         , intent(in)    :: P
     real(rkind)         , intent(in)    :: Vc
-    this%R      = R
-    this%gamma  = gamma
-    this%mu     = mu
-    this%k      = k
-    this%Vx_inf = Vx
-    this%Vy_inf = Vy
-    this%T_inf  = T
-    this%rho    = rho
-    this%mach   = mach
-    this%P_inf  = P
-    this%Cv     = Cv
-    this%Vc     = Vc
+    real(rkind)         , intent(in)    :: fSafe
+    real(rkind)         , intent(in)    :: constant
+    this%R        = R
+    this%gamma    = gamma
+    this%mu       = mu
+    this%k        = k
+    this%Vx_inf   = Vx
+    this%Vy_inf   = Vy
+    this%T_inf    = T
+    this%rho      = rho
+    this%mach     = mach
+    this%P_inf    = P
+    this%Cv       = Cv
+    this%Vc       = Vc
+    this%fSafe    = fSafe
+    this%constant = constant
   end subroutine init
   
 end module CFDMaterialM

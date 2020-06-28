@@ -2,6 +2,7 @@ module CFDSchemeM
 
   use UtilitiesM
   
+  use ElementPtrM
   use CFDApplicationM
   
   use SchemeM
@@ -22,12 +23,14 @@ contains
 
   subroutine calculateOutputs(this, app)
     implicit none
-    class(CFDSchemeDT)     , intent(inout) :: this
-    class(CFDApplicationDT), intent(inout) :: app
-    integer(ikind)                         :: dim, iNode
-    real(rkind)                            :: rho, Vx, Vy, T, P, E, M
-    real(rkind)                            :: R, Cv, Vc, gamma
-    dim = app%model%getnNode()
+    class(CFDSchemeDT)     , intent(inout)     :: this
+    class(CFDApplicationDT), intent(inout)     :: app
+    integer(ikind)                             :: iNode, iNodeID, dim
+    integer(ikind)                             :: iElem, nElem, nNode
+    real(rkind), dimension(:,:,:), allocatable :: resultMat
+    type(ElementPtrDT)                         :: element
+    dim   = app%model%getnNode()
+    nElem = app%model%getnElement()
     if (allocated(app%model%results%velocity)) then
        deallocate(app%model%results%velocity)
        deallocate(app%model%results%density)
@@ -56,26 +59,23 @@ contains
     app%model%results%temperature(:)    = 0.d0
     app%model%results%mach(:)           = 0.d0
     app%model%results%pressure(:)       = 0.d0
-    R     = app%model%processInfo%getConstants(3)
-    Cv    = app%model%processInfo%getConstants(4)
-    Vc    = app%model%processInfo%getConstants(5)
-    gamma = app%model%processInfo%getConstants(6)
-    !$OMP PARALLEL DO PRIVATE(iNode,rho,Vx,Vy,E,T,M,P)
-    do iNode = 1, app%model%getnNode()
-       rho = app%model%dof(iNode*4-3)
-       Vx  = app%model%dof(iNode*4-2)/rho
-       Vy  = app%model%dof(iNode*4-1)/rho
-       E   = app%model%dof(iNode*4  )/rho
-       T   = (E-0.5d0*(Vx**2+Vy**2))/Cv
-       M   = sqrt(Vx**2+Vy**2)/Vc
-       P   = rho*R*T
-       app%model%results%density(iNode)        = rho
-       app%model%results%velocity(iNode,1)     = Vx
-       app%model%results%velocity(iNode,2)     = Vy
-       app%model%results%internalEnergy(iNode) = E
-       app%model%results%temperature(iNode)    = T
-       app%model%results%mach(iNode)           = M
-       app%model%results%pressure(iNode)       = P
+    !$OMP PARALLEL DO DEFAULT(NONE) PRIVATE(element, nNode, iNode, iNodeID, resultMat) &
+    !$OMP SHARED(app, nElem)
+    do iElem = 1, nElem
+       element = app%model%getElement(iElem)
+       nNode = element%getnNode()
+       call element%calculateResults(app%model%processInfo, resultMat)
+       do iNode = 1, nNode
+          iNodeID = element%getNodeID(iNode)
+          app%model%results%density(iNodeID)        = resultMat(1,iNode,1)
+          app%model%results%velocity(iNodeID,1)     = resultMat(2,iNode,1)
+          app%model%results%velocity(iNodeID,2)     = resultMat(3,iNode,1)
+          app%model%results%internalEnergy(iNodeID) = resultMat(4,iNode,1)
+          app%model%results%temperature(iNodeID)    = resultMat(5,iNode,1)
+          app%model%results%mach(iNodeID)           = resultMat(6,iNode,1)
+          app%model%results%pressure(iNodeID)       = resultMat(7,iNode,1)
+       end do
+       deallocate(resultMat)
     end do
     !$OMP END PARALLEL DO
   end subroutine calculateOutputs

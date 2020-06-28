@@ -14,9 +14,9 @@ VALUE: 1e-8
 QUESTION: Max_Iterations
 VALUE: 5000
 QUESTION: Print_Every_N_Steps
-VALUE: 250
+VALUE: 200
 QUESTION: Safety_Factor
-VALUE: 0.1
+VALUE: 0.015
 QUESTION: Constant_Shock_Capturing
 VALUE: 0.9
 END PROBLEM DATA
