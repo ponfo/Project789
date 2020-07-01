@@ -62,14 +62,12 @@ contains
     implicit none
     class(Quadrilateral2D4NodeDT)                       , intent(inout) :: this
     class(NodePtrDT)             , dimension(this%nNode), intent(in)    :: node
-    getLenght = node(1)%getx()*node(2)%gety() &
-         - node(1)%gety()*node(2)%getx()      &
-         + node(2)%getx()*node(3)%gety()      &
-         - node(2)%gety()*node(3)%getx()      &
-         + node(3)%getx()*node(4)%gety()      &
-         - node(3)%gety()*node(4)%getx()      &
-         + node(4)%getx()*node(1)%gety()      &
-         - node(4)%gety()*node(1)%getx()
+    getLenght = abs(node(1)%getx() * (node(2)%gety()-node(3)%gety())        &
+         +      node(2)%getx() * (node(3)%gety()-node(1)%gety())            &
+         +      node(3)%getx() * (node(1)%gety()-node(2)%gety()))*0.5_rkind &
+         +      abs(node(3)%getx() * (node(4)%gety()-node(1)%gety())        &
+         +      node(4)%getx() * (node(4)%gety()-node(3)%gety())            &
+         +      node(1)%getx() * (node(3)%gety()-node(4)%gety()))*0.5_rkind
   end function getLenght
 
   function shapeFunc(this, point)

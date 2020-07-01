@@ -26,25 +26,33 @@ module CFDBuilderAndSolverM
 
   type, extends(NewBuilderAndSolverDT) :: CFDBuilderAndSolverDT
    contains
-     procedure :: buildAndSolve
+     procedure :: applyDirichlet
+     procedure :: build
      procedure :: update
   end type CFDBuilderAndSolverDT
   
 contains
 
-  subroutine buildAndSolve(this, app)
+  subroutine applyDirichlet(this, app)
+    implicit none
+    class(CFDBuilderAndSolverDT), intent(inout) :: this
+    class(CFDApplicationDT)     , intent(inout) :: app
+    call applyDirichletLocal(app)
+  end subroutine applyDirichlet
+
+  subroutine build(this, app)
     implicit none
     class(CFDBuilderAndSolverDT), intent(inout) :: this
     class(CFDApplicationDT)     , intent(inout) :: app
     call calculateStab(app)
     call assembleSystem(app)
-  end subroutine buildAndSolve
+  end subroutine build
 
   subroutine update(this, app)
     implicit none
     class(CFDBuilderAndSolverDT), intent(inout) :: this
     class(CFDApplicationDT)     , intent(inout) :: app
-    call applyDirichlet(app)
+    call assembleSystem(app)
   end subroutine update
 
   subroutine assembleSystem(app)
@@ -57,8 +65,8 @@ contains
     type(ElementPtrDT)                         :: element
     app%model%rhs = 0._rkind
     nElem = app%model%getnElement()
-    !$OMP PARALLEL DO DEFAULT(NONE) PRIVATE(element, nNode, iNode, iNodeID, localRHS, localLHS) &
-    !$OMP SHARED(app, nElem)
+    !! !$OMP PARALLEL DO DEFAULT(NONE) PRIVATE(element, nNode, iNode, iNodeID, localRHS, localLHS) &
+    !! !$OMP SHARED(app, nElem)
     do iElem = 1, nElem
        element = app%model%getElement(iElem)
        nNode = element%getnNode()
@@ -76,7 +84,7 @@ contains
        end do
        deallocate(localRHS)
     end do
-    !$OMP END PARALLEL DO
+    !! !$OMP END PARALLEL DO
   end subroutine assembleSystem
   
   subroutine calculateStab(app)
@@ -90,13 +98,13 @@ contains
     end do
   end subroutine calculateStab
 
-  subroutine applyDirichlet(app)
+  subroutine applyDirichletLocal(app)
     implicit none
     class(CFDApplicationDT)             , intent(inout) :: app
     integer(ikind)                                      :: iCond, nCond, iNode, iNodeID
     real(rkind)             , dimension(:), allocatable :: localRHS
-    real(rkind)                                         :: Vx, Vy, filter, nx, ny
-    integer(ikind)                                      :: i, nNode, nodeID, nDof
+    real(rkind)                                         :: Vx, Vy, nx, ny
+    integer(ikind)                                      :: i, nNode, nodeID, nDof, nNodeCond
     integer(ikind)          , dimension(:), allocatable :: position
     type(NodePtrDT)                                     :: node
     type(ConditionPtrDT)                                :: condition
@@ -125,25 +133,33 @@ contains
     allocate(position(nNode))
     position = 0
     do iCond = 1, nCond
+       !write(11,'(A,I0)') 'iCond -> ', iCond
        condition = app%model%getCondition(iCond)
-       nNode = condition%getnNode()
+       nNodeCond = condition%getnNode()
        call condition%calculateRHS(app%model%processInfo, localRHS)
-       do iNode = 1, nNode
+       do iNode = 1, nNodeCond
           iNodeID = condition%getNodeID(iNode)
           position(iNodeID) = position(iNodeID) + 1
           if (position(iNodeID) .le. 1) then
-             i = i + 1
+!!$             write(11,'(A,I0)') 'iNodeID -> ', iNodeID
+!!$             write(11,'(A,I0)') 'position -> ', position(iNodeID)
+!!$             write(11,'(A,E16.8)') 'VX1 -> ', app%model%dof(iNodeID*4-2)
+!!$             write(11,'(A,E16.8)') 'VY1 -> ', app%model%dof(iNodeID*4-1)
              Vx  = app%model%dof(iNodeID*4-2)
              Vy  = app%model%dof(iNodeID*4-1)
              nx  = localRHS(iNode*2-1)
              ny  = localRHS(iNode*2  )
-             app%model%dof(iNodeID*4-2) = (Vx*nx + Vy*ny)*nx
-             app%model%dof(iNodeID*4-1) = (Vx*nx + Vy*ny)*ny
+             !app%model%dof(iNodeID*4-2) = (Vx*nx + Vy*ny)*nx
+             !app%model%dof(iNodeID*4-1) = (Vx*nx + Vy*ny)*ny
+             app%model%dof(iNodeID*4-2) = -ny*(-ny*Vx+nx*Vy)
+             app%model%dof(iNodeID*4-1) =  nx*(-ny*Vx+nx*Vy)
+!!$             write(11,'(A,E16.8)') 'VX2 -> ', app%model%dof(iNodeID*4-2)
+!!$             write(11,'(A,E16.8)') 'VY2 -> ', app%model%dof(iNodeID*4-1)
           end if
        end do
        deallocate(localRHS)
     end do
     deallocate(position)
-  end subroutine applyDirichlet
+  end subroutine applyDirichletLocal
 
 end module CFDBuilderAndSolverM

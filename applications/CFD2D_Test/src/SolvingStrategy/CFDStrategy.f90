@@ -80,46 +80,34 @@ contains
        RK        = 4
        call calculateMass(this%application)
        call writeOutput%initPrint()
-       call builderAndSolver%update(this%application)
+       call builderAndSolver%applyDirichlet(this%application)
        do while (step1 < maxIter .and. error > errorTol)
           step1 = step1 + 1
           call calculateDT(this%application)
           dtMin = this%application%model%processInfo%getDT()
-          if (flagg == 1) then
-             dtmin1 = dtmin
-             flagg  = 2
-          end if
-          porc = abs((dtMin-dtMin1)/dtMin)
-          if (100._rkind*porc .le. 1._rkind) then
-             dtMin = dtMin1
-          else
-             dtMin1 = dtMin
-             flagg  = 2
-          end if
           t      = t + dtmin
           oldDof = this%application%model%dof
           call this%application%model%processInfo%setStep(step1)
           if(flagg <= 4) then
-             do i = 1, RK
-                factor = (1._rkind/(RK+1._rkind-i))
-                if(i == 1) then
-                   call builderAndSolver%buildAndSolve(this%application)
-                else
-                   call builderAndSolver%update(this%application)
-                end if
-                navierStokes2D = SetNavierStokes2D(this%application%model%dof, this%application%model%rhs, ExplicitEuler, step1)
-                call navierStokes2D%integrate(factor*dtMin, multi_step)
-                this%application%model%dof = navierStokes2D%getState()
-             end do
+             if(flagg == 1) then
+                call builderAndSolver%build(this%application)
+             else
+                call builderAndSolver%update(this%application)
+             end if
+             navierStokes2D = SetNavierStokes2D &
+                  (this%application%model%dof, this%application%model%rhs, ExplicitEuler, step1)
+             call navierStokes2D%integrate(dtMin, multi_step)
+             this%application%model%dof = navierStokes2D%getState()
           else
              if(stab == 4) stab = 1
              if(stab == 2) then
-                call builderAndSolver%buildAndSolve(this%application)
+                call builderAndSolver%build(this%application)
              else
                 call builderAndSolver%update(this%application)
              end if
              stab = stab + 1
-             navierStokes2D = SetNavierStokes2D(this%application%model%dof, this%application%model%rhs, AdamsBash4, step1)
+             navierStokes2D = SetNavierStokes2D &
+                  (this%application%model%dof, this%application%model%rhs, AdamsBash4, step1)
              call navierStokes2D%integrate(dtMin, multi_step)
              this%application%model%dof = navierStokes2D%getState()
           end if
@@ -168,6 +156,7 @@ contains
              step2 = step2 + printStep
           end if
           flagg = flagg + 1
+          call builderAndSolver%applyDirichlet(this%application)
        end do
        call debugLog('*** Finished Integration ***')
        print'(A)', '*** Finished Integration ***'

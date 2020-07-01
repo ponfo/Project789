@@ -85,32 +85,33 @@ contains
     integer(ikind)                                                      :: nNode
     real(rkind)                                                         :: nx, ny
     real(rkind)                                                         :: int1, int2
-    real(rkind)          , dimension(:,:,:), allocatable                :: jacobian
-    real(rkind)          , dimension(:)    , allocatable                :: jacobianDet
+    real(rkind)          , dimension(:,:)  , allocatable                :: jacobian
+    real(rkind)                                                         :: jacobianDet
     type(IntegratorPtrDT)                                               :: integrator
+    type(PointDT)        , dimension(:)    , allocatable                :: pointToValue
     type(NodePtrDT)      , dimension(:)    , allocatable                :: nodalPoints
     nNode = this%getnNode()
     integrator = this%getIntegrator()
     integrator%ptr => this%geometry%boundaryGeometry%integrator
     allocate(rhs(2*nNode))
     allocate(nodalPoints(nNode))
+    allocate(pointToValue(nNode))
     rhs = 0._rkind
     do i = 1, nNode
        nodalPoints(i) = this%node(i)
+       pointToValue(i) = point(this%node(i)%getx(), this%node(i)%gety())
     end do
-    jacobian = this%geometry%boundaryGeometry%jacobianAtGPoints(nodalPoints)
-    jacobianDet = this%geometry%boundaryGeometry%jacobianDetAtGPoints(jacobian)
+    
     do i = 1, nNode
-       int1 = 0._rkind
-       int2 = 0._rkind
-       do j = 1, integrator%getIntegTerms()
-          nx = jacobian(j,1,1)/jacobianDet(j)
-          ny = jacobian(j,1,2)/jacobianDet(j)
-          int1 = int1 + integrator%getWeight(j)*integrator%getShapeFunc(j,i)*nx
-          int2 = int2 + integrator%getWeight(j)*integrator%getShapeFunc(j,i)*ny
-       end do
-       rhs(2*i-1) = rhs(2*i-1) + int1
-       rhs(2*i)   = rhs(2*i)   + int2
+       jacobian = this%geometry%boundaryGeometry%jacobian(pointToValue(i), nodalPoints)
+       jacobianDet = this%geometry%boundaryGeometry%jacobianDet(jacobian)
+       nx = jacobian(1,2)/jacobianDet
+       ny = -jacobian(1,1)/jacobianDet
+       !Que apunten para adentro:
+       nx = -1*nx
+       ny = -1*ny
+       rhs(2*i-1) = nx
+       rhs(2*i)   = ny
     end do
   end subroutine calculateRHS
 

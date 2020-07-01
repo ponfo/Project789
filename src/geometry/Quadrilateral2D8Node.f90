@@ -62,14 +62,15 @@ contains
     implicit none
     class(Quadrilateral2D8NodeDT)                       , intent(inout) :: this
     class(NodePtrDT)             , dimension(this%nNode), intent(in)    :: node
-    getLenght = node(1)%getx()*node(2)%gety() &
-         - node(1)%gety()*node(2)%getx()      &
-         + node(2)%getx()*node(3)%gety()      &
-         - node(2)%gety()*node(3)%getx()      &
-         + node(3)%getx()*node(4)%gety()      &
-         - node(3)%gety()*node(4)%getx()      &
-         + node(4)%getx()*node(1)%gety()      &
-         - node(4)%gety()*node(1)%getx()
+    integer(ikind)                                                      :: i
+    real(rkind)             , dimension(:), allocatable                 :: jacobianDet
+    getLenght = 0._rkind
+    allocate(jacobianDet(this%integrator%getIntegTerms()))
+    jacobianDet = this%jacobianDetAtGPoints(node)
+    do i = 1, this%integrator%getIntegTerms()
+       getLenght = getLenght + this%integrator%getWeight(i)*jacobianDet(i)
+    end do
+    getLenght = getLenght * (3._rkind/2._rkind) !No anda para nGauss = 1
   end function getLenght
 
   function shapeFunc(this, point)
@@ -95,33 +96,23 @@ contains
     class(PointDT)               , intent(in)                      :: point
     real(rkind)                  , dimension(this%dim, this%nNode) :: dShapeFunc
     !Corners
-    dShapeFunc(1,1) = point%getx()/4._rkind+point%gety()/4._rkind                       &
-         -(point%getx()*point%gety())/4._rkind-(point%gety()/4._rkind-1._rkind/4._rkind) &
-         *(point%getx()+point%gety()+1)-1._rkind/4._rkind
-    dShapeFunc(2,1) = point%getx()/4._rkind+point%gety()/4._rkind                       &
-         -(point%getx()*point%gety())/4._rkind-(point%getx()/4._rkind-1._rkind/4._rkind) &
-         *(point%getx()+point%gety()+1)-1._rkind/4._rkind
-    dShapeFunc(1,2) = (point%gety()/4._rkind-1._rkind/4._rkind)*(point%gety()-point%getx()+1) &
-         -(point%gety()/4._rkind-1._rkind/4._rkind)*(point%getx()+1)
-    dShapeFunc(2,2) = (point%gety()/4._rkind-1._rkind/4._rkind)*(point%getx()+1) &
-         +((point%getx()+1)*(point%gety()-point%getx()+1))/4._rkind
-    dShapeFunc(1,3) = (point%gety()/4._rkind+1._rkind/4._rkind)*(point%getx()+1) &
-         +(point%gety()/4._rkind+1._rkind/4._rkind)*(point%getx()+point%gety()-1)
-    dShapeFunc(2,3) = (point%gety()/4._rkind+1._rkind/4._rkind)*(point%getx()+1) &
-         +((point%getx()+1)*(point%getx()+point%gety()-1))/4._rkind
-    dShapeFunc(1,4) = (point%gety()/4._rkind+1._rkind/4._rkind)*(point%getx() &
-         -point%gety()+1)+(point%gety()/4._rkind+1/4._rkind)*(point%getx()-1)
-    dShapeFunc(2,4) = ((point%getx()-1)*(point%getx()-point%gety()+1))/4._rkind &
-         -(point%gety()/4._rkind+1._rkind/4._rkind)*(point%getx()-1)
+    dShapeFunc(1,1) = -(1._rkind/4._rkind)*(-1+point%gety())*(2*point%getx()+point%gety())
+    dShapeFunc(2,1) = -(1._rkind/4._rkind)*(-1+point%getx())*(point%getx()+2*point%gety())
+    dShapeFunc(1,2) = (1._rkind/4._rkind)*(-1+point%gety())*(point%gety()-2*point%getx())
+    dShapeFunc(2,2) = (1._rkind/4._rkind)*(1+point%getx())*(2*point%gety()-point%getx())
+    dShapeFunc(1,3) = (1._rkind/4._rkind)*(1+point%gety())*(2*point%getx()+point%gety())
+    dShapeFunc(2,3) = (1._rkind/4._rkind)*(1+point%getx())*(point%getx()+2*point%gety())
+    dShapeFunc(1,4) = -(1._rkind/4._rkind)*(1+point%gety())*(point%gety()-2*point%getx())
+    dShapeFunc(2,4) = -(1._rkind/4._rkind)*(-1+point%getx())*(2*point%gety()-point%getx())
     !Sides
-    dShapeFunc(1,5) = 2*point%getx()*(point%gety()/2._rkind-1._rkind/2._rkind)
-    dShapeFunc(2,5) = (point%getx()**2)/2._rkind-1._rkind/2._rkind
-    dShapeFunc(1,6) = 1._rkind/2._rkind-(point%gety()**2)/2._rkind
-    dShapeFunc(2,6) = -2*point%gety()*(point%getx()/2._rkind+1._rkind/2._rkind)
-    dShapeFunc(1,7) = -2*point%getx()*(point%gety()/2._rkind+1._rkind/2._rkind)
-    dShapeFunc(2,7) = 1._rkind/2._rkind-(point%getx()**2)/2._rkind
-    dShapeFunc(1,8) = (point%gety()**2)/2._rkind-1._rkind/2._rkind
-    dShapeFunc(2,8) = 2*point%gety()*(point%getx()/2._rkind-1._rkind/2._rkind)
+    dShapeFunc(1,5) = point%getx()*(-1+point%gety())
+    dShapeFunc(2,5) = (1._rkind/2._rkind)*(1+point%getx())*(-1+point%getx())
+    dShapeFunc(1,6) = -(1._rkind/2._rkind)*(1+point%gety())*(-1+point%gety())
+    dShapeFunc(2,6) = -point%gety()*(1+point%getx())
+    dShapeFunc(1,7) = -point%getx()*(1+point%gety())
+    dShapeFunc(2,7) = -(1._rkind/2._rkind)*(1+point%getx())*(-1+point%getx())
+    dShapeFunc(1,8) = (1._rkind/2._rkind)*(1+point%gety())*(-1+point%gety())
+    dShapeFunc(2,8) = point%gety()*(-1+point%getx())
   end function dShapeFunc
 
   function jacobianAllNodes(this, pointToValue, node)

@@ -15,6 +15,7 @@ module DofM
      procedure, public :: fixDof
      procedure, public :: freeDof
      procedure, public :: assignVal
+     procedure, public :: getVal
   end type DofDT
 
   interface newDof
@@ -61,5 +62,15 @@ contains
     this%isFixed = .false.
     if(allocated(this%fixedVal)) deallocate(this%fixedVal)
   end subroutine freeDof
+
+  pure real(rkind) function getVal(this)
+    implicit none
+    class(DofDT), intent(in) :: this
+    if(this%isFixed) then
+       getVal = this%fixedVal
+    else
+       getVal = this%val
+    end if
+  end function getVal
   
 end module DofM
