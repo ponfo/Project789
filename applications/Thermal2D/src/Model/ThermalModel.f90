@@ -15,10 +15,11 @@ module ThermalModelM
   public :: ThermalModelDT, thermalModel
 
   type, extends(modelDT) :: ThermalModelDT
-     type(Sparse)                             :: lhs
-     real(rkind), dimension(:)  , allocatable :: rhs
-     real(rkind), dimension(:)  , allocatable :: dof
-     type(HeatFluxDT)                         :: heatFlux
+     type(Sparse)                                :: lhs
+     real(rkind)     , dimension(:), allocatable :: rhs
+     real(rkind)     , dimension(:), allocatable :: dof
+     type(HeatFluxDT)                            :: heatFlux
+     character(:)                  , allocatable :: tempDofName
    contains
      procedure, public :: init
      procedure, public :: freeSystem
@@ -55,6 +56,7 @@ contains
     allocate(this%dof(nDof))
     call this%initModel(1) !una sola malla en el modelo
     this%mesh(1) = mesh(id, nNode, nElement, nCondition)
+    this%tempDofName = 'TEMPERATURE'
   end subroutine init
 
   subroutine freeSystem(this)

@@ -1,43 +1,42 @@
-18: 5:13  Initiating Program
-18: 5:13    Reading project data
-18: 5:13      Project name: test1
-18: 5:13      Path: /home/ponfo/Documents/Project789/applications/Structural2D/Gid/Structural2D.gid
-18: 5:13    Reading mesh data
-18: 5:13      Number of Elements.............................: 210
-18: 5:13      Are Elements Quadratic.........................: 0
-18: 5:13      Number of Triangular elements..................: 210
-18: 5:13      Number of Rectangular elements.................: 0
-18: 5:13      Number of Nodes................................: 126
-18: 5:13      Number of Dirichlet X conditions...............: 1
-18: 5:13      Number of Dirichlet Y conditions...............: 1
-18: 5:13      Number of Pressure conditions..................: 0
-18: 5:13      Number of Loads on points......................: 1
-18: 5:13      Number of Loads on surfaces....................: 0
-18: 5:13      Number of points with pointSource..............: 1
-18: 5:13      Number of Surfaces with surfaceSource..........: 0
-18: 5:13      Number of Materials............................: 1
-18: 5:13      Gauss cuadrature order.........................: 3
-18: 5:13          Allocated weights: 4
-18: 5:13          Allocated gPoints: 8
-18: 5:13          Allocated weights: 3
-18: 5:13          Allocated gPoints: 3
-18: 5:13          Allocated weights: 4
-18: 5:13          Allocated gPoints: 8
-18: 5:13          Allocated weights: 3
-18: 5:13          Allocated gPoints: 3
-18: 5:13          Allocated weights: 9
-18: 5:13          Allocated gPoints: 18
-18: 5:13          Allocated weights: 3
-18: 5:13          Allocated gPoints: 3
-18: 5:13          Allocated weights: 9
-18: 5:13          Allocated gPoints: 18
-18: 5:13          Allocated weights: 3
-18: 5:13          Allocated gPoints: 3
-18: 5:13    Reading materials properties
-18: 5:13    Reading elements
-18: 5:13    Reading point and line Sources
-18: 5:13    Reading Boundary Conditions
-18: 5:13  End loading data
-18: 5:13    Assembling stiffness matrix and right hand side vector
-18: 5:13  solving linear system
-18: 5:13  done solving
+ 7:52:26  Initiating Program
+ 7:52:26    Reading project data
+ 7:52:26      Project name: test1
+ 7:52:26      Path: /home/ponfo/Documents/Project789/applications/Structural2D/Gid/Structural2D.gid
+ 7:52:26    Reading mesh data
+ 7:52:26      Number of Elements.............................: 210
+ 7:52:26      Are Elements Quadratic.........................: 0
+ 7:52:26      Number of Triangular elements..................: 210
+ 7:52:26      Number of Rectangular elements.................: 0
+ 7:52:26      Number of Nodes................................: 126
+ 7:52:26      Number of Dirichlet X conditions...............: 1
+ 7:52:26      Number of Dirichlet Y conditions...............: 1
+ 7:52:26      Number of Pressure conditions..................: 0
+ 7:52:26      Number of Loads on points......................: 1
+ 7:52:26      Number of Loads on surfaces....................: 0
+ 7:52:26      Number of points with pointSource..............: 1
+ 7:52:26      Number of Surfaces with surfaceSource..........: 0
+ 7:52:26      Number of Materials............................: 1
+ 7:52:26      Gauss cuadrature order.........................: 3
+ 7:52:26          Allocated weights: 4
+ 7:52:26          Allocated gPoints: 8
+ 7:52:26          Allocated weights: 3
+ 7:52:26          Allocated gPoints: 3
+ 7:52:26          Allocated weights: 4
+ 7:52:26          Allocated gPoints: 8
+ 7:52:26          Allocated weights: 3
+ 7:52:26          Allocated gPoints: 3
+ 7:52:26          Allocated weights: 9
+ 7:52:26          Allocated gPoints: 18
+ 7:52:26          Allocated weights: 3
+ 7:52:26          Allocated gPoints: 3
+ 7:52:26          Allocated weights: 9
+ 7:52:26          Allocated gPoints: 18
+ 7:52:26          Allocated weights: 3
+ 7:52:26          Allocated gPoints: 3
+ 7:52:26    Reading materials properties
+ 7:52:26    Reading elements
+ 7:52:26    Reading point and line Sources
+ 7:52:26    Reading Boundary Conditions
+ 7:52:26  End loading data
+ 7:52:26    Assembling stiffness matrix and right hand side vector
+ 7:52:26  solving linear system

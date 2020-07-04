@@ -14,8 +14,8 @@ Triangular_Elements_Number.............: 0
 Rectangular_Elements_Number............: 182
 Materials_Number.......................: 1
 Gauss_Order............................: 3
-Fix_Displacement_X_Number..............: 2
-Fix_Displacement_Y_Number..............: 2
+Fix_Displacement_X_Number..............: 1
+Fix_Displacement_Y_Number..............: 1
 Pressure_On_Lines_Condition_elements...: 0
 Load_Number_On_Points..................: 1
 Load_Number_On_Surfaces................: 0
@@ -466,7 +466,6 @@ Conditions List:
   Node    |    Displacement X
 --------------------------------
     1           0.0000e+00 
-  153           0.0000e+00 
 
 ####################### Displacements Y ######################
 
@@ -475,7 +474,6 @@ Conditions List:
   Node    |    Displacement Y
 --------------------------------
     1           0.0000e+00 
-  153           0.0000e+00 
 
 ##################### Pressure On Lines ####################
 

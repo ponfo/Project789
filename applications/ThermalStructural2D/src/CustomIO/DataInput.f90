@@ -162,6 +162,7 @@ contains
        if(verbose) print'(3X,I0,3X,E10.3,3X,E10.3,3X,E10.3)', iPoint, x, y
        thermalStructAppl%node(iPoint) = node(iPoint, 3, 2, x, y)
        call thermalStructAppl%node(iPoint)%assignDof(1, thermalStructAppl%thermalModel%dof(iPoint))
+       call thermalStructAppl%node(iPoint)%assignName(1, thermalStructAppl%thermalModel%tempDofName)
        call thermalStructAppl%thermalModel%addNode(iPoint, thermalStructAppl%node(iPoint))
        call thermalStructAppl%structuralModel%addNode(iPoint, thermalStructAppl%node(iPoint))
     end do

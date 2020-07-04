@@ -1,0 +1,43 @@
+ 7:40:35  Initiating Program
+ 7:40:35    Reading project data
+ 7:40:35      Project name: test3
+ 7:40:35      Path: /home/ponfo/Documents/Project789/applications/Thermal2D/Gid/Thermal2D.gid
+ 7:40:35    Reading mesh data
+ 7:40:35      Number of Elements.............................: 15
+ 7:40:35      Are Elements Quadratic.........................: 0
+ 7:40:35      Number of Triangular elements..................: 0
+ 7:40:35      Number of Rectangular elements.................: 15
+ 7:40:35      Number of Nodes................................: 24
+ 7:40:35      Number of Dirichlet conditions.................: 5
+ 7:40:35      Number of NormalFluxOnLines conditions.........: 0
+ 7:40:35      Number of ConvectionOnLines conditions.........: 7
+ 7:40:35      Number of Sources on points....................: 0
+ 7:40:35      Number of Sources on surfaces..................: 0
+ 7:40:35      Number of points with pointSource..............: 0
+ 7:40:35      Number of Surfaces with surfaceSource..........: 0
+ 7:40:35      Number of Materials............................: 1
+ 7:40:35      Gauss cuadrature order.........................: 3
+ 7:40:35          Allocated weights: 4
+ 7:40:35          Allocated gPoints: 8
+ 7:40:35          Allocated weights: 3
+ 7:40:35          Allocated gPoints: 3
+ 7:40:35          Allocated weights: 4
+ 7:40:35          Allocated gPoints: 8
+ 7:40:35          Allocated weights: 3
+ 7:40:35          Allocated gPoints: 3
+ 7:40:35          Allocated weights: 9
+ 7:40:35          Allocated gPoints: 18
+ 7:40:35          Allocated weights: 3
+ 7:40:35          Allocated gPoints: 3
+ 7:40:35          Allocated weights: 9
+ 7:40:35          Allocated gPoints: 18
+ 7:40:35          Allocated weights: 3
+ 7:40:35          Allocated gPoints: 3
+ 7:40:35    Reading materials properties
+ 7:40:35    Reading elements
+ 7:40:35    Reading point and line Sources
+ 7:40:35    Reading Boundary Conditions
+ 7:40:35  End loading data
+ 7:40:35    Assembling stiffness matrix and right hand side vector
+ 7:40:35  solving linear system
+ 7:40:35  done solving

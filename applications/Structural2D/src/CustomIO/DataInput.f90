@@ -156,6 +156,8 @@ contains
        structuralAppl%node(iPoint) = node(iPoint, 2, x, y)
        call structuralAppl%node(iPoint)%assignDof(1, structuralAppl%model%dof(iPoint*nDof-1))
        call structuralAppl%node(iPoint)%assignDof(2, structuralAppl%model%dof(iPoint*nDof))
+       call structuralAppl%node(iPoint)%assignName(1, structuralAppl%model%displxDofName)
+       call structuralAppl%node(iPoint)%assignName(2, structuralAppl%model%displyDofName)
        call structuralAppl%model%addNode(iPoint, structuralAppl%node(iPoint))
     end do
   end subroutine initMesh

@@ -12,9 +12,9 @@ VALUE: 0.0
 QUESTION: Error_Tolerance
 VALUE: 1e-10
 QUESTION: Max_Iterations
-VALUE: 25000
+VALUE: 5000
 QUESTION: Print_Every_N_Steps
-VALUE: 1000
+VALUE: 250
 QUESTION: Safety_Factor
 VALUE: 0.1
 QUESTION: Constant_Shock_Capturing

@@ -140,6 +140,7 @@ contains
        if(verbose) print'(3X,I0,3X,E10.3,3X,E10.3,3X,E10.3)', iPoint, x, y
        thermalAppl%node(iPoint) = node(iPoint, 1, x, y)
        call thermalAppl%node(iPoint)%assignDof(1, thermalAppl%model%dof(iPoint))
+       call thermalAppl%node(iPoint)%assignName(1, thermalAppl%model%tempDofName)
        call thermalAppl%model%addNode(iPoint, thermalAppl%node(iPoint))
     end do
   end subroutine initMesh

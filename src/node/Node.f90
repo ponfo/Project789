@@ -27,6 +27,7 @@ module NodeM
      procedure, public :: assignSourceOne
      procedure, public :: assignSourceMulti
      procedure, public :: assignDof
+     procedure, public :: assignName
      procedure, public :: fixDof
      procedure, public :: freeDof
      procedure, public :: getnDof
@@ -209,6 +210,14 @@ contains
     real(rkind)   , intent(in)    :: dof
     call this%dof(iDof)%assignVal(dof)
   end subroutine assignDof
+
+  subroutine assignName(this, iDof, name)
+    implicit none
+    class(NodeDT) , intent(inout) :: this
+    integer(ikind), intent(in)    :: iDof
+    character(*)  , intent(in)    :: name
+    call this%dof(iDof)%assignName(name)
+  end subroutine assignName
 
   subroutine fixDof(this, iDof, fixedVal)
     implicit none

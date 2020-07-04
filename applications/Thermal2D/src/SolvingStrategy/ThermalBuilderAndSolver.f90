@@ -117,16 +117,20 @@ contains
   subroutine applyDirichlet(model)
     implicit none
     class(ThermalModelDT), intent(inout) :: model
-    integer(ikind)                       :: i, nNode, nodeID
+    integer(ikind)                       :: i, j, nNode, nodeID
     type(NodePtrDT)                      :: node
     nNode = model%getnNode()
     do i = 1, nNode
        node = model%getNode(i)
-       if(node%ptr%dof(1)%isFixed) then
-          nodeID = node%ptr%getID()
-          call model%lhs%setDirichlet(nodeID)
-          model%rhs(nodeID) = node%ptr%dof(1)%fixedVal
-       end if
+       do j = 1, node%getnDof()
+          if(node%ptr%dof(j)%getName() == 'TEMPERATURE') then
+             if(node%ptr%dof(j)%isFixed) then
+                nodeID = node%ptr%getID()
+                call model%lhs%setDirichlet(nodeID)
+                model%rhs(nodeID) = node%ptr%dof(j)%fixedVal
+             end if
+          end if
+       end do
     end do
   end subroutine applyDirichlet
 

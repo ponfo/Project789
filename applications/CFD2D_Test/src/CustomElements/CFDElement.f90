@@ -251,21 +251,6 @@ contains
                + this%nu(k)*(this%dNdx(i,k)*Ux + this%dNdy(i,k)*Uy)                            &
                + (this%dNdx(i,k)*K1jUj + this%dNdy(i,k)*K2jUj))                                &
                * this%jacobianDet(k)*integrator%getWeight(k)/lumpedMass(iNodeID)
-!!$          write(11,'(A,I0)') 'iNodeID = ', iNodeID
-!!$          !write(11,*) '000', stabMat
-!!$          write(11,*) '111', integrator%getShapeFunc(k,i) !0
-!!$          write(11,*) '222', AiUi !NaN
-!!$          write(11,*) '333', this%dNdx(i,k)
-!!$          write(11,*) '444', A1AiUi_theta !NaN
-!!$          write(11,*) '555', this%dNdy(i,k)
-!!$          write(11,*) '666', A2AiUi_theta !NaN
-!!$          write(11,*) '777', this%nu(k)
-!!$          write(11,*) '888', K1jUj !NaN
-!!$          write(11,*) '999', K2jUj !NaN
-!!$          write(11,*) '101010', this%jacobianDet(k)
-!!$          write(11,*) '111111', integrator%getWeight(k)
-!!$          write(11,*) '121212', iNodeID
-!!$          write(11,*) '131313', lumpedMass(iNodeID)
        end do
     end do
     deallocate(U)
@@ -292,21 +277,20 @@ contains
        if (Vy.gt.VyMAX) VyMAX = Vy
     end do
     V  = (VxMAX**2+VyMAX**2)**0.5_rkind
-    hh = sqrt(2._rkind*this%geometry%getLenght(this%node))
     
+    hh = sqrt(2._rkind*this%geometry%getLenght(this%node)) !Esto es solo así para triang lin..
     fmu = 0.001_rkind
     et  = fmu
-
     pe  = (v*hh)/(2._rkind*et)
-
     alpha = min(pe/3._rkind,1._rkind)
-
     deltaTU = 1._rkind/(4._rkind*et/hh**2._rkind+alpha*v/hh)
     deltaTC = 1._rkind/(4._rkind*et/hh**2._rkind)
     dt = fSafe/(1._rkind/deltaTC+1._rkind/deltaTU)
     call processInfo%setMinimumDT(dt)
-!!$    alpha   = min((V*sqrt(this%jacobianDet(1)))/(2._rkind*0.001d0)/3._rkind,1._rkind)
+    
+
 !!$    do i = 1, integrator%getIntegTerms()
+!!$       alpha   = min((V*sqrt(this%jacobianDet(i)))/(2._rkind*0.001_rkind)/3._rkind,1._rkind)
 !!$       deltaTU = 1._rkind/(4._rkind*0.001_rkind/sqrt(this%jacobianDet(i))**2._rkind &
 !!$            +ALPHA*V/sqrt(this%jacobianDet(i)))    
 !!$       deltaTC = 1._rkind/(4._rkind*0.001_rkind/sqrt(this%jacobianDet(i))**2._rkind)    
@@ -337,27 +321,28 @@ contains
 !!$          do k = 1, integrator%getIntegTerms()
 !!$             adder = adder + (integrator%getWeight(k)*this%jacobianDet(k)      &
 !!$                  *integrator%getShapeFunc(k,i)*integrator%getShapeFunc(k,j))
-             !write(11,*) 'k -> ', k
-             !write(11,*) 'getWeight -> ', integrator%getWeight(k)
-             !write(11,*) 'jacobianDet -> ', this%jacobianDet(k)
-             !write(11,*) 'sfi -> ', integrator%getShapeFunc(k,i)
-             !write(11,*) 'sfj -> ', integrator%getShapeFunc(k,j)
-             !write(11,*) 'term -> ', integrator%getWeight(k)*this%jacobianDet(k)       &
-             !     *integrator%getShapeFunc(k,i)*integrator%getShapeFunc(k,j)
+!!$             write(11,*) 'k -> ', k
+!!$             write(11,*) 'getWeight -> ', integrator%getWeight(k)
+!!$             write(11,*) 'jacobianDet -> ', this%jacobianDet(k)
+!!$             write(11,*) 'sfi -> ', integrator%getShapeFunc(k,i)
+!!$             write(11,*) 'sfj -> ', integrator%getShapeFunc(k,j)
+!!$             write(11,*) 'term -> ', integrator%getWeight(k)*this%jacobianDet(k)       &
+!!$                  *integrator%getShapeFunc(k,i)*integrator%getShapeFunc(k,j)
 !!$          end do
 !!$       end do
 !!$       iNodeID = this%getNodeID(i)
 !!$       lumpedMass(iNodeID) = lumpedMass(iNodeID) + adder
-       !write(11,*) 'CONTRIBUTION TO LUMPED MASS ON'
-       !write(11,'(A,I0)') 'iNodeID = ', iNodeID
-       !write(11,*) 'is -------> ', adder
+!!$       write(11,*) 'CONTRIBUTION TO LUMPED MASS ON'
+!!$       write(11,'(A,I0)') 'iNodeID = ', iNodeID
+!!$       write(11,*) 'is -------> ', adder
 !!$    end do
-
+!!$
     area = this%geometry%getLenght(this%node)
     do i = 1, nNode
        iNodeID = this%getNodeID(i)
        lumpedMass(iNodeID) = lumpedMass(iNodeID) + area/nNode
     end do
+       
   end subroutine calculateMass
 
   subroutine allocateStabMat(n,m)
@@ -373,6 +358,175 @@ contains
     stabMat = 0._rkind
   end subroutine zeroStabMat
 
+!!$  subroutine calculateStabMat(this, processInfo)
+!!$    implicit none
+!!$    class(CFDElementDT)                  , intent(inout) :: this
+!!$    class(processinfoDT)                 , intent(inout) :: processInfo
+!!$    integer(ikind)                                       :: i, j, k, iNodeID
+!!$    integer(ikind)                                       :: nNode, nDof
+!!$    real(rkind)          , dimension(:,:)  , allocatable :: U
+!!$    real(rkind)          , dimension(:)    , allocatable :: T
+!!$    real(rkind)                                          :: U_loc(4)
+!!$    real(rkind)                                          :: Ux(4), Uy(4), AiUi(4)
+!!$    real(rkind)                                          :: v1, v2, V_sq, e
+!!$    real(rkind)                                          :: rho, h_jgn, h_rgn, h_rgne  
+!!$    real(rkind)                                          :: deltaTC, dtmin, Tinf
+!!$    real(rkind)                                          :: Vx, Vy, gamma, Cv, Vc, dt2, cte
+!!$    real(rkind)                                          :: fmu, smu, bi, ci, rrr, zzz, shoc 
+!!$    real(rkind)                                          :: rhoinf, Tau, t_sugn1, t_sugn2, t_sugn3
+!!$    real(rkind)                                          :: term1, term2, tr1, tau_sung3, tau_sung3_e
+!!$    real(rkind)                                          :: h_rgn1, h_rgn2, resumen, term_1, term_2
+!!$    real(rkind)                                          :: R, temp, drx, dry, dr2, rjy, dtx, dty
+!!$    real(rkind)                                          :: rtx, rty, dux, duy, du2, rux, ruy, rjx
+!!$    type(IntegratorPtrDT)                                :: integrator
+!!$    nNode = this%getnNode()
+!!$    nDof  = 4
+!!$    allocate(U(4,nNode), T(nNode))
+!!$    integrator  = this%getIntegrator()
+!!$    gamma       = this%material%gamma
+!!$    do i = 1, nNode
+!!$       do j = 1, nDof
+!!$          U(j,i) = this%node(i)%ptr%dof(j)%getVal()
+!!$       end do
+!!$    end do
+!!$    do k = 1, integrator%getIntegTerms()
+!!$       Ux          = 0._rkind
+!!$       Uy          = 0._rkind
+!!$       U_loc       = 0._rkind
+!!$       do i = 1, nNode
+!!$          U_loc = U_loc + integrator%ptr%shapeFunc(k,i)*U(:,i)
+!!$          Ux = Ux + U(:,i)*this%dNdx(i,k)
+!!$          Uy = Uy + U(:,i)*this%dNdy(i,k)
+!!$       end do
+!!$       rho  = U_loc(1)
+!!$       v1   = U_loc(2)/rho
+!!$       v2   = U_loc(3)/rho
+!!$       e    = U_loc(4)/rho
+!!$       V_sq = v1**2 + v2**2
+!!$       AiUi(1) = Ux(2) + Uy(3) 
+!!$       AiUi(2) = (1._rkind/2._rkind)*Ux(1)*(V_sq*(gamma - 1) - 2*v1**2) - Ux(2)*v1*( &
+!!$            gamma - 3) - Ux(3)*v2*(gamma - 1) + Ux(4)*(gamma - 1) - Uy(1)*v1*v2 + &
+!!$            Uy(2)*v2 + Uy(3)*v1
+!!$       AiUi(3) = -Ux(1)*v1*v2 + Ux(2)*v2 + Ux(3)*v1 + (1._rkind/2._rkind)*Uy(1)*(V_sq*( &
+!!$            gamma - 1) - 2*v2**2) - Uy(2)*v1*(gamma - 1) - Uy(3)*v2*(gamma - 3) + &
+!!$            Uy(4)*(gamma - 1)
+!!$       AiUi(4) = Ux(1)*v1*(V_sq*(gamma - 1) - e*gamma) - 1._rkind/2._rkind*Ux(2)*(V_sq &
+!!$            *(gamma - 1) - 2*e*gamma + 2*v1**2*(gamma - 1)) - Ux(3)*v1*v2*( &
+!!$            gamma - 1) + Ux(4)*gamma*v1 + Uy(1)*v2*(V_sq*(gamma - 1) - e*gamma) - &
+!!$            Uy(2)*v1*v2*(gamma - 1) - 1._rkind/2._rkind*Uy(3)*(V_sq*(gamma - 1) - 2*e* &
+!!$            gamma + 2*v2**2*(gamma - 1)) + Uy(4)*gamma*v2
+!!$       do i = 1, nNode
+!!$          iNodeID = this%getNodeID(i)
+!!$          stabMat(:,iNodeID) = stabMat(:,iNodeID)                       &
+!!$               - integrator%getShapeFunc(k,i)*AiUi                       &
+!!$               * this%jacobianDet(k)*integrator%getWeight(k)/lumpedMass(iNodeID)
+!!$       end do
+!!$    end do
+!!$    !calculo tau y nu
+!!$    dtmin       = processInfo%getDt()
+!!$    cte         = this%material%constant
+!!$    R           = this%material%R
+!!$    Cv          = this%material%Cv
+!!$    Tinf        = this%material%T_inf
+!!$    rhoinf      = this%material%rho
+!!$
+!!$    rho         = 0._rkind
+!!$    Vx          = 0._rkind
+!!$    Vy          = 0._rkind
+!!$    temp        = 0._rkind
+!!$    do i = 1, nNode
+!!$       rho = rho +  U(1,i)         
+!!$       Vx  = Vx  + (U(2,i)/U(1,i)) 
+!!$       Vy  = Vy  + (U(3,i)/U(1,i)) 
+!!$    end do
+!!$    rho = rho/nNode
+!!$    Vx  = Vx/nNode
+!!$    Vy  = Vy/nNode
+!!$    V2  = sqrt(Vx*Vx+Vy*Vy)
+!!$    
+!!$    do i = 1, nNode
+!!$       T(i) = ((U(4,i)/U(1,i))-0.5_rkind*((U(2,i)/U(1,i))**2+(U(3,i)/U(1,i))**2))/Cv
+!!$    end do
+!!$    do i = 1, nNode
+!!$       temp = temp + T(i)                                             
+!!$    end do
+!!$    temp = temp/nNode
+!!$    Vc   = sqrt(gamma*R*temp)
+!!$    
+!!$    do k = 1, integrator%getIntegTerms()
+!!$       Tau         = 0._rkind
+!!$       drx         = 0._rkind
+!!$       dry         = 0._rkind
+!!$       dTx         = 0._rkind
+!!$       dTy         = 0._rkind
+!!$       dUx         = 0._rkind
+!!$       dUy         = 0._rkind
+!!$       h_rgne      = 1.d-10
+!!$       h_rgn       = 1.d-10
+!!$       h_jgn       = 1.d-10
+!!$       
+!!$      
+!!$       do i = 1, nNode
+!!$          drx  = drx + U(1,i)*this%dNdx(i,k)
+!!$          dry  = dry + U(1,i)*this%dNdy(i,k)
+!!$       end do
+!!$       dr2  = sqrt(drx*drx+dry*dry)+1.d-20
+!!$       rjx  = drx/dr2
+!!$       rjy  = dry/dr2
+!!$       do i = 1, nNode
+!!$          dTx  = dTx + T(i)*this%dNdx(i,k)
+!!$          dTy  = dTy + T(i)*this%dNdy(i,k)
+!!$       end do
+!!$       dT2  = sqrt(dTx*dTx+dTy*dTy)+1.d-20
+!!$       rTx  = dTx/dT2
+!!$       rTy  = dTy/dT2    
+!!$       do i = 1, nNode
+!!$          dUx  = dUx + V2*this%dNdx(i,k)
+!!$          dUy  = dUy + V2*this%dNdy(i,k)
+!!$       end do
+!!$       dU2  = sqrt(dUx*dUx+dUy*dUy)+1.d-20
+!!$       rUx  = dUx/dU2
+!!$       rUy  = dUy/dU2 
+!!$       smu  = 110._rkind
+!!$       fmu  = 0.41685_rkind*(temp/Tinf)**1.5d0*(Tinf+smu)/(temp+smu)   
+!!$       do i = 1, nNode
+!!$          term_1 = abs(Vx *this%dNdx(i,k)+Vy *this%dNdy(i,k))
+!!$          term_2 = abs(rjx*this%dNdx(i,k)+rjy*this%dNdy(i,k))
+!!$          h_rgn1 = abs(rtx*this%dNdx(i,k)+rty*this%dNdy(i,k)) 
+!!$          h_rgn2 = abs(rux*this%dNdx(i,k)+ruy*this%dNdy(i,k)) 
+!!$          Tau    = Tau+term_1+term_2*Vc       
+!!$          h_rgne = h_rgne+h_rgn1             
+!!$          h_rgn  = h_rgn+h_rgn2              
+!!$          h_jgn  = h_jgn+term_2              
+!!$       end do
+!!$       Tau     = 1._rkind/Tau
+!!$       h_rgne  = 2._rkind/h_rgne
+!!$       h_rgn   = 2._rkind/h_rgn
+!!$       if (h_rgn .gt. 1.d3) h_rgn = 0._rkind
+!!$       h_jgn   = 2._rkind/h_jgn       
+!!$       if (h_jgn .gt. 1.d10) h_jgn = 0._rkind 
+!!$       tr1     = dr2*h_jgn/rho
+!!$       zzz     = h_jgn/2._rkind
+!!$       shoc    = (sqrt(tr1)+tr1**2)*Vc*2*zzz
+!!$       resumen = (1._rkind/Tau)**2._rkind +(2._rkind/dtmin)**2._rkind
+!!$       rrr     = resumen**(-0.5_rkind)
+!!$       t_sugn1 = rrr
+!!$       t_sugn2 = rrr
+!!$       t_sugn3 = rrr
+!!$       if(fmu.ne.0._rkind)then                 
+!!$          tau_sung3   = h_rgn**2._rkind/(4._rkind*fmu/rhoinf)
+!!$          tau_sung3_e = h_rgne**2._rkind/(4._rkind*fmu/rhoinf)
+!!$          t_sugn2     = (resumen+1._rkind/tau_sung3**2._rkind)**(-0.5_rkind)
+!!$          t_sugn3     = (resumen+1._rkind/tau_sung3_e**2._rkind)**(-0.5_rkind)
+!!$       end if
+!!$       this%Tau(1,k) = t_sugn1
+!!$       this%Tau(2,k) = t_sugn2
+!!$       this%Tau(3,k) = t_sugn3
+!!$       this%nu(k)    = shoc*cte
+!!$    end do
+!!$    deallocate(U, T)
+!!$  end subroutine calculateStabMat
+
   subroutine calculateStabMat(this, processInfo)
     implicit none
     class(CFDElementDT)                  , intent(inout) :: this
@@ -381,8 +535,8 @@ contains
     integer(ikind)                                       :: nNode, nDof
     real(rkind)          , dimension(:,:)  , allocatable :: U
     real(rkind)          , dimension(:)    , allocatable :: T
-    real(rkind)                                          :: AiUi(4), U_loc(4)
-    real(rkind)                                          :: Ux(4), Uy(4)
+    real(rkind)                                          :: U_loc(4)
+    real(rkind)                                          :: Ux(4), Uy(4), AiUi(4)
     real(rkind)                                          :: v1, v2, V_sq, e
     real(rkind)                                          :: rho, h_jgn, h_rgn, h_rgne  
     real(rkind)                                          :: deltaTC, dtmin, Tinf
@@ -399,11 +553,21 @@ contains
     allocate(U(4,nNode), T(nNode))
     integrator  = this%getIntegrator()
     gamma       = this%material%gamma
+    dtmin       = processInfo%getDt()
+    cte         = this%material%constant
+    R           = this%material%R
+    Cv          = this%material%Cv
+    Tinf        = this%material%T_inf
+    rhoinf      = this%material%rho
+    temp        = 0._rkind
     do i = 1, nNode
        do j = 1, nDof
           U(j,i) = this%node(i)%ptr%dof(j)%getVal()
        end do
+       T(i) = ((U(4,i)/U(1,i))-0.5d0*((U(2,i)/U(1,i))**2+(U(3,i)/U(1,i))**2))/Cv
+       temp = temp + T(i)/nNode
     end do
+    Vc   = sqrt(gamma*R*temp)
     do k = 1, integrator%getIntegTerms()
        Ux          = 0._rkind
        Uy          = 0._rkind
@@ -418,6 +582,7 @@ contains
        v2   = U_loc(3)/rho
        e    = U_loc(4)/rho
        V_sq = v1**2 + v2**2
+       !StabMat:
        AiUi(1) = Ux(2) + Uy(3) 
        AiUi(2) = (1._rkind/2._rkind)*Ux(1)*(V_sq*(gamma - 1) - 2*v1**2) - Ux(2)*v1*( &
             gamma - 3) - Ux(3)*v2*(gamma - 1) + Ux(4)*(gamma - 1) - Uy(1)*v1*v2 + &
@@ -434,67 +599,22 @@ contains
           iNodeID = this%getNodeID(i)
           stabMat(:,iNodeID) = stabMat(:,iNodeID)                       &
                - integrator%getShapeFunc(k,i)*AiUi                       &
-               * this%jacobianDet(k)*integrator%getWeight(k)*processInfo%getDT()/lumpedMass(iNodeID)
-!!$          print'(A,I0)', 'iNodeID = ', iNodeID
-!!$          print*, 'sfi -> ', integrator%getShapeFunc(k,i)
-!!$          print*, 'AiUi -> ', AiUi
-!!$          print*, 'jacobianDet -> ', jacobianDet(k)
-!!$          print*, 'weight -> ', integrator%getWeight(k)
-!!$          print*, 'lumpedMass -> ', lumpedMass(iNodeID)
-!!$          print*, 'stabMat -> ', stabMat(1:nNode,iNodeID)
+               * this%jacobianDet(k)*integrator%getWeight(k)/lumpedMass(iNodeID)
        end do
-    end do
-    !calculo tau y nu
-    dtmin       = processInfo%getDt()
-    cte         = this%material%constant
-    R           = this%material%R
-    Cv          = this%material%Cv
-    Tinf        = this%material%T_inf
-    rhoinf      = this%material%rho
-
-    rho         = 0._rkind
-    Vx          = 0._rkind
-    Vy          = 0._rkind
-    temp        = 0._rkind
-    do i = 1, nNode
-       rho = rho +  U(1,i)         
-       Vx  = Vx  + (U(2,i)/U(1,i)) 
-       Vy  = Vy  + (U(3,i)/U(1,i)) 
-    end do
-    rho = rho/nNode
-    Vx  = Vx/nNode
-    Vy  = Vy/nNode
-    V2  = sqrt(Vx*Vx+Vy*Vy)
-    
-    do i = 1, nNode
-       T(i) = ((U(4,i)/U(1,i))-0.5d0*((U(2,i)/U(1,i))**2+(U(3,i)/U(1,i))**2))/Cv
-    end do
-    do i = 1, nNode
-       temp = temp + T(i)                                             
-    end do
-    temp = temp/nNode
-    Vc   = sqrt(gamma*R*temp)
-    
-    do k = 1, integrator%getIntegTerms()
-       Tau         = 0._rkind
-       drx         = 0._rkind
-       dry         = 0._rkind
-       dTx         = 0._rkind
-       dTy         = 0._rkind
-       dUx         = 0._rkind
-       dUy         = 0._rkind
-       h_rgne      = 1.d-10
-       h_rgn       = 1.d-10
-       h_jgn       = 1.d-10
-       
-      
-       do i = 1, nNode
-          drx  = drx + U(1,i)*this%dNdx(i,k)
-          dry  = dry + U(1,i)*this%dNdy(i,k)
-       end do
-       dr2  = sqrt(drx*drx+dry*dry)+1.d-20
-       rjx  = drx/dr2
-       rjy  = dry/dr2
+       !Tau & Nu:
+       Tau    = 0._rkind
+       drx    = Ux(1)
+       dry    = Uy(1)
+       dTx    = 0._rkind
+       dTy    = 0._rkind
+       dUx    = 0._rkind
+       dUy    = 0._rkind
+       h_rgne = 1.d-10
+       h_rgn  = 1.d-10
+       h_jgn  = 1.d-10
+       dr2    = sqrt(drx*drx+dry*dry)+1.d-20
+       rjx    = drx/dr2
+       rjy    = dry/dr2
        do i = 1, nNode
           dTx  = dTx + T(i)*this%dNdx(i,k)
           dTy  = dTy + T(i)*this%dNdy(i,k)
@@ -503,16 +623,16 @@ contains
        rTx  = dTx/dT2
        rTy  = dTy/dT2    
        do i = 1, nNode
-          dUx  = dUx + V2*this%dNdx(i,k)
-          dUy  = dUy + V2*this%dNdy(i,k)
+          dUx  = dUx + V_sq*this%dNdx(i,k)
+          dUy  = dUy + V_sq*this%dNdy(i,k)
        end do
        dU2  = sqrt(dUx*dUx+dUy*dUy)+1.d-20
        rUx  = dUx/dU2
        rUy  = dUy/dU2 
        smu  = 110._rkind
-       fmu  = 0.41685d0*(temp/Tinf)**1.5d0*(Tinf+smu)/(temp+smu)   
+       fmu  = 0.41685_rkind*(temp/Tinf)**1.5_rkind*(Tinf+smu)/(temp+smu)   
        do i = 1, nNode
-          term_1 = abs(Vx *this%dNdx(i,k)+Vy *this%dNdy(i,k))
+          term_1 = abs(v1 *this%dNdx(i,k)+v1 *this%dNdy(i,k))
           term_2 = abs(rjx*this%dNdx(i,k)+rjy*this%dNdy(i,k))
           h_rgn1 = abs(rtx*this%dNdx(i,k)+rty*this%dNdy(i,k)) 
           h_rgn2 = abs(rux*this%dNdx(i,k)+ruy*this%dNdy(i,k)) 
@@ -531,15 +651,15 @@ contains
        zzz     = h_jgn/2._rkind
        shoc    = (sqrt(tr1)+tr1**2)*Vc*2*zzz
        resumen = (1._rkind/Tau)**2._rkind +(2._rkind/dtmin)**2._rkind
-       rrr     = resumen**(-0.5d0)
+       rrr     = resumen**(-0.5_rkind)
        t_sugn1 = rrr
        t_sugn2 = rrr
        t_sugn3 = rrr
        if(fmu.ne.0._rkind)then                 
           tau_sung3   = h_rgn**2._rkind/(4._rkind*fmu/rhoinf)
           tau_sung3_e = h_rgne**2._rkind/(4._rkind*fmu/rhoinf)
-          t_sugn2     = (resumen+1._rkind/tau_sung3**2._rkind)**(-0.5d0)
-          t_sugn3     = (resumen+1._rkind/tau_sung3_e**2._rkind)**(-0.5d0)
+          t_sugn2     = (resumen+1._rkind/tau_sung3**2._rkind)**(-0.5_rkind)
+          t_sugn3     = (resumen+1._rkind/tau_sung3_e**2._rkind)**(-0.5_rkind)
        end if
        this%Tau(1,k) = t_sugn1
        this%Tau(2,k) = t_sugn2
@@ -548,6 +668,7 @@ contains
     end do
     deallocate(U, T)
   end subroutine calculateStabMat
+    
 
   subroutine calculateResults(this, processInfo, resultMat)
     implicit none
@@ -572,7 +693,7 @@ contains
     Cv    = this%material%Cv
     Vc    = this%material%Vc
     gamma = this%material%gamma
-    resultMat = 0.d0
+    resultMat = 0._rkind
     do iNode = 1, nNode
        rho = U(1,iNode)
        Vx  = U(2,iNode)/rho

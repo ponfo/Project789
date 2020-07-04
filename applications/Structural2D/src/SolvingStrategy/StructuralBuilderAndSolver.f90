@@ -108,22 +108,27 @@ contains
   subroutine applyDirichlet(model)
     implicit none
     class(StructuralModelDT), intent(inout) :: model
-    integer(ikind)                          :: i, nNode, nodeID, nDof
+    integer(ikind)                          :: i, j, nNode, nodeID, nDof
     type(NodePtrDT)                         :: node
     nNode = model%getnNode()
     nDof = 2
     do i = 1, nNode
        node = model%getNode(i)
-       if(node%ptr%dof(1)%isFixed) then
-          nodeID = node%ptr%getID()
-          call model%lhs%setDirichlet(nodeID*nDof-1)
-          model%rhs(nodeID*nDof-1) = node%ptr%dof(1)%fixedVal
-       end if
-       if(node%ptr%dof(2)%isFixed) then
-          nodeID = node%ptr%getID()
-          call model%lhs%setDirichlet(nodeID*nDof)
-          model%rhs(nodeID*nDof) = node%ptr%dof(2)%fixedVal
-       end if
+       do j = 1, node%getnDof()
+          if(node%ptr%dof(j)%getName() == 'DISPLACEMENT_X') then
+             if(node%ptr%dof(j)%isFixed) then
+                nodeID = node%ptr%getID()
+                call model%lhs%setDirichlet(nodeID*nDof-1)
+                model%rhs(nodeID*nDof-1) = node%ptr%dof(j)%fixedVal
+             end if
+          else if(node%ptr%dof(j)%getName() == 'DISPLACEMENT_Y') then
+             if(node%ptr%dof(j)%isFixed) then
+                nodeID = node%ptr%getID()
+                call model%lhs%setDirichlet(nodeID*nDof)
+                model%rhs(nodeID*nDof) = node%ptr%dof(j)%fixedVal
+             end if
+          end if
+       end do
     end do
   end subroutine applyDirichlet
 

@@ -55,6 +55,7 @@ program main
        , graphType    = 'Vector'                               &
        , locationName = 'onNodes'                              &
        , resultNumber = application%structuralModel%getnNode()  &
+       , nDof         = 2                                      &
        , component1   = application%structuralModel%dof         )
   
   call printResults(resultName = 'NormalStressOnTriangs'                            &

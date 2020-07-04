@@ -1,12 +1,12 @@
 BeginZE /home/ponfo/Documents/Project789/applications/CFD2D_Test/Gid/CFD_Benchmark/cuña.gid/cuña.vv
-   x -24.382 9.99639
-   y 16.757 -16.3963
+   x -23.2852 8.8996
+   y 8.17159 -7.81082
    z -21.7245 21.7245
    e 7.2415
    v 0 0 0
    r 1
    m 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1
-   c -7.19279 0.180385 0
+   c -7.19278 0.180385 0
    pd 0
    pno 0
    pfo 0

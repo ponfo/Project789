@@ -1,0 +1,140 @@
+###########################################################
+            PROGRAM THERMAL 2D ANALYSIS
+###########################################################
+
+##################### PROBLEM DATA ########################
+
+Problem Name: Poisson 2D
+
+###################### Mesh Data ##########################
+Elements_Number........................: 15
+Nodes_Number...........................: 24
+Are_Elements_Quadratic.................: 0
+Triangular_Elements_Number.............: 0
+Rectangular_Elements_Number............: 15
+Materials_Number.......................: 1
+Gauss_Order............................: 3
+Dirichlet_Conditions_Number............: 5
+Normal_Flux_Line_Condition_Elements....: 0
+Convection_Lines_Condition_Elements....: 7
+Source_Number_On_Points................: 0
+Source_Number_On_Surfaces..............: 0
+Points_With_Point_Source...............: 0
+Surfaces_With_Surface_Source...........: 0
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Coordinates:
+
+  Node   |     X       |       Y        |
+----------------------------------------- 
+    1       0.0000e+00     1.0000e+00
+    2       0.0000e+00     8.0000e-01
+    3       2.0000e-01     1.0000e+00
+    4       2.0000e-01     8.0000e-01
+    5       4.0000e-01     1.0000e+00
+    6       0.0000e+00     6.0000e-01
+    7       4.0000e-01     8.0000e-01
+    8       2.0000e-01     6.0000e-01
+    9       4.0000e-01     6.0000e-01
+   10       6.0000e-01     1.0000e+00
+   11       0.0000e+00     4.0000e-01
+   12       6.0000e-01     8.0000e-01
+   13       2.0000e-01     4.0000e-01
+   14       4.0000e-01     4.0000e-01
+   15       6.0000e-01     6.0000e-01
+   16       0.0000e+00     2.0000e-01
+   17       2.0000e-01     2.0000e-01
+   18       6.0000e-01     4.0000e-01
+   19       4.0000e-01     2.0000e-01
+   20       0.0000e+00     0.0000e+00
+   21       6.0000e-01     2.0000e-01
+   22       2.0000e-01     0.0000e+00
+   23       4.0000e-01     0.0000e+00
+   24       6.0000e-01     0.0000e+00
+
+######################## Materials ########################
+
+Materials List:
+
+Material | Thermal conductivity X | Thermal conductivity Y
+-----------------------------------------------------------
+    1            5.2000e+01               5.2000e+01
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Element List:
+
+      Element  |      Type      |  Material  |   Nodes  |      Conectivities
+-----------------------------------------------------------------------------------
+         1          Quadrilateral           1          4         22 17 16 20
+         2          Quadrilateral           1          4         23 19 17 22
+         3          Quadrilateral           1          4         24 21 19 23
+         4          Quadrilateral           1          4         17 13 11 16
+         5          Quadrilateral           1          4         19 14 13 17
+         6          Quadrilateral           1          4         21 18 14 19
+         7          Quadrilateral           1          4         13 8 6 11
+         8          Quadrilateral           1          4         14 9 8 13
+         9          Quadrilateral           1          4         18 15 9 14
+        10          Quadrilateral           1          4          8 4 2 6
+        11          Quadrilateral           1          4          9 7 4 8
+        12          Quadrilateral           1          4         15 12 7 9
+        13          Quadrilateral           1          4          4 3 1 2
+        14          Quadrilateral           1          4          7 5 3 4
+        15          Quadrilateral           1          4         12 10 5 7
+
+################### Sources On Points ######################
+
+Conditions List:
+
+Source   |  Function
+----------------------
+
+###################### Point Sources ######################
+
+Conditions List:
+
+  Node   |  Source
+--------------------------
+
+###################### Surface Sources #####################
+
+Conditions List:
+
+  Element   |  Source
+--------------------------
+
+####################### Temperatures ######################
+
+Conditions List:
+
+  Node    |    Temperature
+------------------------------
+   20           1.0000e+02 
+   22           1.0000e+02 
+   23           1.0000e+02 
+   24           1.0000e+02 
+   21           1.8300e+01 
+
+########################## Normal Fluxs On Lines ##########################
+
+Conditions List:
+
+ Element |       Nodes      |   Normal Flux
+--------------------------------------------
+
+########################### Convection On Lines ###########################
+
+Conditions List:
+
+ Element |       Nodes      |   Coeficient  |  Temperature
+-------------------------------------------------------------
+3   1 2  750             0
+6   1 2  750             0
+9   1 2  750             0
+12   1 2  750             0
+15   1 2  750             0
+15   2 3  750             0
+14   2 3  750             0
+13   2 3  750             0
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

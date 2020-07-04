@@ -22,6 +22,8 @@ module StructuralModelM
      type(NormalStressDT)                   :: normalStress
      type(ShearStressDT)                    :: shearStress
      type(StrainDT)                         :: strain
+     character(:)             , allocatable :: displxDofName
+     character(:)             , allocatable :: displyDofName
    contains
      procedure, public :: init
      procedure, public :: initWithoutSystem
@@ -60,6 +62,8 @@ contains
     allocate(this%dof(nDof))
     call this%initModel(1) !una sola malla en el modelo
     this%mesh(1) = mesh(id, nNode, nElement, nCondition)
+    this%displxDofName = 'DISPLACEMENT_X'
+    this%displyDofName = 'DISPLACEMENT_Y'
   end subroutine init
 
   subroutine initWithoutSystem(this, id, nNode, nElement, nCondition)
@@ -71,6 +75,8 @@ contains
     integer(ikind)          , intent(in)    :: nCondition
     call this%initModel(1)
     this%mesh(1) = mesh(id, nNode, nElement, nCondition)
+    this%displxDofName = 'DISPLACEMENT_X'
+    this%displyDofName = 'DISPLACEMENT_Y'
   end subroutine initWithoutSystem
 
   subroutine initSystem(this, nDof, nnz)

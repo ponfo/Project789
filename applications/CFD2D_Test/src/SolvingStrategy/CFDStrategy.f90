@@ -173,6 +173,14 @@ contains
     do iElem = 1, nElem
        call app%element(iElem)%calculateMass()
     end do
+!!$    write(11,*) '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
+!!$    write(11,*) '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
+!!$    write(11,*) 'mass'
+!!$    write(11,*) '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
+!!$    write(11,*) '%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
+!!$    do iElem = 1, app%model%getnNode()
+!!$       write(11,'(A,I0,A,E16.8)') 'mass(', iElem, ') = ', lumpedMass(iElem)
+!!$    end do
   end subroutine calculateMass
 
   subroutine calculateDT(app)

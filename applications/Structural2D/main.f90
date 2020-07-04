@@ -21,6 +21,7 @@ program main
        , graphType    = 'Vector'                     &
        , locationName = 'onNodes'                    &
        , resultNumber = application%model%getnNode()  &
+       , nDof         = 2                             &
        , component1   = application%model%dof         )
   
   call printResults(resultName = 'NormalStressOnTriangs'                  &

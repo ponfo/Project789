@@ -108,6 +108,8 @@ contains
     do i = 1, this%nNode
        call this%node(i)%assignDof(2, this%structuralModel%dof(i*2-1))
        call this%node(i)%assignDof(3, this%structuralModel%dof(i*2))
+       call this%node(i)%assignName(2, this%structuralModel%displxDofName)
+       call this%node(i)%assignName(3, this%structuralModel%displyDofName)
     end do
   end subroutine transitionToStructural
 
