@@ -2,8 +2,6 @@ module SolvingStrategyM
 
   use NewSolvingStrategyM
   use NewStrategyM
-  use SchemeM
-  use BuilderAndSolverM
   use ModelM
   use ThermalModelM
   use StructuralModelM
@@ -14,8 +12,6 @@ module SolvingStrategyM
   public :: SolvingStrategyDT, InitSolvingStrategy
 
   type, extends(NewSolvingStrategyDT) :: SolvingStrategyDT
-     type(BuilderAndSolverDT)          :: builderAndSolver
-     type(SchemeDT)                    :: scheme
      class(ThermalModelDT)   , pointer :: thermalModel
      class(structuralModelDT), pointer :: structuralModel
    contains

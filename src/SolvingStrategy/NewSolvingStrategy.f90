@@ -1,6 +1,8 @@
 module NewSolvingStrategyM
 
   use NewStrategyM
+  use SchemeM
+  use BuilderAndSolverM
   use ProcessM
   
   implicit none
@@ -9,6 +11,8 @@ module NewSolvingStrategyM
   public :: NewSolvingStrategyDT
   
   type, abstract, extends(ProcessDT) :: NewSolvingStrategyDT
+     type(BuilderAndSolverDT)          :: builderAndSolver
+     type(SchemeDT)                    :: scheme
      class(NewStrategyDT), allocatable :: strategy
    contains
      procedure :: setStrategy

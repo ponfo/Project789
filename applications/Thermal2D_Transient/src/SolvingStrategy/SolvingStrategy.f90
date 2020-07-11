@@ -2,8 +2,6 @@ module SolvingStrategyM
 
   use NewSolvingStrategyM
   use NewStrategyM
-  use SchemeM
-  use BuilderAndSolverM
   use Thermal2DApplicationM
 
   implicit none
@@ -12,8 +10,6 @@ module SolvingStrategyM
   public :: SolvingStrategyDT, InitSolvingStrategy
 
   type, extends(NewSolvingStrategyDT) :: SolvingStrategyDT
-     type(BuilderAndSolverDT)               :: builderAndSolver
-     type(SchemeDT)                         :: scheme
      class(thermal2DApplicationDT), pointer :: application
    contains
   end type SolvingStrategyDT

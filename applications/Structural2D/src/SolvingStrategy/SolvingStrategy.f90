@@ -2,8 +2,6 @@ module SolvingStrategyM
 
   use NewSolvingStrategyM
   use NewStrategyM
-  use SchemeM
-  use BuilderAndSolverM
   use StructuralModelM
 
   implicit none
@@ -12,8 +10,6 @@ module SolvingStrategyM
   public :: SolvingStrategyDT, InitSolvingStrategy
 
   type, extends(NewSolvingStrategyDT) :: SolvingStrategyDT
-     type(BuilderAndSolverDT)          :: builderAndSolver
-     type(SchemeDT)                    :: scheme
      class(StructuralModelDT), pointer :: structuralModel
    contains
   end type SolvingStrategyDT

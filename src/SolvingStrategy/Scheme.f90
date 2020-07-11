@@ -1,6 +1,4 @@
 module SchemeM
-
-  use UtilitiesM
   
   implicit none
 
