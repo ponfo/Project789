@@ -11,7 +11,7 @@ module IterativeLinearSolverM
   public :: IterativeLinearSolverDT
 
   type, abstract :: IterativeLinearSolverDT
-     type(UsePreconditionerDT)                            :: preconditioner
+     type(UsePreconditionerDT) :: preconditioner
    contains
      procedure(IterativeLinearSolver_procedure), deferred :: SolveSystem
   end type IterativeLinearSolverDT

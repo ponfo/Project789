@@ -13,7 +13,7 @@ module LinearSolverM
   private
   public :: LinearSolverDT, SetLinearSolver
   
-  type, abstract :: LinearSolverDT
+  type :: LinearSolverDT
      class(DirectLinearSolverDT)   , allocatable :: directSolver
      class(IterativeLinearSolverDT), allocatable :: iterativeSolver
      type(UseReorderSystemDT)                    :: reorder

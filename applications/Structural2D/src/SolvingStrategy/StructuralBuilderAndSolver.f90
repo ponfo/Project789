@@ -14,7 +14,6 @@ module StructuralBuilderAndSolverM
 
   use BuilderAndSolverM
 
-  use LinearSolverM
   use mklPardisoM
 
   implicit none
@@ -25,6 +24,7 @@ module StructuralBuilderAndSolverM
   type, extends(NewBuilderAndSolverDT) :: StructuralBuilderAndSolverDT
    contains
      procedure :: buildAndSolve
+     procedure :: solve
   end type StructuralBuilderAndSolverDT
 
 contains
@@ -39,7 +39,7 @@ contains
     call assembleSystem(model)
     call applyBC(model)
     write(*,*) '*** Init Linear Solver ***'
-    call solve(model)
+    call this%solve(model)
   end subroutine buildAndSolve
 
   subroutine assembleSystem(model)
@@ -132,10 +132,10 @@ contains
     end do
   end subroutine applyDirichlet
 
-  subroutine solve(model)
+  subroutine solve(this, model)
     implicit none
+    class(StructuralBuilderAndSolverDT), intent(inout) :: this
     class(StructuralmodelDT), intent(inout) :: model
-    class(LinearSolverDT), allocatable   :: UserSolver
     type(MKLpardisoDT)                   :: MKLPardiso
     real(rkind)                          :: start
     real(rkind)                          :: finish
@@ -153,7 +153,7 @@ contains
     integer(ikind)                       :: i
     call debuglog('solving linear system')
     call cpu_time(start)
-    allocate(UserSolver, source = SetLinearSolver(MKLPardiso))
+    call this%setSolver(MKLPardiso)
     pt            = 0
     maxfct        = 1
     mnum          = 1
@@ -188,7 +188,7 @@ contains
     end do
     data(136)     = msglvl
     data(137)     = error
-    call UserSolver%solve(model%rhs, model%lhs, model%dof, data)
+    call this%UserLinearSolver%solve(model%rhs, model%lhs, model%dof, data)
     call cpu_time(finish)
     print'(a,e14.7)', 'solver time => ', (finish-start)
     call debuglog('done solving')

@@ -26,14 +26,14 @@ contains
 
   type(NonLinearSolverDT) function constructor(solver)
     implicit none
-    class(NonLinearSolversDT), intent(inout) :: solver
+    class(NonLinearSolversDT), intent(in) :: solver
     call constructor%init(solver)
   end function constructor
 
   subroutine init(this, solver)
     implicit none
     class(NonLinearSolverDT) , intent(inout) :: this
-    class(NonLinearSolversDT), intent(inout) :: solver
+    class(NonLinearSolversDT), intent(in   ) :: solver
     allocate(this%solver, source = solver)
   end subroutine init
 
