@@ -677,7 +677,7 @@ contains
     real(rkind), dimension(:,:,:), allocatable, intent(inout) :: resultMat
     real(rkind), dimension(:,:)  , allocatable                :: U
     real(rkind)                                               :: rho, Vx, Vy, T
-    real(rkind)                                               :: P, E, M
+    real(rkind)                                               :: P, E, M, v2
     real(rkind)                                               :: R, Cv, Vc, gamma
     integer(ikind)                                            :: nNode, nDof, iNode
     integer(ikind)                                            :: i, j
@@ -699,9 +699,10 @@ contains
        Vx  = U(2,iNode)/rho
        Vy  = U(3,iNode)/rho
        E   = U(4,iNode)/rho
-       T   = (E-0.5d0*(Vx**2+Vy**2))/Cv
-       M   = sqrt(Vx**2+Vy**2)/Vc
-       P   = rho*R*T
+       v2  = Vx**2+Vy**2
+       P   = rho*(gamma-1)*(E-.5_rkind*v2)
+       T   = P/(rho*R)
+       M   = sqrt(v2/(T*gamma*R))
        resultMat(1,iNode,1) = rho
        resultMat(2,iNode,1) = Vx
        resultMat(3,iNode,1) = Vy
